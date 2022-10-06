@@ -103,12 +103,12 @@ for (entry of lcp_entries) {
 
 I like how you're thinking!
 
-Here's how:
-* Install [Chrome Canary](https://www.google.com/chrome/canary/), if you haven't already (or [build tip-of-tree Chromium](https://www.chromium.org/developers/how-tos/get-the-code/), if that's your thing)
-* [Enable "Experimental Web Platform features"](chrome://flags/#enable-experimental-web-platform-features)
-* Browse to the site you want to test!
-* Open the devtools' console
-* Look for "A soft navigation has been detected" in the console logs
-* Alternatively, run the example code above in your console to observe `SoftNavigationEntry` entries
+You can do that by:
+* Installing [Chrome Canary](https://www.google.com/chrome/canary/), if you haven't already (or [building tip-of-tree Chromium](https://www.chromium.org/developers/how-tos/get-the-code/), if that's your thing)
+* [Enabling "Experimental Web Platform features"](chrome://flags/#enable-experimental-web-platform-features)
+* Browsing to the site you want to test!
+* Opening the devtools' console
+* Looking for "A soft navigation has been detected" in the console logs
+* Alternatively, running the example code above in your console to observe `SoftNavigationEntry` entries
 
-And remember, if you found bugs, https://crbug.com is the best way to get them fixed!
+And remember, if you find bugs, https://crbug.com is the best way to get them fixed!
