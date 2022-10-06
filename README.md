@@ -80,7 +80,7 @@ const lcp_entries = [];
 (new PerformanceObserver( list => lcp_entries.push(...list.getEntries()))).observe(
     {type: 'largest-contentful-paint'});
 
-for (entry of lcp.entries) {
+for (entry of lcp_entries) {
   const id = entry.navigationId;
   const nav = soft_navs.filter(entry => entry.navigationId == id)[0];
   const lcp_duration = entry.startTime - nav.startTime;
@@ -97,4 +97,4 @@ for (entry of lcp.entries) {
 * Could we augment the heuristic to take both DOM additions and removals into account?
   - Currently, interactions such as Twitter/Gmail's "compose" button would be considered soft navigations, where one could argue they are really interactions.
   - A heuristic that requires either a modification of existing DOM nodes or addition *and* removal of nodes may be able to catch that, without increasing the rate of false negatives.
-* `< your questions here>`
+* `<your questions here>`
