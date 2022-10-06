@@ -98,3 +98,17 @@ for (entry of lcp_entries) {
   - Currently, interactions such as Twitter/Gmail's "compose" button would be considered soft navigations, where one could argue they are really interactions.
   - A heuristic that requires either a modification of existing DOM nodes or addition *and* removal of nodes may be able to catch that, without increasing the rate of false negatives.
 * `<your questions here>`
+
+## I want to take this for a spin!!
+
+I like how you're thinking!
+
+Here's how:
+* Install Chrome Canary, if you haven't already (or build tip-of-tree Chromium, if that's your thing)
+* Enable "experimental web platform features"
+* Browse to the site you want to test!
+* Open the devtools' console
+* Look for "A soft navigation has been detected" in the console logs
+* Alternatively, run the example code above in your console to observe `SoftNavigationEntry` entries
+
+And remember, if you found bugs, https://crbug.com is the best way to get them fixed!
