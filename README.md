@@ -2,12 +2,12 @@
 
 ## Overview
 
-“Soft navigations” are JS-driven same-document navigations that are using the history API or the new Navigation API, triggered by a user gesture and modifies the DOM, replacing the previous content with new one, as well as the URL displayed to the user.
+“Soft navigations” are JS-driven same-document navigations that are using the history API or the new Navigation API, triggered by a user gesture and modifies the DOM, modifying the previous content, as well as the URL displayed to the user.
 
 [PerformanceTimeline#168](https://github.com/w3c/performance-timeline/issues/168) outlines the desire to be able to better report performance metrics on soft navigation. Heuristics for detecting soft navigations can ensure that developers that follow a well-lit path can ensure their SPA’s performance metric scores properly represent soft navigations.
 
 ## Motivation
-iWhy would we want to web-expose soft navigation at all, you ask?
+Why would we want to web-expose soft navigation at all, you ask?
 
 Well, a few reasons:
 * Developers would like to attribute various performance entries to specific “soft navigation” URLs. For example, layout shifts caused in one URL can currently be attributed to the corresponding landing page, resulting in mis-attribution and trouble finding the real cause and fixing it.
@@ -94,4 +94,7 @@ for (entry of lcp.entries) {
 
 ## Open Questions
 * Do we need to define FCP/LCP as contentful paints that are the result of the soft navigation?
+* Could we augment the heuristic to take both DOM additions and removals into account?
+  - Currently, interactions such as Twitter/Gmail's "compose" button would be considered soft navigations, where one could argue they are really interactions.
+  - A heuristic that requires either a modification of existing DOM nodes or addition *and* removal of nodes may be able to catch that, without increasing the rate of false negatives.
 * `< your questions here>`
