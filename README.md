@@ -92,5 +92,5 @@ for (entry of lcp.entries) {
 * We would need to modify PaintTiming nd LCP to restart their reporting once a soft navigation was encountered.
 
 ## Open Questions
-i* Do we need to define FCP/LCP as contentful paints that are the result of the soft navigation?
-*< your questions here>
+* Do we need to define FCP/LCP as contentful paints that are the result of the soft navigation?
+* `< your questions here>`
