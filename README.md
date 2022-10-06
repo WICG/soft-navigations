@@ -104,8 +104,8 @@ for (entry of lcp_entries) {
 I like how you're thinking!
 
 Here's how:
-* Install Chrome Canary, if you haven't already (or build tip-of-tree Chromium, if that's your thing)
-* Enable "experimental web platform features"
+* Install [Chrome Canary](https://www.google.com/chrome/canary/), if you haven't already (or [build tip-of-tree Chromium](https://www.chromium.org/developers/how-tos/get-the-code/), if that's your thing)
+* [Enable "Experimental Web Platform features"](chrome://flags/#enable-experimental-web-platform-features)
 * Browse to the site you want to test!
 * Open the devtools' console
 * Look for "A soft navigation has been detected" in the console logs
