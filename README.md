@@ -2,7 +2,7 @@
 
 ## Overview
 
-“Soft navigations” are JS-driven same-document navigations that are using the history API or the new Navigation API, triggered by a user gesture and meaningfully modify the DOM, replacing the previous content with new one, as well as the URL displayed to the user.
+“Soft navigations” are JS-driven same-document navigations that are using the history API or the new Navigation API, triggered by a user gesture and modifies the DOM, replacing the previous content with new one, as well as the URL displayed to the user.
 
 [PerformanceTimeline#168](https://github.com/w3c/performance-timeline/issues/168) outlines the desire to be able to better report performance metrics on soft navigation. Heuristics for detecting soft navigations can ensure that developers that follow a well-lit path can ensure their SPA’s performance metric scores properly represent soft navigations.
 
@@ -23,7 +23,7 @@ Well, a few reasons:
   - If it’s a “click” event, those tasks are spawned by the event handler itself
 * In case of a “click” event, the handler triggered tasks that included History.pushState() or History.replaceState() calls, or a change to the document’s location
 * The tasks modify DOM elements.
-  - We may try to limit that to specific DOM elements in case we'd see the heuristic is too broad and captures modifications which should not be reasonably be considered 
+  - We may try to limit that to specific DOM elements or some other heuristic regarding "meaningful" DOM modifications, in case we'd see the heuristic is too broad and captures modifications which should not be reasonably be considered 
 navigations".
 * The next paint that contains a contentful element will be considered the soft navigation’s FCP.
 * The next largest contentnful element will trigger LCP entries.
