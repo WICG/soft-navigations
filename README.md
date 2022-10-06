@@ -40,7 +40,7 @@ SoftNavigationEntry : PerformanceEntry {
    unsigned long NavigationId;
 }
 ```
-[NavigationID](https://pr-preview.s3.amazonaws.com/w3c/performance-timeline/192/ca6936d...clelland:6e5497e.html#dom-performanceentry-navigationid) will be defined in Performance Timeline.
+[NavigationID](https://pr-preview.s3.amazonaws.com/w3c/performance-timeline/192/ca6936d...clelland:6e5497e.html#dom-performanceentry-navigationid) will be defined in Performance Timeline. ([explainer](https://docs.google.com/document/d/1sUPyBLPYtKPyyuu1-3XqJT1QUE6n0cRBZP5IfH8cjQE/edit?resourcekey=0-PpjDpPLPsFk8ips35GXj1w))
 
 The inheritance from `PerformanceEntry` means that the entry will have `startTime`, `name`, `entryType` and `duration`:
 * `startTime` would be defined as the time in which the user's click was received. See [discussion](https://bugs.chromium.org/p/chromium/issues/detail?id=1369680).
