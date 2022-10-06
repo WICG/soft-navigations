@@ -36,12 +36,13 @@ Note: We would need to specify TaskAttribution as part of the event loop's proce
 
 ## Proposed API shape
 ```
-SoftNavigationEntry  : PerformanceEntry {
-   unsigned long [NavigationId](https://pr-preview.s3.amazonaws.com/w3c/performance-timeline/192/ca6936d...clelland:6e5497e.html#dom-performanceentry-navigationid);
+SoftNavigationEntry : PerformanceEntry {
+   unsigned long NavigationId;
 }
 ```
+[NavigationID](https://pr-preview.s3.amazonaws.com/w3c/performance-timeline/192/ca6936d...clelland:6e5497e.html#dom-performanceentry-navigationid) will be defined in Performance Timeline.
 
-That means that the entry will have `startTime`, `name`, `entryType` and `duration`:
+The inheritance from `PerformanceEntry` means that the entry will have `startTime`, `name`, `entryType` and `duration`:
 * `startTime` would be defined as the time in which the user's click was received. See [discussion](https://bugs.chromium.org/p/chromium/issues/detail?id=1369680).
 * `name` would be the URL of the history entry representing the soft navigation.
 * `entryType` would be "soft-navigation".
