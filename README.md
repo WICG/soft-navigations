@@ -72,7 +72,7 @@ const soft_navs = [];
     {type: 'soft-navigation'});
 ```
 
-### Correlating paints with a soft navigation
+### Correlating performance entries with a soft navigation
 
 For that developers would need to collect `soft_navs` into an array as above.
 Then they can, for each entry (which can be LCP, FCP, or any other entry type), find its corresponding duration as following:
