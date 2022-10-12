@@ -75,6 +75,7 @@ const soft_navs = [];
 ### Correlating paints with a soft navigation
 
 For that developers would need to collect `soft_navs` into an array as above.
+Then they can, for each entry (which can be LCP, FCP, or any other entry type), find its corresponding duration as following:
 ```javascript
 const lcp_entries = [];
 (new PerformanceObserver( list => lcp_entries.push(...list.getEntries()))).observe(
@@ -83,7 +84,7 @@ const lcp_entries = [];
 for (entry of lcp_entries) {
   const id = entry.navigationId;
   const nav = soft_navs.filter(entry => entry.navigationId == id)[0];
-  const lcp_duration = entry.startTime - nav.startTime;
+  entry.lcp_duration = entry.startTime - nav.startTime;
 }
 ```
 
