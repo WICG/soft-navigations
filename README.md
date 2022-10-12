@@ -27,7 +27,7 @@ Well, a few reasons:
 navigations".
 * The next paint that contains a contentful element will be considered the soft navigation’s FCP.
 * The next largest contentnful element will trigger LCP entries.
-* Finally, we should consider limiting the amount of soft navigation detected in a certain timeframe (e.g. 1 per X seconds).
+* Finally, we should consider limiting the amount of soft navigation detected in a certain timeframe (e.g. X per Y seconds).
 
 ### [Task attribution](https://bit.ly/task-attribution)
 The above heuristics rely on the ability to keep track of tasks and their provenance. We need to be able to tell that a certain task was posted by another, and be able to create a causality chain between DOM dirtying and URL modifications to the event handler that triggered the soft navigation.
