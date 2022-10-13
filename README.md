@@ -46,9 +46,7 @@ The inheritance from `PerformanceEntry` means that the entry will have `startTim
 * `startTime` would be defined as the time in which the user's click was received. See [discussion](https://bugs.chromium.org/p/chromium/issues/detail?id=1369680).
 * `name` would be the URL of the history entry representing the soft navigation.
 * `entryType` would be "soft-navigation".
-* `duration` would be the time from `startTime` until the point in which all the tasks spawned by the user click were finished.
-
-Note: `duration` would require modifying the current TaskAttribution infrastructure implemented in Chromium.
+* `duration` - it's not currently clear what a useful `duration` value would be that enables the entry to fire early enough. See [issue #4](https://github.com/yoavweiss/soft-navigations/issues/4).
 
 ## Examples
 That's all neat, but how would developers use the above? Great question!
