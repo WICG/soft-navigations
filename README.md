@@ -91,6 +91,22 @@ for (entry of lcp_entries) {
 * We'd need to specify Task Attribution
 * We would need to modify PaintTiming nd LCP to restart their reporting once a soft navigation was encountered.
 
+## Privacy and security considerations
+This API exposes a few novel paint timestamps that are not available today, after a soft navigation is detected: the first paint, the first contentful paint and the largest contentful paint.
+It is already possible to get some of that data through Element Timing and requestAnimationFrame, but this proposal will expose that data without the need to craft specific elements with the `elementtiming` attribute.
+
+### Mitigations
+* The LCP timestamp is subject to the same constraints as current LCP entries, and doesn't expose cross-origin rendering times without an explicit opt-in.
+* The FCP timestamp doesn't necessary waits until a cross-origin image is fully loaded in order to fire, minimizing the cross-origin information exposed.
+* Soft navigations detected are inherently user-driven, preventing programatic scanning of markup permutations and their impact on paint timestamps.
+* Soft Navigation detection can be time limited, further limiting the scalability of information exposure.
+
+Given the above mitigations, attacks such as [history sniffing attacks](https://krebsonsecurity.com/2010/12/what-you-should-know-about-history-sniffing/) are not feasible, given that `:visited` information is not exposed.
+`:visited` only modifications are not counting as DOM modifications, so soft navigations are not detected. Whenever other DOM modifications are included alongside visited changes, the next paint would include both modifications, and hence won't expose visited state.
+
+Furthermore, cross-origin imformation about images or font resources is not exposed by Soft Navigation LCP, similarly to regular LCP.
+
+
 ## Open Questions
 * Do we need to define FCP/LCP as contentful paints that are the result of the soft navigation?
 * Could we augment the heuristic to take both DOM additions and removals into account?
