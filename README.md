@@ -77,7 +77,7 @@ Then they can, for each entry (which can be LCP, FCP, or any other entry type), 
 ```javascript
 const lcp_entries = [];
 (new PerformanceObserver( list => lcp_entries.push(...list.getEntries()))).observe(
-    {type: 'largest-contentful-paint'});
+    {type: 'largest-contentful-paint', includeSoftNavigationObservations: true});
 
 for (entry of lcp_entries) {
   const id = entry.navigationId;
@@ -89,7 +89,8 @@ for (entry of lcp_entries) {
 ## Required spec changes
 * This relies on performance timeline's navigationID
 * We'd need to specify Task Attribution
-* We would need to modify PaintTiming nd LCP to restart their reporting once a soft navigation was encountered.
+* We would need to modify PaintTiming and LCP to restart their reporting once a soft navigation was encountered.
+* We need to add `PerformanceObserverInit` option named "includeSoftNavigationObservations", that will indicate that post-soft-navigation FP, FCP and LCP entries should be observed.
 
 ## Privacy and security considerations
 This API exposes a few novel paint timestamps that are not available today, after a soft navigation is detected: the first paint, the first contentful paint and the largest contentful paint.
