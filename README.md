@@ -26,7 +26,7 @@ Well, a few reasons:
   - We may try to limit that to specific DOM elements or some other heuristic regarding "meaningful" DOM modifications, in case we'd see the heuristic is too broad and captures modifications which should not be reasonably be considered 
 navigations".
 * The next paint that contains a contentful element will be considered the soft navigation’s FCP.
-* The next largest contentnful element will trigger LCP entries.
+* The next largest contentful element will trigger LCP entries.
 * Finally, we should consider limiting the amount of soft navigation detected in a certain timeframe (e.g. X per Y seconds).
 
 ### [Task attribution](https://bit.ly/task-attribution)
