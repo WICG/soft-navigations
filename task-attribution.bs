@@ -19,7 +19,6 @@ urlPrefix: https://html.spec.whatwg.org/C; spec: HTML;
     type: dfn; url: #execute-the-script-element; text: execute the script element;
 </pre>
 <pre class=link-defaults>
-  spec:html; type:dfn; for:/; text:event loop
 </pre>
 
 Introduction {#sec-intro}
@@ -76,25 +75,37 @@ To <dfn>create a task scope</dfn>, given |task|, a [=/task=], do the following:
   1. Set |task|'s [=task attribution ID=] with an [=implementation-defined=] unique value.
   1. Set |scope|'s [=task continuation data=] to SOMETHING!! Push the continuation data on the isolate???
   1. Set |scope|'s [=task scope/task=] to |task|. If |task| is nullptr, create one???
-  1. Push |scope| to the [=relevant agent=]'s [=event loop=]'s [=task scope stack=].
+  1. Push |scope| to the [=relevant agent=]'s [=agent/event loop=]'s [=task scope stack=].
 
 To <dfn>tear down a task scope</dfn>, do the following:
-  1. Pop |scope| from the event loop's [=task scope stack=]
+  1. Pop |scope| from the [=relevant agent=]'s [=agent/event loop=]'s [=task scope stack=]
   1. Set the isolate's continuation data thing to the one at the top of the stack
 
 ### Is ancestor {#sec-is-ancestor}
-<!--
-To <dfn export>check ancestor task</dfn>, given |ancestor id|, a [=task attribution ID=], run the following:
-  1. 
--->
+To <dfn export>check ancestor for task</dfn>, given |ancestor id|, a [=task attribution ID=], run the following:
+  1. Let |task| be the result of [=get current task=].
+  1. While true:
+    1. Let |id| be|task|'s [=task attribution ID=].
+    1. If |id| is unset, return false.
+    1. If |id| equals |ancestor id|, return true.
+    1. Set |task| to |task|'s [=parent task=].
+
 
 ### Is ancestor in set {#sec-is-ancestor-in-set}
 
+To <dfn export>check ancestor set for task</dfn>, given |ancestor id set|, a [=task attribution ID=] [=/set=], run the following:
+  1. Let |task| be the result of [=get current task=].
+  1. While true:
+    1. Let |id| be |task|'s [=task attribution ID=] if |task| is set, or be unset otherwise.
+    1. If |id| is unset, return false.
+    1. If |ancestor id set| [=contains=] |id|, return true.
+    1. Set |task| to |task|'s [=parent task=].
+
 #### Get current task {#sec-current-task}
 To <dfn export>get current task</dfn>, run the following steps:
-  1. Let |scope| be the result of [=poping=] the [=relevant agent=]'s [=event loop=]'s [=task scope stack=].
-  1. [=stack/Push=] |scope| to the [=relevant agent=]'s [=event loop=]'s [=task scope stack=].
-  2. Return |scope|'s [=task scope/task=].
+  1. Let |scope| be the result of [=poping=] the [=relevant agent=]'s [=agent/event loop=]'s [=task scope stack=].
+  1. [=stack/Push=] |scope| to the [=relevant agent=]'s [=agent/event loop=]'s [=task scope stack=].
+  1. Return |scope|'s [=task scope/task=].
 
 Note: The first 2 steps here really need to be a peek operation.
 
@@ -106,7 +117,7 @@ To <dfn export>get current task id</dfn>, run the following steps:
 HTML integration {#sec-integration}
 -------------------------
 
-The [=event loop=] has a <a>task scope stack</a>.
+Each [=/event loop=] has a <a>task scope stack</a>.
 
 In [=Execute the script element=], add initial steps:
   1. Let |task| be a new [=/task=].
