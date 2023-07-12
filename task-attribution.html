@@ -4,11 +4,10 @@
   <title>Task Attribution</title>
   <meta content="width=device-width, initial-scale=1, shrink-to-fit=no" name="viewport">
   <link href="https://www.w3.org/StyleSheets/TR/2021/cg-draft" rel="stylesheet">
-  <meta content="Bikeshed version 63e66730b, updated Tue Oct 25 12:35:05 2022 -0700" name="generator">
+  <meta content="Bikeshed version b06c00b8e, updated Tue Jul 11 13:41:16 2023 -0700" name="generator">
   <link href="https://wicg.github.io/soft-navigation/task-attribution.html" rel="canonical">
-  <meta content="0e1f9da7935cac6f0de5b814c88dd53162b292d7" name="document-revision">
-<style>/* style-autolinks */
-
+  <meta content="b74576df4d36cb8a8fd2313e95e7ddb92584eed5" name="document-revision">
+<style>/* Boilerplate: style-autolinks */
 .css.css, .property.property, .descriptor.descriptor {
     color: var(--a-normal-text);
     font-size: inherit;
@@ -68,8 +67,17 @@ pre .property::before, pre .property::after {
 
 [data-link-type=biblio] {
     white-space: pre;
-}</style>
-<style>/* style-colors */
+}
+
+@media (prefers-color-scheme: dark) {
+    :root {
+        --selflink-text: black;
+        --selflink-bg: silver;
+        --selflink-hover-text: white;
+    }
+}
+</style>
+<style>/* Boilerplate: style-colors */
 
 /* Any --*-text not paired with a --*-bg is assumed to have a transparent bg */
 :root {
@@ -177,217 +185,7 @@ pre .property::before, pre .property::after {
     --outdated-shadow: red;
 
     --editedrec-bg: darkorange;
-}</style>
-<style>/* style-counters */
-
-body {
-    counter-reset: example figure issue;
 }
-.issue {
-    counter-increment: issue;
-}
-.issue:not(.no-marker)::before {
-    content: "Issue " counter(issue);
-}
-
-.example {
-    counter-increment: example;
-}
-.example:not(.no-marker)::before {
-    content: "Example " counter(example);
-}
-.invalid.example:not(.no-marker)::before,
-.illegal.example:not(.no-marker)::before {
-    content: "Invalid Example" counter(example);
-}
-
-figcaption {
-    counter-increment: figure;
-}
-figcaption:not(.no-marker)::before {
-    content: "Figure " counter(figure) " ";
-}</style>
-<style>/* style-dfn-panel */
-
-:root {
-    --dfnpanel-bg: #ddd;
-    --dfnpanel-text: var(--text);
-}
-.dfn-panel {
-    position: absolute;
-    z-index: 35;
-    height: auto;
-    width: -webkit-fit-content;
-    width: fit-content;
-    max-width: 300px;
-    max-height: 500px;
-    overflow: auto;
-    padding: 0.5em 0.75em;
-    font: small Helvetica Neue, sans-serif, Droid Sans Fallback;
-    background: var(--dfnpanel-bg);
-    color: var(--dfnpanel-text);
-    border: outset 0.2em;
-}
-.dfn-panel:not(.on) { display: none; }
-.dfn-panel * { margin: 0; padding: 0; text-indent: 0; }
-.dfn-panel > b { display: block; }
-.dfn-panel a { color: var(--dfnpanel-text); }
-.dfn-panel a:not(:hover) { text-decoration: none !important; border-bottom: none !important; }
-.dfn-panel > b + b { margin-top: 0.25em; }
-.dfn-panel ul { padding: 0; }
-.dfn-panel li { list-style: inside; }
-.dfn-panel.activated {
-    display: inline-block;
-    position: fixed;
-    left: .5em;
-    bottom: 2em;
-    margin: 0 auto;
-    max-width: calc(100vw - 1.5em - .4em - .5em);
-    max-height: 30vh;
-}
-
-.dfn-paneled { cursor: pointer; }
-</style>
-<style>/* style-issues */
-
-a[href].issue-return {
-    float: right;
-    float: inline-end;
-    color: var(--issueheading-text);
-    font-weight: bold;
-    text-decoration: none;
-}
-</style>
-<style>/* style-md-lists */
-
-/* This is a weird hack for me not yet following the commonmark spec
-   regarding paragraph and lists. */
-[data-md] > :first-child {
-    margin-top: 0;
-}
-[data-md] > :last-child {
-    margin-bottom: 0;
-}</style>
-<style>/* style-selflinks */
-
-:root {
-    --selflink-text: white;
-    --selflink-bg: gray;
-    --selflink-hover-text: black;
-}
-.heading, .issue, .note, .example, li, dt {
-    position: relative;
-}
-a.self-link {
-    position: absolute;
-    top: 0;
-    left: calc(-1 * (3.5rem - 26px));
-    width: calc(3.5rem - 26px);
-    height: 2em;
-    text-align: center;
-    border: none;
-    transition: opacity .2s;
-    opacity: .5;
-}
-a.self-link:hover {
-    opacity: 1;
-}
-.heading > a.self-link {
-    font-size: 83%;
-}
-.example > a.self-link,
-.note > a.self-link,
-.issue > a.self-link {
-    /* These blocks are overflow:auto, so positioning outside
-       doesn't work. */
-    left: auto;
-    right: 0;
-}
-li > a.self-link {
-    left: calc(-1 * (3.5rem - 26px) - 2em);
-}
-dfn > a.self-link {
-    top: auto;
-    left: auto;
-    opacity: 0;
-    width: 1.5em;
-    height: 1.5em;
-    background: var(--selflink-bg);
-    color: var(--selflink-text);
-    font-style: normal;
-    transition: opacity .2s, background-color .2s, color .2s;
-}
-dfn:hover > a.self-link {
-    opacity: 1;
-}
-dfn > a.self-link:hover {
-    color: var(--selflink-hover-text);
-}
-
-a.self-link::before            { content: "¶"; }
-.heading > a.self-link::before { content: "§"; }
-dfn > a.self-link::before      { content: "#"; }
-</style>
-<style>/* style-syntax-highlighting */
-
-code.highlight { padding: .1em; border-radius: .3em; }
-pre.highlight, pre > code.highlight { display: block; padding: 1em; margin: .5em 0; overflow: auto; border-radius: 0; }
-
-.highlight:not(.idl) { background: rgba(0, 0, 0, .03); }
-c-[a] { color: #990055 } /* Keyword.Declaration */
-c-[b] { color: #990055 } /* Keyword.Type */
-c-[c] { color: #708090 } /* Comment */
-c-[d] { color: #708090 } /* Comment.Multiline */
-c-[e] { color: #0077aa } /* Name.Attribute */
-c-[f] { color: #669900 } /* Name.Tag */
-c-[g] { color: #222222 } /* Name.Variable */
-c-[k] { color: #990055 } /* Keyword */
-c-[l] { color: #000000 } /* Literal */
-c-[m] { color: #000000 } /* Literal.Number */
-c-[n] { color: #0077aa } /* Name */
-c-[o] { color: #999999 } /* Operator */
-c-[p] { color: #999999 } /* Punctuation */
-c-[s] { color: #a67f59 } /* Literal.String */
-c-[t] { color: #a67f59 } /* Literal.String.Single */
-c-[u] { color: #a67f59 } /* Literal.String.Double */
-c-[cp] { color: #708090 } /* Comment.Preproc */
-c-[c1] { color: #708090 } /* Comment.Single */
-c-[cs] { color: #708090 } /* Comment.Special */
-c-[kc] { color: #990055 } /* Keyword.Constant */
-c-[kn] { color: #990055 } /* Keyword.Namespace */
-c-[kp] { color: #990055 } /* Keyword.Pseudo */
-c-[kr] { color: #990055 } /* Keyword.Reserved */
-c-[ld] { color: #000000 } /* Literal.Date */
-c-[nc] { color: #0077aa } /* Name.Class */
-c-[no] { color: #0077aa } /* Name.Constant */
-c-[nd] { color: #0077aa } /* Name.Decorator */
-c-[ni] { color: #0077aa } /* Name.Entity */
-c-[ne] { color: #0077aa } /* Name.Exception */
-c-[nf] { color: #0077aa } /* Name.Function */
-c-[nl] { color: #0077aa } /* Name.Label */
-c-[nn] { color: #0077aa } /* Name.Namespace */
-c-[py] { color: #0077aa } /* Name.Property */
-c-[ow] { color: #999999 } /* Operator.Word */
-c-[mb] { color: #000000 } /* Literal.Number.Bin */
-c-[mf] { color: #000000 } /* Literal.Number.Float */
-c-[mh] { color: #000000 } /* Literal.Number.Hex */
-c-[mi] { color: #000000 } /* Literal.Number.Integer */
-c-[mo] { color: #000000 } /* Literal.Number.Oct */
-c-[sb] { color: #a67f59 } /* Literal.String.Backtick */
-c-[sc] { color: #a67f59 } /* Literal.String.Char */
-c-[sd] { color: #a67f59 } /* Literal.String.Doc */
-c-[se] { color: #a67f59 } /* Literal.String.Escape */
-c-[sh] { color: #a67f59 } /* Literal.String.Heredoc */
-c-[si] { color: #a67f59 } /* Literal.String.Interpol */
-c-[sx] { color: #a67f59 } /* Literal.String.Other */
-c-[sr] { color: #a67f59 } /* Literal.String.Regex */
-c-[ss] { color: #a67f59 } /* Literal.String.Symbol */
-c-[vc] { color: #0077aa } /* Name.Variable.Class */
-c-[vg] { color: #0077aa } /* Name.Variable.Global */
-c-[vi] { color: #0077aa } /* Name.Variable.Instance */
-c-[il] { color: #000000 } /* Literal.Number.Integer.Long */
-</style>
-<style>/* style-darkmode */
 
 @media (prefers-color-scheme: dark) {
     :root {
@@ -500,20 +298,281 @@ c-[il] { color: #000000 } /* Literal.Number.Integer.Long */
        which is quite common in practice... */
     img { background: white; }
 }
-@media (prefers-color-scheme: dark) {
-    :root {
-        --selflink-text: black;
-        --selflink-bg: silver;
-        --selflink-hover-text: white;
-    }
+</style>
+<style>/* Boilerplate: style-counters */
+body {
+    counter-reset: example figure issue;
+}
+.issue {
+    counter-increment: issue;
+}
+.issue:not(.no-marker)::before {
+    content: "Issue " counter(issue);
 }
 
+.example {
+    counter-increment: example;
+}
+.example:not(.no-marker)::before {
+    content: "Example " counter(example);
+}
+.invalid.example:not(.no-marker)::before,
+.illegal.example:not(.no-marker)::before {
+    content: "Invalid Example" counter(example);
+}
+
+figcaption {
+    counter-increment: figure;
+}
+figcaption:not(.no-marker)::before {
+    content: "Figure " counter(figure) " ";
+}
+</style>
+<style>/* Boilerplate: style-dfn-panel */
+:root {
+    --dfnpanel-bg: #ddd;
+    --dfnpanel-text: var(--text);
+}
 @media (prefers-color-scheme: dark) {
     :root {
         --dfnpanel-bg: #222;
         --dfnpanel-text: var(--text);
     }
 }
+.dfn-panel {
+    position: absolute;
+    z-index: 35;
+    width: 20em;
+    width: 300px;
+    height: auto;
+    max-height: 500px;
+    overflow: auto;
+    padding: 0.5em 0.75em;
+    font: small Helvetica Neue, sans-serif, Droid Sans Fallback;
+    background: var(--dfnpanel-bg);
+    color: var(--dfnpanel-text);
+    border: outset 0.2em;
+    white-space: normal; /* in case it's moved into a pre */
+}
+.dfn-panel:not(.on) { display: none; }
+.dfn-panel * { margin: 0; padding: 0; text-indent: 0; }
+.dfn-panel > b { display: block; }
+.dfn-panel a { color: var(--dfnpanel-text); }
+.dfn-panel a:not(:hover) { text-decoration: none !important; border-bottom: none !important; }
+.dfn-panel > b + b { margin-top: 0.25em; }
+.dfn-panel ul { padding: 0 0 0 1em; list-style: none; }
+.dfn-panel li a {
+    white-space: pre;
+    display: inline-block;
+    max-width: calc(300px - 1.5em - 1em);
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.dfn-panel.activated {
+    display: inline-block;
+    position: fixed;
+    left: .5em;
+    bottom: 2em;
+    margin: 0 auto;
+    max-width: calc(100vw - 1.5em - .4em - .5em);
+    max-height: 30vh;
+}
+
+.dfn-paneled[role="button"] { cursor: pointer; }
+</style>
+<style>/* Boilerplate: style-dfn-panel */
+:root {
+    --dfnpanel-bg: #ddd;
+    --dfnpanel-text: var(--text);
+}
+@media (prefers-color-scheme: dark) {
+    :root {
+        --dfnpanel-bg: #222;
+        --dfnpanel-text: var(--text);
+    }
+}
+.dfn-panel {
+    position: absolute;
+    z-index: 35;
+    width: 20em;
+    width: 300px;
+    height: auto;
+    max-height: 500px;
+    overflow: auto;
+    padding: 0.5em 0.75em;
+    font: small Helvetica Neue, sans-serif, Droid Sans Fallback;
+    background: var(--dfnpanel-bg);
+    color: var(--dfnpanel-text);
+    border: outset 0.2em;
+    white-space: normal; /* in case it's moved into a pre */
+}
+.dfn-panel:not(.on) { display: none; }
+.dfn-panel * { margin: 0; padding: 0; text-indent: 0; }
+.dfn-panel > b { display: block; }
+.dfn-panel a { color: var(--dfnpanel-text); }
+.dfn-panel a:not(:hover) { text-decoration: none !important; border-bottom: none !important; }
+.dfn-panel > b + b { margin-top: 0.25em; }
+.dfn-panel ul { padding: 0 0 0 1em; list-style: none; }
+.dfn-panel li a {
+    white-space: pre;
+    display: inline-block;
+    max-width: calc(300px - 1.5em - 1em);
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.dfn-panel.activated {
+    display: inline-block;
+    position: fixed;
+    left: .5em;
+    bottom: 2em;
+    margin: 0 auto;
+    max-width: calc(100vw - 1.5em - .4em - .5em);
+    max-height: 30vh;
+}
+
+.dfn-paneled[role="button"] { cursor: pointer; }
+</style>
+<style>/* Boilerplate: style-issues */
+a[href].issue-return {
+    float: right;
+    float: inline-end;
+    color: var(--issueheading-text);
+    font-weight: bold;
+    text-decoration: none;
+}
+</style>
+<style>/* Boilerplate: style-md-lists */
+/* This is a weird hack for me not yet following the commonmark spec
+   regarding paragraph and lists. */
+[data-md] > :first-child {
+    margin-top: 0;
+}
+[data-md] > :last-child {
+    margin-bottom: 0;
+}
+</style>
+<style>/* Boilerplate: style-selflinks */
+
+:root {
+    --selflink-text: white;
+    --selflink-bg: gray;
+    --selflink-hover-text: black;
+}
+.heading, .issue, .note, .example, li, dt {
+    position: relative;
+}
+a.self-link {
+    position: absolute;
+    top: 0;
+    left: calc(-1 * (3.5rem - 26px));
+    width: calc(3.5rem - 26px);
+    height: 2em;
+    text-align: center;
+    border: none;
+    transition: opacity .2s;
+    opacity: .5;
+}
+a.self-link:hover {
+    opacity: 1;
+}
+.heading > a.self-link {
+    font-size: 83%;
+}
+.example > a.self-link,
+.note > a.self-link,
+.issue > a.self-link {
+    /* These blocks are overflow:auto, so positioning outside
+       doesn't work. */
+    left: auto;
+    right: 0;
+}
+li > a.self-link {
+    left: calc(-1 * (3.5rem - 26px) - 2em);
+}
+dfn > a.self-link {
+    top: auto;
+    left: auto;
+    opacity: 0;
+    width: 1.5em;
+    height: 1.5em;
+    background: var(--selflink-bg);
+    color: var(--selflink-text);
+    font-style: normal;
+    transition: opacity .2s, background-color .2s, color .2s;
+}
+dfn:hover > a.self-link {
+    opacity: 1;
+}
+dfn > a.self-link:hover {
+    color: var(--selflink-hover-text);
+}
+
+a.self-link::before            { content: "¶"; }
+.heading > a.self-link::before { content: "§"; }
+dfn > a.self-link::before      { content: "#"; }
+</style>
+<style>/* Boilerplate: style-syntax-highlighting */
+
+code.highlight { padding: .1em; border-radius: .3em; }
+pre.highlight, pre > code.highlight { display: block; padding: 1em; margin: .5em 0; overflow: auto; border-radius: 0; }
+
+.highlight:not(.idl) { background: rgba(0, 0, 0, .03); }
+c-[a] { color: #990055 } /* Keyword.Declaration */
+c-[b] { color: #990055 } /* Keyword.Type */
+c-[c] { color: #708090 } /* Comment */
+c-[d] { color: #708090 } /* Comment.Multiline */
+c-[e] { color: #0077aa } /* Name.Attribute */
+c-[f] { color: #669900 } /* Name.Tag */
+c-[g] { color: #222222 } /* Name.Variable */
+c-[k] { color: #990055 } /* Keyword */
+c-[l] { color: #000000 } /* Literal */
+c-[m] { color: #000000 } /* Literal.Number */
+c-[n] { color: #0077aa } /* Name */
+c-[o] { color: #999999 } /* Operator */
+c-[p] { color: #999999 } /* Punctuation */
+c-[s] { color: #a67f59 } /* Literal.String */
+c-[t] { color: #a67f59 } /* Literal.String.Single */
+c-[u] { color: #a67f59 } /* Literal.String.Double */
+c-[cp] { color: #708090 } /* Comment.Preproc */
+c-[c1] { color: #708090 } /* Comment.Single */
+c-[cs] { color: #708090 } /* Comment.Special */
+c-[kc] { color: #990055 } /* Keyword.Constant */
+c-[kn] { color: #990055 } /* Keyword.Namespace */
+c-[kp] { color: #990055 } /* Keyword.Pseudo */
+c-[kr] { color: #990055 } /* Keyword.Reserved */
+c-[ld] { color: #000000 } /* Literal.Date */
+c-[nc] { color: #0077aa } /* Name.Class */
+c-[no] { color: #0077aa } /* Name.Constant */
+c-[nd] { color: #0077aa } /* Name.Decorator */
+c-[ni] { color: #0077aa } /* Name.Entity */
+c-[ne] { color: #0077aa } /* Name.Exception */
+c-[nf] { color: #0077aa } /* Name.Function */
+c-[nl] { color: #0077aa } /* Name.Label */
+c-[nn] { color: #0077aa } /* Name.Namespace */
+c-[py] { color: #0077aa } /* Name.Property */
+c-[ow] { color: #999999 } /* Operator.Word */
+c-[mb] { color: #000000 } /* Literal.Number.Bin */
+c-[mf] { color: #000000 } /* Literal.Number.Float */
+c-[mh] { color: #000000 } /* Literal.Number.Hex */
+c-[mi] { color: #000000 } /* Literal.Number.Integer */
+c-[mo] { color: #000000 } /* Literal.Number.Oct */
+c-[sb] { color: #a67f59 } /* Literal.String.Backtick */
+c-[sc] { color: #a67f59 } /* Literal.String.Char */
+c-[sd] { color: #a67f59 } /* Literal.String.Doc */
+c-[se] { color: #a67f59 } /* Literal.String.Escape */
+c-[sh] { color: #a67f59 } /* Literal.String.Heredoc */
+c-[si] { color: #a67f59 } /* Literal.String.Interpol */
+c-[sx] { color: #a67f59 } /* Literal.String.Other */
+c-[sr] { color: #a67f59 } /* Literal.String.Regex */
+c-[ss] { color: #a67f59 } /* Literal.String.Symbol */
+c-[vc] { color: #0077aa } /* Name.Variable.Class */
+c-[vg] { color: #0077aa } /* Name.Variable.Global */
+c-[vi] { color: #0077aa } /* Name.Variable.Instance */
+c-[il] { color: #000000 } /* Literal.Number.Integer.Long */
+
+
 @media (prefers-color-scheme: dark) {
     .highlight:not(.idl) { background: rgba(255, 255, 255, .05); }
 
@@ -581,7 +640,7 @@ c-[il] { color: #000000 } /* Literal.Number.Integer.Long */
   <div class="head">
    <p data-fill-with="logo"><a class="logo" href="https://www.w3.org/"> <img alt="W3C" height="48" src="https://www.w3.org/StyleSheets/TR/2021/logos/W3C" width="72"> </a> </p>
    <h1 class="p-name no-ref" id="title">Task Attribution</h1>
-   <p id="w3c-state"><a href="https://www.w3.org/standards/types#CG-DRAFT">Draft Community Group Report</a>, <time class="dt-updated" datetime="2023-04-14">14 April 2023</time></p>
+   <p id="w3c-state"><a href="https://www.w3.org/standards/types#CG-DRAFT">Draft Community Group Report</a>, <time class="dt-updated" datetime="2023-07-12">12 July 2023</time></p>
    <div data-fill-with="spec-metadata">
     <dl>
      <dt>This version:
@@ -590,7 +649,6 @@ c-[il] { color: #000000 } /* Literal.Number.Integer.Long */
      <dd><a href="https://github.com/web-platform-tests/wpt/tree/master/soft-navigation-heuristics">https://github.com/web-platform-tests/wpt/tree/master/soft-navigation-heuristics</a>
      <dt>Issue Tracking:
      <dd><a href="https://github.com/WICG/soft-navigation/issues/">GitHub</a>
-     <dd><a href="#issues-index">Inline In Spec</a>
      <dt class="editor">Editor:
      <dd class="editor p-author h-card vcard" data-editor-id="58673"><a class="p-name fn u-email email" href="mailto:yoav@yoav.ws">Yoav Weiss</a> (<a class="p-org org" href="https://google.com">Google</a>)
     </dl>
@@ -627,10 +685,15 @@ A human-readable <a href="http://www.w3.org/community/about/agreements/cla-deed/
       <li>
        <a href="#sec-algorithms"><span class="secno">2.2</span> <span class="content">Algorithms</span></a>
        <ol class="toc">
-        <li><a href="#sec-task-termination"><span class="secno">2.2.1</span> <span class="content">Task termination {#sec-task-termination}</span></a>
-        <li><a href="#sec-create-task-scope"><span class="secno">2.2.2</span> <span class="content">Create a task scope {#sec-create-task-scope}</span></a>
-        <li><a href="#sec-track-task-queueing"><span class="secno">2.2.3</span> <span class="content">Track task queueing {#sec-track-task-queueing}</span></a>
-        <li><a href="#sec-is-ancestor"><span class="secno">2.2.4</span> <span class="content">Is ancestor {#sec-is-ancestor}</span></a>
+        <li><a href="#sec-task-scope"><span class="secno">2.2.1</span> <span class="content">Task scope {#sec-task-scope}</span></a>
+        <li><a href="#sec-task-scope-stack"><span class="secno">2.2.2</span> <span class="content">Task scope stack {#sec-task-scope-stack}</span></a>
+        <li><a href="#sec-is-ancestor"><span class="secno">2.2.3</span> <span class="content">Is ancestor {#sec-is-ancestor}</span></a>
+        <li>
+         <a href="#sec-is-ancestor-in-set"><span class="secno">2.2.4</span> <span class="content">Is ancestor in set {#sec-is-ancestor-in-set}</span></a>
+         <ol class="toc">
+          <li><a href="#sec-current-task"><span class="secno">2.2.4.1</span> <span class="content">Get current task {#sec-current-task}</span></a>
+          <li><a href="#sec-current-task-id"><span class="secno">2.2.4.2</span> <span class="content">Get current task ID {#sec-current-task-id}</span></a>
+         </ol>
        </ol>
       <li><a href="#sec-integration"><span class="secno">2.3</span> <span class="content">HTML integration</span></a>
      </ol>
@@ -639,11 +702,11 @@ A human-readable <a href="http://www.w3.org/community/about/agreements/cla-deed/
      <a href="#w3c-conformance"><span class="secno"></span> <span class="content">Conformance</span></a>
      <ol class="toc">
       <li><a href="#w3c-conventions"><span class="secno"></span> <span class="content">Document conventions</span></a>
-      <li><a href="#w3c-conformant-algorithms"><span class="secno"></span> <span class="content">Conformant Algorithms</span></a>
      </ol>
     <li>
      <a href="#index"><span class="secno"></span> <span class="content">Index</span></a>
      <ol class="toc">
+      <li><a href="#index-defined-here"><span class="secno"></span> <span class="content">Terms defined by this specification</span></a>
       <li><a href="#index-defined-elsewhere"><span class="secno"></span> <span class="content">Terms defined by reference</span></a>
      </ol>
     <li>
@@ -651,7 +714,6 @@ A human-readable <a href="http://www.w3.org/community/about/agreements/cla-deed/
      <ol class="toc">
       <li><a href="#normative"><span class="secno"></span> <span class="content">Normative References</span></a>
      </ol>
-    <li><a href="#issues-index"><span class="secno"></span> <span class="content">Issues Index</span></a>
    </ol>
   </nav>
   <main>
@@ -668,12 +730,12 @@ Being able to keep track of which task initiated which can be valuable in multip
      <li data-md>
       <p>Enable causal user activation delegaion.</p>
      <li data-md>
-      <p>Enable userland recreation of resource loading dependency chains.</p>
+      <p>Enable accumulating knowledge of resource loading dependency chains, and enable developers to draw insights from them.</p>
     </ul>
     <p>This specification outlines a mechanism that would enable user agents to deduce that information, and use it in various other algorithms that might be used for web exposed features.
 However, this specification does not define a web exposed feature in and of itself.</p>
-    <p class="issue" id="issue-d6ffb5a4"><a class="self-link" href="#issue-d6ffb5a4"></a> Should we discuss potential conncetion with AsyncContext and its use cases?</p>
    </div>
+    ISSUE: Should we discuss potential conncetion with AsyncContext and its use cases? 
    <h2 class="heading settled" data-level="2" id="sec-task-attribution"><span class="secno">2. </span><span class="content">Task Attribution</span><a class="self-link" href="#sec-task-attribution"></a></h2>
    <h3 class="heading settled" data-level="2.1" id="sec-design"><span class="secno">2.1. </span><span class="content">High-level design</span><a class="self-link" href="#sec-design"></a></h3>
     The general principle behind task attribution is quite simple: 
@@ -683,41 +745,92 @@ However, this specification does not define a web exposed feature in and of itse
     <li data-md>
      <p>Tasks and microtasks that are queued during a task scope’s lifetime are considered its descendents.</p>
     <li data-md>
-     <p>Some registered callbacks get an explicit parent task defined. (e.g. the task that registered the callback)</p>
+     <p>Certain registered callbacks get an explicit parent task defined. (e.g. the task that registered the callback)</p>
    </ul>
-   <p>The relationship between the various tasks is then kept in a container that enables the user agent to quickly determine if the current task is a descendant of another, specific one.</p>
+   <p>Each task maintains a connection to its parent task, enabling an implicit data structure that enables querying a task to find if another, specific one is its ancestor.</p>
    <h3 class="heading settled" data-level="2.2" id="sec-algorithms"><span class="secno">2.2. </span><span class="content">Algorithms</span><a class="self-link" href="#sec-algorithms"></a></h3>
-   <p>Open questions:</p>
-   <ul>
+   <h4 class="heading settled" data-level="2.2.1" id="sec-task-scope"><span class="secno">2.2.1. </span><span class="content">Task scope {#sec-task-scope}</span><a class="self-link" href="#sec-task-scope"></a></h4>
+   <p>A <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport id="concept-task-scope">task scope</dfn> is formally defined as a structure.</p>
+   <p>A <a data-link-type="dfn" href="#concept-task-scope" id="ref-for-concept-task-scope">task scope</a> has <dfn class="dfn-paneled" data-dfn-for="task scope" data-dfn-type="dfn" data-noexport id="task-scope-task-continuation-data">task continuation data</dfn>, a struct.</p>
+   <p>A <a data-link-type="dfn" href="#concept-task-scope" id="ref-for-concept-task-scope①">task scope</a> has a <dfn class="dfn-paneled" data-dfn-for="task scope" data-dfn-type="dfn" data-noexport id="task-scope-task">task</dfn>, a <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-task" id="ref-for-concept-task">task</a>.</p>
+   <h4 class="heading settled" data-level="2.2.2" id="sec-task-scope-stack"><span class="secno">2.2.2. </span><span class="content">Task scope stack {#sec-task-scope-stack}</span><a class="self-link" href="#sec-task-scope-stack"></a></h4>
+    A <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport id="task-scope-stack">task scope stack</dfn> is a <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#stack" id="ref-for-stack">stack</a> of <a data-link-type="dfn" href="#concept-task-scope" id="ref-for-concept-task-scope②">task scopes</a>. 
+   <p>To <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport id="create-a-task-scope">create a task scope</dfn>, given <var>task</var>, a <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-task" id="ref-for-concept-task①">task</a>, do the following:</p>
+   <ol>
     <li data-md>
-     <p>Should TaskAttribution live on the env settings object? On the event loop itself? Somewhere else?</p>
-   </ul>
-   <p>Rough outline:</p>
-   <ul>
+     <p>Let <var>scope</var> be a new <a data-link-type="dfn" href="#concept-task-scope" id="ref-for-concept-task-scope③">task scope</a>.</p>
     <li data-md>
-     <p>Add a hashmap to the env settings object that stores task IDs.</p>
+     <p>Set <var>task</var>’s <a data-link-type="dfn" href="#task-task-attribution-id" id="ref-for-task-task-attribution-id">task attribution ID</a> with an <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#implementation-defined" id="ref-for-implementation-defined">implementation-defined</a> unique value.</p>
     <li data-md>
-     <p>Keep the current task ID</p>
+     <p>Set <var>scope</var>’s <a data-link-type="dfn" href="#task-scope-task-continuation-data" id="ref-for-task-scope-task-continuation-data">task continuation data</a> to SOMETHING!! Push the continuation data on the isolate???</p>
     <li data-md>
-     <p>When a new task is queued, it gets added to the hashmap with its parent. Its parent has it added as a direct descendent</p>
-   </ul>
-   <h4 class="heading settled" data-level="2.2.1" id="sec-task-termination"><span class="secno">2.2.1. </span><span class="content">Task termination {#sec-task-termination}</span><a class="self-link" href="#sec-task-termination"></a></h4>
-    Each Task has a parent and number of direct descendants
-When a task is done and has no living children, it notifies its parent and gets removed from the container.
-When a task is notified and has no living child tasks, it’s also notifies its parent. 
-   <h4 class="heading settled" data-level="2.2.2" id="sec-create-task-scope"><span class="secno">2.2.2. </span><span class="content">Create a task scope {#sec-create-task-scope}</span><a class="self-link" href="#sec-create-task-scope"></a></h4>
-    Add 
-   <h4 class="heading settled" data-level="2.2.3" id="sec-track-task-queueing"><span class="secno">2.2.3. </span><span class="content">Track task queueing {#sec-track-task-queueing}</span><a class="self-link" href="#sec-track-task-queueing"></a></h4>
-   <h4 class="heading settled" data-level="2.2.4" id="sec-is-ancestor"><span class="secno">2.2.4. </span><span class="content">Is ancestor {#sec-is-ancestor}</span><a class="self-link" href="#sec-is-ancestor"></a></h4>
+     <p>Set <var>scope</var>’s <a data-link-type="dfn" href="#task-scope-task" id="ref-for-task-scope-task">task</a> to <var>task</var>. If <var>task</var> is nullptr, create one???</p>
+    <li data-md>
+     <p>Push <var>scope</var> to the <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#relevant-agent" id="ref-for-relevant-agent">relevant agent</a>'s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#event-loop" id="ref-for-event-loop">event loop</a>'s <a data-link-type="dfn" href="#task-scope-stack" id="ref-for-task-scope-stack">task scope stack</a>.</p>
+   </ol>
+   <p>To <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport id="tear-down-a-task-scope">tear down a task scope</dfn>, do the following:</p>
+   <ol>
+    <li data-md>
+     <p>Pop <var>scope</var> from the event loop’s <a data-link-type="dfn" href="#task-scope-stack" id="ref-for-task-scope-stack①">task scope stack</a></p>
+    <li data-md>
+     <p>Set the isolate’s continuation data thing to the one at the top of the stack</p>
+   </ol>
+   <h4 class="heading settled" data-level="2.2.3" id="sec-is-ancestor"><span class="secno">2.2.3. </span><span class="content">Is ancestor {#sec-is-ancestor}</span><a class="self-link" href="#sec-is-ancestor"></a></h4>
+   <h4 class="heading settled" data-level="2.2.4" id="sec-is-ancestor-in-set"><span class="secno">2.2.4. </span><span class="content">Is ancestor in set {#sec-is-ancestor-in-set}</span><a class="self-link" href="#sec-is-ancestor-in-set"></a></h4>
+   <h5 class="heading settled" data-level="2.2.4.1" id="sec-current-task"><span class="secno">2.2.4.1. </span><span class="content">Get current task {#sec-current-task}</span><a class="self-link" href="#sec-current-task"></a></h5>
+    To <dfn class="dfn-paneled" data-dfn-type="dfn" data-export id="get-current-task">get current task</dfn>, run the following steps: 
+   <ol>
+    <li data-md>
+     <p>Let <var>scope</var> be the result of <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#stack-pop" id="ref-for-stack-pop">poping</a> the <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#relevant-agent" id="ref-for-relevant-agent①">relevant agent</a>'s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#event-loop" id="ref-for-event-loop①">event loop</a>'s <a data-link-type="dfn" href="#task-scope-stack" id="ref-for-task-scope-stack②">task scope stack</a>.</p>
+    <li data-md>
+     <p><a data-link-type="dfn" href="https://infra.spec.whatwg.org/#stack-push" id="ref-for-stack-push">Push</a> <var>scope</var> to the <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#relevant-agent" id="ref-for-relevant-agent②">relevant agent</a>'s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#event-loop" id="ref-for-event-loop②">event loop</a>'s <a data-link-type="dfn" href="#task-scope-stack" id="ref-for-task-scope-stack③">task scope stack</a>.</p>
+    <li data-md>
+     <p>Return <var>scope</var>’s <a data-link-type="dfn" href="#task-scope-task" id="ref-for-task-scope-task①">task</a>.</p>
+   </ol>
+   <p class="note" role="note"><span class="marker">Note:</span> The first 2 steps here really need to be a peek operation.</p>
+   <h5 class="heading settled" data-level="2.2.4.2" id="sec-current-task-id"><span class="secno">2.2.4.2. </span><span class="content">Get current task ID {#sec-current-task-id}</span><a class="self-link" href="#sec-current-task-id"></a></h5>
+    To <dfn class="dfn-paneled" data-dfn-type="dfn" data-export id="get-current-task-id">get current task id</dfn>, run the following steps: 
+   <ol>
+    <li data-md>
+     <p>Let <var>task</var> be the result of <a data-link-type="dfn" href="#get-current-task" id="ref-for-get-current-task">get current task</a>.</p>
+    <li data-md>
+     <p>Return <var>task</var>’s <a data-link-type="dfn" href="#task-task-attribution-id" id="ref-for-task-task-attribution-id①">task attribution ID</a>.</p>
+   </ol>
    <h3 class="heading settled" data-level="2.3" id="sec-integration"><span class="secno">2.3. </span><span class="content">HTML integration</span><a class="self-link" href="#sec-integration"></a></h3>
-   <p>Create a task scope before a script is executed</p>
-   <ul>
+   <p>The <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#event-loop" id="ref-for-event-loop③">event loop</a> has a <a data-link-type="dfn" href="#task-scope-stack" id="ref-for-task-scope-stack④">task scope stack</a>.</p>
+   <p>In <a data-link-type="dfn" href="https://html.spec.whatwg.org/C#execute-the-script-element" id="ref-for-execute-the-script-element">Execute the script element</a>, add initial steps:</p>
+   <ol>
     <li data-md>
-     <p>Initial script execution</p>
+     <p>Let <var>task</var> be a new <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-task" id="ref-for-concept-task②">task</a>.</p>
     <li data-md>
-     <p>Before specific event callbacks</p>
-   </ul>
-   <p>When <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/#queue-a-task" id="ref-for-queue-a-task">queueing a task</a>, add it to the container.</p>
+     <p><a data-link-type="dfn" href="#create-a-task-scope" id="ref-for-create-a-task-scope">Create a task scope</a> with <var>task</var>.</p>
+   </ol>
+   <p>Add a terminating step:</p>
+   <ol>
+    <li data-md>
+     <p><a data-link-type="dfn" href="#tear-down-a-task-scope" id="ref-for-tear-down-a-task-scope">Tear down a task scope</a></p>
+   </ol>
+   <p>A <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-task" id="ref-for-concept-task③">task</a> has a <dfn class="dfn-paneled" data-dfn-for="task" data-dfn-type="dfn" data-noexport id="task-task-attribution-id">task attribution ID</dfn>, an [implementation defined] value,
+representing a unique identifier. It is initially unset.</p>
+   <p>A <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-task" id="ref-for-concept-task④">task</a> has a <dfn class="dfn-paneled" data-dfn-for="task" data-dfn-type="dfn" data-noexport id="task-parent-task">parent task</dfn>, a <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-task" id="ref-for-concept-task⑤">task</a>, initially unset.</p>
+   <p>In <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#queue-a-task" id="ref-for-queue-a-task">queue a task</a>:</p>
+   <p>Add these steps after step 3, "Let task be a new task":</p>
+   <ol>
+    <li data-md>
+     <p>Set <var>task</var>’s <a data-link-type="dfn" href="#task-parent-task" id="ref-for-task-parent-task">parent task</a> to the result of <a data-link-type="dfn" href="#get-current-task-id" id="ref-for-get-current-task-id">get current task ID</a>.</p>
+    <li data-md>
+     <p><a data-link-type="dfn" href="#create-a-task-scope" id="ref-for-create-a-task-scope①">Create a task scope</a> with <var>task</var>.</p>
+   </ol>
+   <p>Add a terminating step:</p>
+   <ol>
+    <li data-md>
+     <p><a data-link-type="dfn" href="#tear-down-a-task-scope" id="ref-for-tear-down-a-task-scope①">Tear down a task scope</a></p>
+   </ol>
+   <p>TODO: handle microtasks
+TODO: handle timeouts
+TODO: handle postmessages
+TODO: handle same document navigations
+TODO: other cases??</p>
    <h2 class="heading settled" data-level="3" id="priv-sec"><span class="secno">3. </span><span class="content">Security &amp; privacy considerations</span><a class="self-link" href="#priv-sec"></a></h2>
     As this infrastructure doesn’t directly expose any data to the web, it doesn’t have any privacy and security implications.
 Web exposed specifications that rely on this infrastructure might have such implications. As such, they need to be individually examined and have those implications outlined. 
@@ -734,7 +847,7 @@ Web exposed specifications that rely on this infrastructure might have such impl
     However, for readability,
     these words do not appear in all uppercase letters in this specification. </p>
    <p>All of the text of this specification is normative
-    except sections explicitly marked as non-normative, examples, and notes. <a data-link-type="biblio" href="#biblio-rfc2119">[RFC2119]</a> </p>
+    except sections explicitly marked as non-normative, examples, and notes. <a data-link-type="biblio" href="#biblio-rfc2119" title="Key words for use in RFCs to Indicate Requirement Levels">[RFC2119]</a> </p>
    <p>Examples in this specification are introduced with the words “for example”
     or are set apart from the normative text
     with <code class="highlight"><c- a>class</c-><c- o>=</c-><c- u>"example"</c-></code>,
@@ -748,35 +861,40 @@ Web exposed specifications that rely on this infrastructure might have such impl
     with <code class="highlight"><c- a>class</c-><c- o>=</c-><c- u>"note"</c-></code>,
     like this: </p>
    <p class="note" role="note">Note, this is an informative note.</p>
-   <h3 class="no-ref no-num heading settled" id="w3c-conformant-algorithms"><span class="content">Conformant Algorithms</span><a class="self-link" href="#w3c-conformant-algorithms"></a></h3>
-   <p>Requirements phrased in the imperative as part of algorithms
-    (such as "strip any leading space characters"
-    or "return false and abort these steps")
-    are to be interpreted with the meaning of the key word
-    ("must", "should", "may", etc)
-    used in introducing the algorithm. </p>
-   <p>Conformance requirements phrased as algorithms or specific steps
-    can be implemented in any manner,
-    so long as the end result is equivalent.
-    In particular, the algorithms defined in this specification
-    are intended to be easy to understand
-    and are not intended to be performant.
-    Implementers are encouraged to optimize. </p>
   </div>
 <script src="https://www.w3.org/scripts/TR/2021/fixup.js"></script>
   <h2 class="no-num no-ref heading settled" id="index"><span class="content">Index</span><a class="self-link" href="#index"></a></h2>
-  <aside class="dfn-panel" data-for="term-for-queue-a-task">
-   <a href="https://html.spec.whatwg.org/multipage/#queue-a-task">https://html.spec.whatwg.org/multipage/#queue-a-task</a><b>Referenced in:</b>
-   <ul>
-    <li><a href="#ref-for-queue-a-task">2.3. HTML integration</a>
-   </ul>
-  </aside>
+  <h3 class="no-num no-ref heading settled" id="index-defined-here"><span class="content">Terms defined by this specification</span><a class="self-link" href="#index-defined-here"></a></h3>
+  <ul class="index">
+   <li><a href="#create-a-task-scope">create a task scope</a><span>, in § 2.2.2</span>
+   <li><a href="#get-current-task">get current task</a><span>, in § 2.2.4.1</span>
+   <li><a href="#get-current-task-id">get current task id</a><span>, in § 2.2.4.2</span>
+   <li><a href="#task-parent-task">parent task</a><span>, in § 2.3</span>
+   <li><a href="#task-scope-task">task</a><span>, in § 2.2.1</span>
+   <li><a href="#task-task-attribution-id">task attribution ID</a><span>, in § 2.3</span>
+   <li><a href="#task-scope-task-continuation-data">task continuation data</a><span>, in § 2.2.1</span>
+   <li><a href="#concept-task-scope">task scope</a><span>, in § 2.2.1</span>
+   <li><a href="#task-scope-stack">task scope stack</a><span>, in § 2.2.2</span>
+   <li><a href="#tear-down-a-task-scope">tear down a task scope</a><span>, in § 2.2.2</span>
+  </ul>
   <h3 class="no-num no-ref heading settled" id="index-defined-elsewhere"><span class="content">Terms defined by reference</span><a class="self-link" href="#index-defined-elsewhere"></a></h3>
   <ul class="index">
    <li>
     <a data-link-type="biblio">[HTML]</a> defines the following terms:
     <ul>
-     <li><span class="dfn-paneled" id="term-for-queue-a-task">queueing a task</span>
+     <li><span class="dfn-paneled" id="c6d19e56">event loop</span>
+     <li><span class="dfn-paneled" id="9ed0e01d">execute the script element</span>
+     <li><span class="dfn-paneled" id="9a517a7d">queue a task</span>
+     <li><span class="dfn-paneled" id="d8049b98">relevant agent</span>
+     <li><span class="dfn-paneled" id="e270bd2a">task</span>
+    </ul>
+   <li>
+    <a data-link-type="biblio">[INFRA]</a> defines the following terms:
+    <ul>
+     <li><span class="dfn-paneled" id="860300d4">implementation-defined</span>
+     <li><span class="dfn-paneled" id="fca74142">pop</span>
+     <li><span class="dfn-paneled" id="7c3de606">push</span>
+     <li><span class="dfn-paneled" id="ceacaa1c">stack</span>
     </ul>
   </ul>
   <h2 class="no-num no-ref heading settled" id="references"><span class="content">References</span><a class="self-link" href="#references"></a></h2>
@@ -784,66 +902,532 @@ Web exposed specifications that rely on this infrastructure might have such impl
   <dl>
    <dt id="biblio-html">[HTML]
    <dd>Anne van Kesteren; et al. <a href="https://html.spec.whatwg.org/multipage/"><cite>HTML Standard</cite></a>. Living Standard. URL: <a href="https://html.spec.whatwg.org/multipage/">https://html.spec.whatwg.org/multipage/</a>
+   <dt id="biblio-infra">[INFRA]
+   <dd>Anne van Kesteren; Domenic Denicola. <a href="https://infra.spec.whatwg.org/"><cite>Infra Standard</cite></a>. Living Standard. URL: <a href="https://infra.spec.whatwg.org/">https://infra.spec.whatwg.org/</a>
    <dt id="biblio-rfc2119">[RFC2119]
    <dd>S. Bradner. <a href="https://datatracker.ietf.org/doc/html/rfc2119"><cite>Key words for use in RFCs to Indicate Requirement Levels</cite></a>. March 1997. Best Current Practice. URL: <a href="https://datatracker.ietf.org/doc/html/rfc2119">https://datatracker.ietf.org/doc/html/rfc2119</a>
   </dl>
-  <h2 class="no-num no-ref heading settled" id="issues-index"><span class="content">Issues Index</span><a class="self-link" href="#issues-index"></a></h2>
-  <div style="counter-reset:issue">
-   <div class="issue"> Should we discuss potential conncetion with AsyncContext and its use cases? <a class="issue-return" href="#issue-d6ffb5a4" title="Jump to section">↵</a></div>
-  </div>
-<script>/* script-dfn-panel */
+<script>/* Boilerplate: script-dfn-panel */
+"use strict";
+{
+    const dfnsJson = window.dfnsJson || {};
 
-document.body.addEventListener("click", function(e) {
-    var queryAll = function(sel) { return [].slice.call(document.querySelectorAll(sel)); }
-    // Find the dfn element or panel, if any, that was clicked on.
-    var el = e.target;
-    var target;
-    var hitALink = false;
-    while(el.parentElement) {
-        if(el.tagName == "A") {
-            // Clicking on a link in a <dfn> shouldn't summon the panel
-            hitALink = true;
-        }
-        if(el.classList.contains("dfn-paneled")) {
-            target = "dfn";
-            break;
-        }
-        if(el.classList.contains("dfn-panel")) {
-            target = "dfn-panel";
-            break;
-        }
-        el = el.parentElement;
+    function genDfnPanel({dfnID, url, dfnText, refSections, external}) {
+        return mk.aside({
+            class: "dfn-panel",
+            id: `infopanel-for-${dfnID}`,
+            "data-for": dfnID,
+            "aria-labelled-by":`infopaneltitle-for-${dfnID}`,
+            },
+            mk.span({id:`infopaneltitle-for-${dfnID}`, style:"display:none"},
+                `Info about the '${dfnText}' ${external?"external":""} reference.`),
+            mk.a({href:url}, url),
+            mk.b({}, "Referenced in:"),
+            mk.ul({},
+                ...refSections.map(section=>
+                    mk.li({},
+                        ...section.refs.map((ref, refI)=>
+                            [
+                                mk.a({
+                                    href: `#${ref.id}`
+                                    },
+                                    (refI == 0) ? section.title : `(${refI + 1})`
+                                ),
+                                " ",
+                            ]
+                        ),
+                    ),
+                ),
+            ),
+        );
     }
-    if(target != "dfn-panel") {
-        // Turn off any currently "on" or "activated" panels.
-        queryAll(".dfn-panel.on, .dfn-panel.activated").forEach(function(el){
-            el.classList.remove("on");
-            el.classList.remove("activated");
-        });
-    }
-    if(target == "dfn" && !hitALink) {
-        // open the panel
-        var dfnPanel = document.querySelector(".dfn-panel[data-for='" + el.id + "']");
-        if(dfnPanel) {
-            dfnPanel.classList.add("on");
-            var rect = el.getBoundingClientRect();
-            dfnPanel.style.left = window.scrollX + rect.right + 5 + "px";
-            dfnPanel.style.top = window.scrollY + rect.top + "px";
-            var panelRect = dfnPanel.getBoundingClientRect();
-            var panelWidth = panelRect.right - panelRect.left;
-            if(panelRect.right > document.body.scrollWidth && (rect.left - (panelWidth + 5)) > 0) {
-                // Reposition, because the panel is overflowing
-                dfnPanel.style.left = window.scrollX + rect.left - (panelWidth + 5) + "px";
+
+    function genAllDfnPanels() {
+        for(const panelData of Object.values(window.dfnpanelData)) {
+            const dfnID = panelData.dfnID;
+            const dfn = document.getElementById(dfnID);
+            if(!dfn) {
+                console.log(`Can't find dfn#${dfnID}.`, panelData);
+            } else {
+                const panel = genDfnPanel(panelData);
+                append(document.body, panel);
+                insertDfnPopupAction(dfn, panel)
             }
-        } else {
-            console.log("Couldn't find .dfn-panel[data-for='" + el.id + "']");
         }
-    } else if(target == "dfn-panel") {
-        // Switch it to "activated" state, which pins it.
-        el.classList.add("activated");
-        el.style.left = null;
-        el.style.top = null;
     }
 
+    document.addEventListener("DOMContentLoaded", ()=>{
+        genAllDfnPanels();
+
+        // Add popup behavior to all dfns to show the corresponding dfn-panel.
+        var dfns = queryAll('.dfn-paneled');
+        for(let dfn of dfns) { ; }
+
+        document.body.addEventListener("click", (e) => {
+            // If not handled already, just hide all dfn panels.
+            hideAllDfnPanels();
+        });
+    })
+
+
+    function hideAllDfnPanels() {
+        // Turn off any currently "on" or "activated" panels.
+        queryAll(".dfn-panel.on, .dfn-panel.activated").forEach(el=>hideDfnPanel(el));
+    }
+
+    function showDfnPanel(dfnPanel, dfn) {
+        hideAllDfnPanels(); // Only display one at this time.
+        dfn.setAttribute("aria-expanded", "true");
+        dfnPanel.classList.add("on");
+        dfnPanel.style.left = "5px";
+        dfnPanel.style.top = "0px";
+        const panelRect = dfnPanel.getBoundingClientRect();
+        const panelWidth = panelRect.right - panelRect.left;
+        if (panelRect.right > document.body.scrollWidth) {
+            // Panel's overflowing the screen.
+            // Just drop it below the dfn and flip it rightward instead.
+            // This still wont' fix things if the screen is *really* wide,
+            // but fixing that's a lot harder without 'anchor()'.
+            dfnPanel.style.top = "1.5em";
+            dfnPanel.style.left = "auto";
+            dfnPanel.style.right = "0px";
+        }
+    }
+
+    function pinDfnPanel(dfnPanel) {
+        // Switch it to "activated" state, which pins it.
+        dfnPanel.classList.add("activated");
+        dfnPanel.style.left = null;
+        dfnPanel.style.top = null;
+    }
+
+    function hideDfnPanel(dfnPanel, dfn) {
+        if(!dfn) {
+            dfn = document.getElementById(dfnPanel.getAttribute("data-for"));
+        }
+        dfn.setAttribute("aria-expanded", "false")
+        dfnPanel.classList.remove("on");
+        dfnPanel.classList.remove("activated");
+    }
+
+    function toggleDfnPanel(dfnPanel, dfn) {
+        if(dfnPanel.classList.contains("on")) {
+            hideDfnPanel(dfnPanel, dfn);
+        } else {
+            showDfnPanel(dfnPanel, dfn);
+        }
+    }
+
+    function insertDfnPopupAction(dfn, dfnPanel) {
+        // Find dfn panel
+        const panelWrapper = document.createElement('span');
+        panelWrapper.appendChild(dfnPanel);
+        panelWrapper.style.position = "relative";
+        panelWrapper.style.height = "0px";
+        dfn.insertAdjacentElement("afterend", panelWrapper);
+        dfn.setAttribute('role', 'button');
+        dfn.setAttribute('aria-expanded', 'false')
+        dfn.tabIndex = 0;
+        dfn.classList.add('has-dfn-panel');
+        dfn.addEventListener('click', (event) => {
+            showDfnPanel(dfnPanel, dfn);
+            event.stopPropagation();
+        });
+        dfn.addEventListener('keypress', (event) => {
+            const kc = event.keyCode;
+            // 32->Space, 13->Enter
+            if(kc == 32 || kc == 13) {
+                toggleDfnPanel(dfnPanel, dfn);
+                event.stopPropagation();
+                event.preventDefault();
+            }
+        });
+
+        dfnPanel.addEventListener('click', (event) => {
+            if (event.target.nodeName == 'A') {
+                pinDfnPanel(dfnPanel);
+            }
+            event.stopPropagation();
+        });
+
+        dfnPanel.addEventListener('keydown', (event) => {
+            if(event.keyCode == 27) { // Escape key
+                hideDfnPanel(dfnPanel, dfn);
+                event.stopPropagation();
+                event.preventDefault();
+            }
+        })
+    }
+}
+</script>
+<script>/* Boilerplate: script-dfn-panel */
+"use strict";
+{
+    const dfnsJson = window.dfnsJson || {};
+
+    function genDfnPanel({dfnID, url, dfnText, refSections, external}) {
+        return mk.aside({
+            class: "dfn-panel",
+            id: `infopanel-for-${dfnID}`,
+            "data-for": dfnID,
+            "aria-labelled-by":`infopaneltitle-for-${dfnID}`,
+            },
+            mk.span({id:`infopaneltitle-for-${dfnID}`, style:"display:none"},
+                `Info about the '${dfnText}' ${external?"external":""} reference.`),
+            mk.a({href:url}, url),
+            mk.b({}, "Referenced in:"),
+            mk.ul({},
+                ...refSections.map(section=>
+                    mk.li({},
+                        ...section.refs.map((ref, refI)=>
+                            [
+                                mk.a({
+                                    href: `#${ref.id}`
+                                    },
+                                    (refI == 0) ? section.title : `(${refI + 1})`
+                                ),
+                                " ",
+                            ]
+                        ),
+                    ),
+                ),
+            ),
+        );
+    }
+
+    function genAllDfnPanels() {
+        for(const panelData of Object.values(window.dfnpanelData)) {
+            const dfnID = panelData.dfnID;
+            const dfn = document.getElementById(dfnID);
+            if(!dfn) {
+                console.log(`Can't find dfn#${dfnID}.`, panelData);
+            } else {
+                const panel = genDfnPanel(panelData);
+                append(document.body, panel);
+                insertDfnPopupAction(dfn, panel)
+            }
+        }
+    }
+
+    document.addEventListener("DOMContentLoaded", ()=>{
+        genAllDfnPanels();
+
+        // Add popup behavior to all dfns to show the corresponding dfn-panel.
+        var dfns = queryAll('.dfn-paneled');
+        for(let dfn of dfns) { ; }
+
+        document.body.addEventListener("click", (e) => {
+            // If not handled already, just hide all dfn panels.
+            hideAllDfnPanels();
+        });
+    })
+
+
+    function hideAllDfnPanels() {
+        // Turn off any currently "on" or "activated" panels.
+        queryAll(".dfn-panel.on, .dfn-panel.activated").forEach(el=>hideDfnPanel(el));
+    }
+
+    function showDfnPanel(dfnPanel, dfn) {
+        hideAllDfnPanels(); // Only display one at this time.
+        dfn.setAttribute("aria-expanded", "true");
+        dfnPanel.classList.add("on");
+        dfnPanel.style.left = "5px";
+        dfnPanel.style.top = "0px";
+        const panelRect = dfnPanel.getBoundingClientRect();
+        const panelWidth = panelRect.right - panelRect.left;
+        if (panelRect.right > document.body.scrollWidth) {
+            // Panel's overflowing the screen.
+            // Just drop it below the dfn and flip it rightward instead.
+            // This still wont' fix things if the screen is *really* wide,
+            // but fixing that's a lot harder without 'anchor()'.
+            dfnPanel.style.top = "1.5em";
+            dfnPanel.style.left = "auto";
+            dfnPanel.style.right = "0px";
+        }
+    }
+
+    function pinDfnPanel(dfnPanel) {
+        // Switch it to "activated" state, which pins it.
+        dfnPanel.classList.add("activated");
+        dfnPanel.style.left = null;
+        dfnPanel.style.top = null;
+    }
+
+    function hideDfnPanel(dfnPanel, dfn) {
+        if(!dfn) {
+            dfn = document.getElementById(dfnPanel.getAttribute("data-for"));
+        }
+        dfn.setAttribute("aria-expanded", "false")
+        dfnPanel.classList.remove("on");
+        dfnPanel.classList.remove("activated");
+    }
+
+    function toggleDfnPanel(dfnPanel, dfn) {
+        if(dfnPanel.classList.contains("on")) {
+            hideDfnPanel(dfnPanel, dfn);
+        } else {
+            showDfnPanel(dfnPanel, dfn);
+        }
+    }
+
+    function insertDfnPopupAction(dfn, dfnPanel) {
+        // Find dfn panel
+        const panelWrapper = document.createElement('span');
+        panelWrapper.appendChild(dfnPanel);
+        panelWrapper.style.position = "relative";
+        panelWrapper.style.height = "0px";
+        dfn.insertAdjacentElement("afterend", panelWrapper);
+        dfn.setAttribute('role', 'button');
+        dfn.setAttribute('aria-expanded', 'false')
+        dfn.tabIndex = 0;
+        dfn.classList.add('has-dfn-panel');
+        dfn.addEventListener('click', (event) => {
+            showDfnPanel(dfnPanel, dfn);
+            event.stopPropagation();
+        });
+        dfn.addEventListener('keypress', (event) => {
+            const kc = event.keyCode;
+            // 32->Space, 13->Enter
+            if(kc == 32 || kc == 13) {
+                toggleDfnPanel(dfnPanel, dfn);
+                event.stopPropagation();
+                event.preventDefault();
+            }
+        });
+
+        dfnPanel.addEventListener('click', (event) => {
+            if (event.target.nodeName == 'A') {
+                pinDfnPanel(dfnPanel);
+            }
+            event.stopPropagation();
+        });
+
+        dfnPanel.addEventListener('keydown', (event) => {
+            if(event.keyCode == 27) { // Escape key
+                hideDfnPanel(dfnPanel, dfn);
+                event.stopPropagation();
+                event.preventDefault();
+            }
+        })
+    }
+}
+</script>
+<script>/* Boilerplate: script-dfn-panel-json */
+window.dfnpanelData = {};
+window.dfnpanelData['c6d19e56'] = {"dfnID": "c6d19e56", "url": "https://html.spec.whatwg.org/multipage/webappapis.html#event-loop", "dfnText": "event loop", "refSections": [{"refs": [{"id": "ref-for-event-loop"}], "title": "2.2.2. Task scope stack {#sec-task-scope-stack}"}, {"refs": [{"id": "ref-for-event-loop\u2460"}, {"id": "ref-for-event-loop\u2461"}], "title": "2.2.4.1. Get current task {#sec-current-task}"}, {"refs": [{"id": "ref-for-event-loop\u2462"}], "title": "2.3. HTML integration"}], "external": true};
+window.dfnpanelData['9ed0e01d'] = {"dfnID": "9ed0e01d", "url": "https://html.spec.whatwg.org/C#execute-the-script-element", "dfnText": "execute the script element", "refSections": [{"refs": [{"id": "ref-for-execute-the-script-element"}], "title": "2.3. HTML integration"}], "external": true};
+window.dfnpanelData['9a517a7d'] = {"dfnID": "9a517a7d", "url": "https://html.spec.whatwg.org/multipage/webappapis.html#queue-a-task", "dfnText": "queue a task", "refSections": [{"refs": [{"id": "ref-for-queue-a-task"}], "title": "2.3. HTML integration"}], "external": true};
+window.dfnpanelData['d8049b98'] = {"dfnID": "d8049b98", "url": "https://html.spec.whatwg.org/multipage/webappapis.html#relevant-agent", "dfnText": "relevant agent", "refSections": [{"refs": [{"id": "ref-for-relevant-agent"}], "title": "2.2.2. Task scope stack {#sec-task-scope-stack}"}, {"refs": [{"id": "ref-for-relevant-agent\u2460"}, {"id": "ref-for-relevant-agent\u2461"}], "title": "2.2.4.1. Get current task {#sec-current-task}"}], "external": true};
+window.dfnpanelData['e270bd2a'] = {"dfnID": "e270bd2a", "url": "https://html.spec.whatwg.org/multipage/webappapis.html#concept-task", "dfnText": "task", "refSections": [{"refs": [{"id": "ref-for-concept-task"}], "title": "2.2.1. Task scope {#sec-task-scope}"}, {"refs": [{"id": "ref-for-concept-task\u2460"}], "title": "2.2.2. Task scope stack {#sec-task-scope-stack}"}, {"refs": [{"id": "ref-for-concept-task\u2461"}, {"id": "ref-for-concept-task\u2462"}, {"id": "ref-for-concept-task\u2463"}, {"id": "ref-for-concept-task\u2464"}], "title": "2.3. HTML integration"}], "external": true};
+window.dfnpanelData['860300d4'] = {"dfnID": "860300d4", "url": "https://infra.spec.whatwg.org/#implementation-defined", "dfnText": "implementation-defined", "refSections": [{"refs": [{"id": "ref-for-implementation-defined"}], "title": "2.2.2. Task scope stack {#sec-task-scope-stack}"}], "external": true};
+window.dfnpanelData['fca74142'] = {"dfnID": "fca74142", "url": "https://infra.spec.whatwg.org/#stack-pop", "dfnText": "pop", "refSections": [{"refs": [{"id": "ref-for-stack-pop"}], "title": "2.2.4.1. Get current task {#sec-current-task}"}], "external": true};
+window.dfnpanelData['7c3de606'] = {"dfnID": "7c3de606", "url": "https://infra.spec.whatwg.org/#stack-push", "dfnText": "push", "refSections": [{"refs": [{"id": "ref-for-stack-push"}], "title": "2.2.4.1. Get current task {#sec-current-task}"}], "external": true};
+window.dfnpanelData['ceacaa1c'] = {"dfnID": "ceacaa1c", "url": "https://infra.spec.whatwg.org/#stack", "dfnText": "stack", "refSections": [{"refs": [{"id": "ref-for-stack"}], "title": "2.2.2. Task scope stack {#sec-task-scope-stack}"}], "external": true};
+window.dfnpanelData['concept-task-scope'] = {"dfnID": "concept-task-scope", "url": "#concept-task-scope", "dfnText": "task scope", "refSections": [{"refs": [{"id": "ref-for-concept-task-scope"}, {"id": "ref-for-concept-task-scope\u2460"}], "title": "2.2.1. Task scope {#sec-task-scope}"}, {"refs": [{"id": "ref-for-concept-task-scope\u2461"}, {"id": "ref-for-concept-task-scope\u2462"}], "title": "2.2.2. Task scope stack {#sec-task-scope-stack}"}], "external": false};
+window.dfnpanelData['task-scope-task-continuation-data'] = {"dfnID": "task-scope-task-continuation-data", "url": "#task-scope-task-continuation-data", "dfnText": "task continuation data", "refSections": [{"refs": [{"id": "ref-for-task-scope-task-continuation-data"}], "title": "2.2.2. Task scope stack {#sec-task-scope-stack}"}], "external": false};
+window.dfnpanelData['task-scope-task'] = {"dfnID": "task-scope-task", "url": "#task-scope-task", "dfnText": "task", "refSections": [{"refs": [{"id": "ref-for-task-scope-task"}], "title": "2.2.2. Task scope stack {#sec-task-scope-stack}"}, {"refs": [{"id": "ref-for-task-scope-task\u2460"}], "title": "2.2.4.1. Get current task {#sec-current-task}"}], "external": false};
+window.dfnpanelData['task-scope-stack'] = {"dfnID": "task-scope-stack", "url": "#task-scope-stack", "dfnText": "task scope stack", "refSections": [{"refs": [{"id": "ref-for-task-scope-stack"}, {"id": "ref-for-task-scope-stack\u2460"}], "title": "2.2.2. Task scope stack {#sec-task-scope-stack}"}, {"refs": [{"id": "ref-for-task-scope-stack\u2461"}, {"id": "ref-for-task-scope-stack\u2462"}], "title": "2.2.4.1. Get current task {#sec-current-task}"}, {"refs": [{"id": "ref-for-task-scope-stack\u2463"}], "title": "2.3. HTML integration"}], "external": false};
+window.dfnpanelData['create-a-task-scope'] = {"dfnID": "create-a-task-scope", "url": "#create-a-task-scope", "dfnText": "create a task scope", "refSections": [{"refs": [{"id": "ref-for-create-a-task-scope"}, {"id": "ref-for-create-a-task-scope\u2460"}], "title": "2.3. HTML integration"}], "external": false};
+window.dfnpanelData['tear-down-a-task-scope'] = {"dfnID": "tear-down-a-task-scope", "url": "#tear-down-a-task-scope", "dfnText": "tear down a task scope", "refSections": [{"refs": [{"id": "ref-for-tear-down-a-task-scope"}, {"id": "ref-for-tear-down-a-task-scope\u2460"}], "title": "2.3. HTML integration"}], "external": false};
+window.dfnpanelData['get-current-task'] = {"dfnID": "get-current-task", "url": "#get-current-task", "dfnText": "get current task", "refSections": [{"refs": [{"id": "ref-for-get-current-task"}], "title": "2.2.4.2. Get current task ID {#sec-current-task-id}"}], "external": false};
+window.dfnpanelData['get-current-task-id'] = {"dfnID": "get-current-task-id", "url": "#get-current-task-id", "dfnText": "get current task id", "refSections": [{"refs": [{"id": "ref-for-get-current-task-id"}], "title": "2.3. HTML integration"}], "external": false};
+window.dfnpanelData['task-task-attribution-id'] = {"dfnID": "task-task-attribution-id", "url": "#task-task-attribution-id", "dfnText": "task attribution ID", "refSections": [{"refs": [{"id": "ref-for-task-task-attribution-id"}], "title": "2.2.2. Task scope stack {#sec-task-scope-stack}"}, {"refs": [{"id": "ref-for-task-task-attribution-id\u2460"}], "title": "2.2.4.2. Get current task ID {#sec-current-task-id}"}], "external": false};
+window.dfnpanelData['task-parent-task'] = {"dfnID": "task-parent-task", "url": "#task-parent-task", "dfnText": "parent task", "refSections": [{"refs": [{"id": "ref-for-task-parent-task"}], "title": "2.3. HTML integration"}], "external": false};
+</script>
+<script>/* Boilerplate: script-dom-helper */
+function query(sel) { return document.querySelector(sel); }
+
+function queryAll(sel) { return [...document.querySelectorAll(sel)]; }
+
+function iter(obj) {
+	if(!obj) return [];
+	var it = obj[Symbol.iterator];
+	if(it) return it;
+	return Object.entries(obj);
+}
+
+function mk(tagname, attrs, ...children) {
+	const el = document.createElement(tagname);
+	for(const [k,v] of iter(attrs)) {
+		if(k.slice(0,3) == "_on") {
+			const eventName = k.slice(3);
+			el.addEventListener(eventName, v);
+		} else if(k[0] == "_") {
+			// property, not attribute
+			el[k.slice(1)] = v;
+		} else {
+			if(v === false || v == null) {
+        continue;
+      } else if(v === true) {
+        el.setAttribute(k, "");
+        continue;
+      } else {
+  			el.setAttribute(k, v);
+      }
+		}
+	}
+	append(el, children);
+	return el;
+}
+
+/* Create shortcuts for every known HTML element */
+[
+  "a",
+  "abbr",
+  "acronym",
+  "address",
+  "applet",
+  "area",
+  "article",
+  "aside",
+  "audio",
+  "b",
+  "base",
+  "basefont",
+  "bdo",
+  "big",
+  "blockquote",
+  "body",
+  "br",
+  "button",
+  "canvas",
+  "caption",
+  "center",
+  "cite",
+  "code",
+  "col",
+  "colgroup",
+  "datalist",
+  "dd",
+  "del",
+  "details",
+  "dfn",
+  "dialog",
+  "div",
+  "dl",
+  "dt",
+  "em",
+  "embed",
+  "fieldset",
+  "figcaption",
+  "figure",
+  "font",
+  "footer",
+  "form",
+  "frame",
+  "frameset",
+  "head",
+  "header",
+  "h1",
+  "h2",
+  "h3",
+  "h4",
+  "h5",
+  "h6",
+  "hr",
+  "html",
+  "i",
+  "iframe",
+  "img",
+  "input",
+  "ins",
+  "kbd",
+  "label",
+  "legend",
+  "li",
+  "link",
+  "main",
+  "map",
+  "mark",
+  "meta",
+  "meter",
+  "nav",
+  "nobr",
+  "noscript",
+  "object",
+  "ol",
+  "optgroup",
+  "option",
+  "output",
+  "p",
+  "param",
+  "pre",
+  "progress",
+  "q",
+  "s",
+  "samp",
+  "script",
+  "section",
+  "select",
+  "small",
+  "source",
+  "span",
+  "strike",
+  "strong",
+  "style",
+  "sub",
+  "summary",
+  "sup",
+  "table",
+  "tbody",
+  "td",
+  "template",
+  "textarea",
+  "tfoot",
+  "th",
+  "thead",
+  "time",
+  "title",
+  "tr",
+  "u",
+  "ul",
+  "var",
+  "video",
+  "wbr",
+  "xmp",
+].forEach(tagname=>{
+	mk[tagname] = (...args) => mk(tagname, ...args);
 });
+
+function* nodesFromChildList(children) {
+	for(const child of children.flat(Infinity)) {
+		if(child instanceof Node) {
+			yield child;
+		} else {
+			yield new Text(child);
+		}
+	}
+}
+function append(el, ...children) {
+	for(const child of nodesFromChildList(children)) {
+		if(el instanceof Node) el.appendChild(child);
+		else el.push(child);
+	}
+	return el;
+}
+
+function insertAfter(el, ...children) {
+	for(const child of nodesFromChildList(children)) {
+		el.parentNode.insertBefore(child, el.nextSibling);
+	}
+	return el;
+}
+
+function clearContents(el) {
+	el.innerHTML = "";
+	return el;
+}
+
+function parseHTML(markup) {
+	if(markup.toLowerCase().trim().indexOf('<!doctype') === 0) {
+		const doc = document.implementation.createHTMLDocument("");
+		doc.documentElement.innerHTML = markup;
+		return doc;
+	} else {
+		const el = mk.template({});
+		el.innerHTML = markup;
+		return el.content;
+	}
+}
 </script>
