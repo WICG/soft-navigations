@@ -103,7 +103,7 @@ To <dfn export>check ancestor set for task</dfn>, given |ancestor id set|, a [=t
 
 #### Get current task {#sec-current-task}
 To <dfn export>get current task</dfn>, run the following steps:
-  1. Let |scope| be the result of [=poping=] the [=relevant agent=]'s [=agent/event loop=]'s [=task scope stack=].
+  1. Let |scope| be the result of [=popping=] the [=relevant agent=]'s [=agent/event loop=]'s [=task scope stack=].
   1. [=stack/Push=] |scope| to the [=relevant agent=]'s [=agent/event loop=]'s [=task scope stack=].
   1. Return |scope|'s [=task scope/task=].
 
@@ -126,10 +126,12 @@ In [=Execute the script element=], add initial steps:
 Add a terminating step:
   1. [=Tear down a task scope=]
 
-A [=/task=] has a <dfn for="task">task attribution ID</dfn>, an [implementation defined] value,
+A [=/task=] has a <dfn for="task">task attribution ID</dfn>, an [=implementation-defined=] value,
 representing a unique identifier. It is initially unset.
 
 A [=/task=] has a <dfn for="task">parent task</dfn>, a [=/task=], initially unset.
+
+Note: Should we move that info into a "task attribution info" structure and only link those?
 
 In [=queue a task=]:
 
