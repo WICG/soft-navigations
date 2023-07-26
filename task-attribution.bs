@@ -39,7 +39,7 @@ This specification outlines a mechanism that would enable user agents to deduce 
 However, this specification does not define a web exposed feature in and of itself.
 
 </div>
-ISSUE: Should we discuss potential conncetion with AsyncContext and its use cases?
+ISSUE: Should we discuss potential connection with AsyncContext and its use cases?
 
 Task Attribution {#sec-task-attribution}
 ========================
