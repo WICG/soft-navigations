@@ -15,5 +15,5 @@ jobs:
         with:
           GH_PAGES_BRANCH: gh-pages
           TOOLCHAIN: bikeshed
-          SOURCE: soft-navigation.bs
+          SOURCE: soft-navigations.bs
           DESTINATION: index.html
