@@ -4,7 +4,7 @@
 
 “Soft navigations” are JS-driven same-document navigations that are using the history API or the new Navigation API, triggered by a user gesture and modifies the DOM, modifying the previous content, as well as the URL displayed to the user.
 
-[PerformanceTimeline#168](https://github.com/w3c/performance-timeline/issues/168) outlines the desire to be able to better report performance metrics on soft navigation. Heuristics for detecting soft navigations can ensure that developers that follow a well-lit path can ensure their SPA’s performance metric scores properly represent soft navigations.
+[PerformanceTimeline#168](https://github.com/w3c/performance-timeline/issues/168) outlines the desire to be able to better report performance metrics on soft navigation. Heuristics for detecting soft navigations can ensure that developers can measure their SPA’s performance metrics, and optimize them to benefit their users.
 
 ## Motivation
 Why would we want to web-expose soft navigation at all, you ask?
@@ -12,6 +12,8 @@ Why would we want to web-expose soft navigation at all, you ask?
 Well, a few reasons:
 * Developers would like to attribute various performance entries to specific “soft navigation” URLs. For example, layout shifts caused in one URL can currently be attributed to the corresponding landing page, resulting in mis-attribution and trouble finding the real cause and fixing it.
 * Developers would like to receive various “load” performance entries for soft navigations. Specifically, paint timing entries seem desired for such navigations.
+
+From a user's perspective, while they don't necessarily care about the architecture of the site they're visiting, they likely care about it being fast. This specification would enable alignment of the measurements with the user experience, improving the chances of SPA sites being perceived as fast by their users.
 
 
 ## Proposed Heuristics
