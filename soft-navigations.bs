@@ -19,10 +19,20 @@ urlPrefix: https://html.spec.whatwg.org/C; spec: HTML;
     type: dfn; url: #update-the-navigation-api-entries-for-a-same-document-navigation; text: update the navigation API entries for a same-document navigation;
 urlPrefix: https://html.spec.whatwg.org/C; spec: HTML;
     type: dfn; url: #execute-the-script-element; text: execute the script element;
+urlPrefix: https://html.spec.whatwg.org/C; spec: HTML;
+    type: dfn; url: #document; text: document;
+urlPrefix: https://html.spec.whatwg.org/C; spec: HTML;
+    type: dfn; url: #navigation; text: navigation;
+urlPrefix: https://html.spec.whatwg.org/C; spec: HTML;
+    type: dfn; url: #update-document-for-history-step-application; text: update document for history step application;
+urlPrefix: https://html.spec.whatwg.org/C; spec: HTML;
+    type: dfn; url: #top-level-traversable; text: top-level traversable;
 urlPrefix: https://dom.spec.whatwg.org/; spec: DOM;
     type: dfn; url: #concept-event-dispatch; text: event dispatch;
 urlPrefix: https://dom.spec.whatwg.org/; spec: DOM;
     type: dfn; url: #concept-node-insert; text: node insert;
+urlPrefix: https://dom.spec.whatwg.org/; spec: DOM;
+    type: dfn; url: #dom-event-istrusted; text: isTrusted;
 </pre>
 <pre class=link-defaults>
 </pre>
@@ -31,8 +41,6 @@ Introduction {#sec-intro}
 =====================
 
 <div class="non-normative">
-<em> This is a work in progress and is in no way ready for review</em>
-
 <em>This section is non-normative.</em>
 
 Single Page App or SPA is a common web development pattern on the web today, but also one that browsers haven't been able to measure performance metrics for.
@@ -60,40 +68,48 @@ Algorithms {#sec-algos}
 
 <div class=note>
 A Soft Navigation is a same document navigation which satisfies the following conditions:
+  * Its navigating task is a descendent of a user interaction task.
+  * There exists a DOM modification operation whose task is a descendent of the same user interaction task.
+    </div>
 
-  1) Its navigating task is a descendent of a user interaction task.
-  1) There exists a DOM modificaation operation whose task is a descendent of the same user interaction task.
-</div>
+To <dfn>check soft navigation</dfn>, with a [=Document=] |doc|, run the following steps:
+* If |doc|'s [=soft navigation same document commit=] is true and |doc|'s [=soft navigation DOM modification=] is true, call[=emit soft navigation entry=] with |doc|.
 
-To <dfn>check soft navigation</dfn>, run the following steps:
-if the document's "has soft navigation same document commit" and "has soft navigation dom modification" flags are both set to true, call [=emit soft navigation entry=].
-
-To <dfn>emit soft navigation entry</dfn>, run the following steps:
+To <dfn>emit soft navigation entry</dfn>, with a [=Document=] |doc|, run the following steps:
 
   * Queue an entry
   * Add an entry to the performance timeline
   * Reset LCP flags
   * Reset FP/FCP flags.
+  * Reset the doc's flag
 
-HTML monkeypatches {#sec-html}
+TODO: Actually define all the above.
+
+HTML integration {#sec-html}
 =================
-Each navigation has an "is same document" flag, initially unset.
-Each document has:
 
-  1) a task ID that's a potential soft nav task.
-  1) a "has soft navigation same-document commit" flag, initially unset.
-  1) a "has soft navigation DOM modifications" flag, initially unset.
+Document {#sec-html-document}
+----------
 
-In [=update the navigation api entries for a same-document navigation=], set the "is same document" flag.
-https://html.spec.whatwg.org/multipage/nav-history-apis.html#update-the-navigation-api-entries-for-a-same-document-navigation
-Let document's "has soft navigation same document commit" be the result of [=Check ancestor for task=] with the document's soft navigation ID and the result of calling [=get current task ID=]. 
-Call [=check soft navigation=].
+Each [=document=] has a <dfn for=document>potential soft navigation task id</dfn>, a [=task attribution ID=].
 
-At [=event dispatch=], if the event type is "click" and is user initiated, get the current running task's task ID and add it as the Document's soft navigation task ID
+Each [=document=] has a <dfn for=document>soft navigation same document commit</dfn> flag, initially unset.
 
-At [=node insert=], add a step:
-Let document's "has soft navigation dom modification" be the result of [[Check ancestor for task]] with the document's soft navigation ID and the result of calling [=get current task ID=]. 
-Call [=check soft navigation=].
+Each [=document=] has a <dfn for=document>soft navigation DOM modification</dfn> flag, initially unset.
+
+In [=update document for history step application=], add the following steps before 5.5.1 (if `documentsEntryChanged` is true and if `documentIsNew` is false):
+* Let <a>document</a>'s [=soft navigation same document commit=] be the result of [=Check ancestor for task=] with the document's soft navigation ID and the result of calling [=get current task ID=]. 
+* Call [=check soft navigation=].
+
+At [=event dispatch=], after step 5.4 ("Let `isActivationEvent` be true..."), add the following step:
+* If <var ignore>isActivationEvent</var> is true, and <var ignore>event</var>'s [=isTrusted=] is true, and |target|'s [=associated Document=] is a [=top-level traversable=],
+    let |target|'s [=associated Document=]'s [=potential soft navigation task id=] be the result of calling [=get current task ID=].
+
+
+At [=node insert=], add these initial steps:
+* Let |doc| be <var ignore>parent</var>'s [=node document=].
+* Let |doc|'s [=soft navigation DOM modification=] be the result of running [=Check ancestor for task=] with the |doc|'s [=potential soft navigation task id=] and the result of calling [=get current task ID=]. 
+* Call [=check soft navigation=].
 
 
 Task Attibution Algorithms {#sec-task-attribution-algorithms}
@@ -202,8 +218,8 @@ TODO: other cases??
 Security & privacy considerations {#priv-sec}
 ===============================================
 Exposing Soft Navigations to the performance timeline doesn't have security and privacy implications on its own.
-However, reseting the various paint timing entries as a result of a detected soft navigation can have implications, especially before [visited links are partitioned](https://github.com/kyraseevers/Partitioning-visited-links-history). As such, exposing such paint operations without partitioning the :visited cache should be only done after careful analysis of the paint operations in question, to make sure they don't expose the user's history across origins.
+However, reseting the various paint timing entries as a result of a detected soft navigation can have implications, especially before [visited links are partitioned](https://github.com/kyraseevers/Partitioning-visited-links-history). As such, exposing such paint operations without partitioning the :visited cache needs to only be done after careful analysis of the paint operations in question, to make sure they don't expose the user's history across origins.
 
 Task Attribution as infrastructure doesn't directly expose any data to the web, it doesn't have any privacy and security implications.
-Web exposed specifications that rely on this infrastructure might have such implications. As such, they need to be individually examined and have those implications outlined.
+Web exposed specifications that rely on this infrastructure could have such implications. As such, they need to be individually examined and have those implications outlined.
 
