@@ -1,19 +1,16 @@
-name: Automatic Publication
-
+name: CI
 on:
   pull_request: {}
   push:
     branches: [main]
-
 jobs:
-  validate-and-publish:
-    name: Validate and build
+  main:
+    name: Build, Validate and Deploy
     runs-on: ubuntu-20.04
+    permissions:
+      contents: write
     steps:
       - uses: actions/checkout@v3
       - uses: w3c/spec-prod@v2
         with:
-          TOOLCHAIN: bikeshed
-          # Convert Editor's Draft to Working Draft!
-          W3C_BUILD_OVERRIDE: |
-            specStatus: CG-DRAFT
+          GH_PAGES_BRANCH: gh-pages
