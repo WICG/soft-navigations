@@ -2,16 +2,18 @@
 Title: Soft Navigations
 Status: CG-DRAFT
 Shortname:soft-navigations
-Group: wicg 
+Group: wicg
 Level: none
 Editor: Yoav Weiss, Google https://google.com, yoav@yoav.ws, w3cid 58673
 
-URL: https://wicg.github.io/soft-navigation/soft-navigations.html
-Repository: https://github.com/WICG/soft-navigation
+URL: https://wicg.github.io/soft-navigations/soft-navigations.html
+Repository: https://github.com/WICG/soft-navigations
 Test Suite: https://github.com/web-platform-tests/wpt/tree/master/soft-navigation-heuristics
 Abstract: This document defines a heuristic that would enable browsers to report metrics related to Single Page Apps soft navigations.
+Boilerplate: omit conformance
 Default Highlight: js
 Complain About: accidental-2119 yes
+Markup Shorthands: markdown on
 </pre>
 
 <pre class=anchors>
@@ -58,7 +60,7 @@ The user agent’s event loop is continuously running tasks, as well as microtas
 Being able to keep track of which task initiated which can be valuable in multiple cases:
   * Enable user agents to create heuristics that rely on causal link between one operation (e.g. a user initiated click event) and another (e,g. a DOM modification).
   * Enable user agents to make prioritization (of tasks as well as resource loading) "inheritable", and e.g. ensure that low-priority scripts cannot queue high-priority tasks.
-  * Enable causal user activation delegaion.
+  * Enable causal user activation delegation.
   * Enable accumulating knowledge of resource loading dependency chains, and enable developers to draw insights from them.
 
 ISSUE: Should we discuss potential connection with AsyncContext and its use cases?
@@ -73,7 +75,7 @@ A Soft Navigation is a same document navigation which satisfies the following co
     </div>
 
 To <dfn>check soft navigation</dfn>, with a [=Document=] |doc|, run the following steps:
-* If |doc|'s [=soft navigation same document commit=] is true and |doc|'s [=soft navigation DOM modification=] is true, call[=emit soft navigation entry=] with |doc|.
+* If |doc|'s [=soft navigation same document commit=] is true and |doc|'s [=soft navigation DOM modification=] is true, call [=emit soft navigation entry=] with |doc|.
 
 To <dfn>emit soft navigation entry</dfn>, with a [=Document=] |doc|, run the following steps:
 
@@ -98,7 +100,7 @@ Each [=document=] has a <dfn for=document>soft navigation same document commit</
 Each [=document=] has a <dfn for=document>soft navigation DOM modification</dfn> flag, initially unset.
 
 In [=update document for history step application=], add the following steps before 5.5.1 (if `documentsEntryChanged` is true and if `documentIsNew` is false):
-* Let <a>document</a>'s [=soft navigation same document commit=] be the result of [=Check ancestor for task=] with the document's soft navigation ID and the result of calling [=get current task ID=]. 
+* Let <a>document</a>'s [=soft navigation same document commit=] be the result of [=Check ancestor for task=] with the document's soft navigation ID and the result of calling [=get current task ID=].
 * Call [=check soft navigation=].
 
 At [=event dispatch=], after step 5.4 ("Let `isActivationEvent` be true..."), add the following step:
@@ -108,7 +110,7 @@ At [=event dispatch=], after step 5.4 ("Let `isActivationEvent` be true..."), ad
 
 At [=node insert=], add these initial steps:
 * Let |doc| be <var ignore>parent</var>'s [=node document=].
-* Let |doc|'s [=soft navigation DOM modification=] be the result of running [=Check ancestor for task=] with the |doc|'s [=potential soft navigation task id=] and the result of calling [=get current task ID=]. 
+* Let |doc|'s [=soft navigation DOM modification=] be the result of running [=Check ancestor for task=] with the |doc|'s [=potential soft navigation task id=] and the result of calling [=get current task ID=].
 * Call [=check soft navigation=].
 
 
@@ -122,18 +124,18 @@ The general principle behind task attribution is quite simple:
 
 Each task maintains a connection to its parent task, enabling an implicit data structure that enables querying a task to find if another, specific one is its ancestor.
 
-## Task scope {#sec-task-scope}
+## Task scope ## {#sec-task-scope}
 
 
 A <dfn id=concept-task-scope>task scope</dfn> is formally defined as a structure.
 
-A [=task scope=] has <dfn for="task scope">task continuation data</dfn>, a struct.
+A [=task scope=] has <dfn for="task scope">task continuation data</dfn>, a [=struct=].
 
 A [=task scope=] has a <dfn for="task scope">task</dfn>, a [=/task=].
 
 
 
-## Task scope stack {#sec-task-scope-stack}
+## Task scope stack ## {#sec-task-scope-stack}
 A <dfn>task scope stack</dfn> is a [=stack=] of <a>task scopes</a>.
 
 To <dfn>create a task scope</dfn>, given |task|, a [=/task=], do the following:
@@ -147,7 +149,7 @@ To <dfn>tear down a task scope</dfn>, do the following:
   1. Pop |scope| from the [=relevant agent=]'s [=agent/event loop=]'s [=task scope stack=]
   1. Set the isolate's continuation data thing to the one at the top of the stack
 
-## Is ancestor {#sec-is-ancestor}
+## Is ancestor ## {#sec-is-ancestor}
 To <dfn export>check ancestor for task</dfn>, given |ancestor id|, a [=task attribution ID=], run the following:
   1. Let |task| be the result of [=get current task=].
   1. While true:
@@ -157,7 +159,7 @@ To <dfn export>check ancestor for task</dfn>, given |ancestor id|, a [=task attr
     1. Set |task| to |task|'s [=parent task=].
 
 
-## Is ancestor in set {#sec-is-ancestor-in-set}
+## Is ancestor in set ## {#sec-is-ancestor-in-set}
 
 To <dfn export>check ancestor set for task</dfn>, given |ancestor id set|, a [=task attribution ID=] [=/set=], run the following:
   1. Let |task| be the result of [=get current task=].
@@ -167,7 +169,7 @@ To <dfn export>check ancestor set for task</dfn>, given |ancestor id set|, a [=t
     1. If |ancestor id set| [=contains=] |id|, return true.
     1. Set |task| to |task|'s [=parent task=].
 
-### Get current task {#sec-current-task}
+### Get current task ### {#sec-current-task}
 To <dfn export>get current task</dfn>, run the following steps:
   1. Let |scope| be the result of [=popping=] the [=relevant agent=]'s [=agent/event loop=]'s [=task scope stack=].
   1. [=stack/Push=] |scope| to the [=relevant agent=]'s [=agent/event loop=]'s [=task scope stack=].
@@ -175,7 +177,7 @@ To <dfn export>get current task</dfn>, run the following steps:
 
 Note: The first 2 steps here really need to be a peek operation.
 
-### Get current task ID {#sec-current-task-id}
+### Get current task ID ### {#sec-current-task-id}
 To <dfn export>get current task id</dfn>, run the following steps:
   1. Let |task| be the result of [=get current task=].
   1. Return |task|'s [=task attribution ID=].
