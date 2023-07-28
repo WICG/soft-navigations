@@ -5,8 +5,7 @@ Shortname:soft-navigations
 Group: wicg
 Level: none
 Editor: Yoav Weiss, Google https://google.com, yoav@yoav.ws, w3cid 58673
-
-URL: https://wicg.github.io/soft-navigations/soft-navigations.html
+URL: https://wicg.github.io/soft-navigations/
 Repository: https://github.com/WICG/soft-navigations
 Test Suite: https://github.com/web-platform-tests/wpt/tree/master/soft-navigation-heuristics
 Abstract: This document defines a heuristic that would enable browsers to report metrics related to Single Page Apps soft navigations.
