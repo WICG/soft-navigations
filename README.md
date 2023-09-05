@@ -17,13 +17,13 @@ From a user's perspective, while they don't necessarily care about the architect
 
 
 ## Proposed Heuristics
-* The user initiated a soft navigation, by clicking on a DOM element.
+* The user initiated a soft navigation, by clicking on a DOM element, or using an unfocused "keydown" event.
   - We considered using only semantic elements, but it seems to not match current real-world practices.
 * That operation resulted in an event handler firing (either a “click” event or a “navigate” event)
 * We then follow the tasks triggered by the event handler:
   - If it’s a “navigate” event, those tasks are part of the Promise passed to traverseTo()
-  - If it’s a “click” event, those tasks are spawned by the event handler itself
-* In case of a “click” event, the handler triggered tasks that included History.pushState() or History.replaceState() calls, or a change to the document’s location
+  - If it’s a “click” or a "keydown" event, those tasks are spawned by the event handler itself
+* In case of a “click”  or a "keydown" event, the handler triggered tasks that included History.pushState() or History.replaceState() calls, or a change to the document’s location
 * The tasks modify DOM elements.
   - We may try to limit that to specific DOM elements or some other heuristic regarding "meaningful" DOM modifications, in case we'd see the heuristic is too broad and captures modifications which should not be reasonably be considered 
 navigations".
@@ -45,7 +45,7 @@ SoftNavigationEntry : PerformanceEntry {
 [NavigationID](https://pr-preview.s3.amazonaws.com/w3c/performance-timeline/192/ca6936d...clelland:6e5497e.html#dom-performanceentry-navigationid) will be defined in Performance Timeline. ([explainer](https://docs.google.com/document/d/1sUPyBLPYtKPyyuu1-3XqJT1QUE6n0cRBZP5IfH8cjQE/edit?resourcekey=0-PpjDpPLPsFk8ips35GXj1w))
 
 The inheritance from `PerformanceEntry` means that the entry will have `startTime`, `name`, `entryType` and `duration`:
-* `startTime` would be defined as the time in which the user's click was received. See [discussion](https://bugs.chromium.org/p/chromium/issues/detail?id=1369680).
+* `startTime` would be defined as the time in which the user's interaction was received. See [discussion](https://bugs.chromium.org/p/chromium/issues/detail?id=1369680).
 * `name` would be the URL of the history entry representing the soft navigation.
 * `entryType` would be "soft-navigation".
 * `duration` - it's not currently clear what a useful `duration` value would be that enables the entry to fire early enough. See [issue #4](https://github.com/yoavweiss/soft-navigations/issues/4).
