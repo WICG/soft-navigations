@@ -15,6 +15,13 @@ Well, a few reasons:
 
 From a user's perspective, while they don't necessarily care about the architecture of the site they're visiting, they likely care about it being fast. This specification would enable alignment of the measurements with the user experience, improving the chances of SPA sites being perceived as fast by their users.
 
+## Goals
+* Enable measurement of Single-Page app performance in the wild for today's apps.
+* Enable such measurement at scale - allowing the team that owns the measurement to be decoupled from the team that owns the app's logic.
+
+## Non-goals
+* Relying on developer annotation.
+
 
 ## Proposed Heuristics
 * The user initiated a soft navigation, by clicking on a DOM element, or using an unfocused "keydown" event.
@@ -122,11 +129,23 @@ Furthermore, cross-origin imformation about images or font resources is not expo
 I like how you're thinking!
 
 You can do that by:
-* Installing [Chrome Canary](https://www.google.com/chrome/canary/), if you haven't already (or [building tip-of-tree Chromium](https://www.chromium.org/developers/how-tos/get-the-code/), if that's your thing)
-* [Enabling "Experimental Web Platform features"](chrome://flags/#enable-experimental-web-platform-features)
-* Browsing to the site you want to test!
-* Opening the devtools' console
-* Looking for "A soft navigation has been detected" in the console logs
-* Alternatively, running the example code above in your console to observe `SoftNavigationEntry` entries
+* Joining the [Origin Trial](https://developer.chrome.com/origintrials/#/trials/active), and [enabling it on your site](https://developer.chrome.com/en/docs/web-platform/origin-trials/).
+* Alternatively, you can:
+  - [enable "Experimental Web Platform features"](chrome://flags/#enable-experimental-web-platform-features) in Chrome
+  - Browsing to the site you want to test!
+  - Opening the devtools' console
+  - Looking for "A soft navigation has been detected" in the console logs
+  - Alternatively, running the example code above in your console to observe `SoftNavigationEntry` entries
 
 And remember, if you find bugs, https://crbug.com is the best way to get them fixed!
+
+# FAQs
+
+## Should this rely on the [Navigation API](https://html.spec.whatwg.org/multipage/nav-history-apis.html#navigation-api)?
+
+If this effort were to rely on the Navigation API, that would mean that it can only cover future web apps, or require web apps to completely rewrite their routing libraries in order to take advantage of Soft Navigation measurement.
+That would go against the goal of being able to measure such navigations at scale.
+
+On top of that, the Navigation API does not make any distinction between "real" navigations and interactions, so even if we were to rely on the Navigation API, extra heuristics would still be needed.
+
+With that said, this effort works great with the Navigation API, as well as with the older history API.
