@@ -7,6 +7,7 @@
 [PerformanceTimeline#168](https://github.com/w3c/performance-timeline/issues/168) outlines the desire to be able to better report performance metrics on soft navigation. Heuristics for detecting soft navigations can ensure that developers can measure their SPA’s performance metrics, and optimize them to benefit their users.
 
 ## Motivation
+
 Why would we want to web-expose soft navigation at all, you ask?
 
 Well, a few reasons:
@@ -16,14 +17,13 @@ Well, a few reasons:
 From a user's perspective, while they don't necessarily care about the architecture of the site they're visiting, they likely care about it being fast. This specification would enable alignment of the measurements with the user experience, improving the chances of SPA sites being perceived as fast by their users.
 
 ## Goals
+
 * Enable measurement of Single-Page app performance in the wild for today's apps.
 * Enable such measurement at scale - allowing the team that owns the measurement to be decoupled from the team that owns the app's logic.
-
-## Non-goals
-* Relying on developer annotation.
-
+* Not rely on developers annotating soft navigations themselves.
 
 ## Proposed Heuristics
+
 * The user initiated a soft navigation, by clicking on a DOM element, or using an unfocused "keydown" event.
   - We considered using only semantic elements, but it seems to not match current real-world practices.
 * That operation resulted in an event handler firing (either a “click” event or a “navigate” event)
@@ -39,6 +39,7 @@ navigations".
 * Finally, we should consider limiting the amount of soft navigation detected in a certain timeframe (e.g. X per Y seconds).
 
 ### [Task attribution](https://bit.ly/task-attribution)
+
 The above heuristics rely on the ability to keep track of tasks and their provenance. We need to be able to tell that a certain task was posted by another, and be able to create a causality chain between DOM dirtying and URL modifications to the event handler that triggered the soft navigation.
 
 Note: We would need to specify TaskAttribution as part of the event loop's processing in order to properly specify the heuristics above.
@@ -58,6 +59,7 @@ The inheritance from `PerformanceEntry` means that the entry will have `startTim
 * `duration` - it's not currently clear what a useful `duration` value would be that enables the entry to fire early enough. See [issue #4](https://github.com/yoavweiss/soft-navigations/issues/4).
 
 ## Examples
+
 That's all neat, but how would developers use the above? Great question!
 
 ### Reporting a soft navigation
@@ -96,16 +98,19 @@ for (entry of lcp_entries) {
 ```
 
 ## Required spec changes
+
 * This relies on performance timeline's navigationID
 * We'd need to specify Task Attribution
 * We would need to modify PaintTiming and LCP to restart their reporting once a soft navigation was encountered.
 * We need to add `PerformanceObserverInit` option named "includeSoftNavigationObservations", that will indicate that post-soft-navigation FP, FCP and LCP entries should be observed.
 
 ## Privacy and security considerations
+
 This API exposes a few novel paint timestamps that are not available today, after a soft navigation is detected: the first paint, the first contentful paint and the largest contentful paint.
 It is already possible to get some of that data through Element Timing and requestAnimationFrame, but this proposal will expose that data without the need to craft specific elements with the `elementtiming` attribute.
 
 ### Mitigations
+
 * The LCP timestamp is subject to the same constraints as current LCP entries, and doesn't expose cross-origin rendering times without an explicit opt-in.
 * The FCP timestamp doesn't necessary waits until a cross-origin image is fully loaded in order to fire, minimizing the cross-origin information exposed.
 * Soft navigations detected are inherently user-driven, preventing programatic scanning of markup permutations and their impact on paint timestamps.
@@ -116,8 +121,8 @@ Given the above mitigations, attacks such as [history sniffing attacks](https://
 
 Furthermore, cross-origin imformation about images or font resources is not exposed by Soft Navigation LCP, similarly to regular LCP.
 
-
 ## Open Questions
+
 * Do we need to define FCP/LCP as contentful paints that are the result of the soft navigation?
 * Could we augment the heuristic to take both DOM additions and removals into account?
   - Currently, interactions such as Twitter/Gmail's "compose" button would be considered soft navigations, where one could argue they are really interactions.
@@ -136,6 +141,8 @@ You can do that by:
   - Opening the devtools' console
   - Looking for "A soft navigation has been detected" in the console logs
   - Alternatively, running the example code above in your console to observe `SoftNavigationEntry` entries
+ 
+The Chrome team [have published an article about its implementation](https://developer.chrome.com/blog/soft-navigations-experiment/), and how developers can use this to try out the proposed API to see how it fits your needs.
 
 And remember, if you find bugs, https://crbug.com is the best way to get them fixed!
 
