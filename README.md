@@ -159,7 +159,7 @@ You can do that by:
   - Looking for "A soft navigation has been detected" in the console logs
   - Alternatively, running the example code above in your console to observe `SoftNavigationEntry` entries
  
-The Chrome team [have published an article about it's implementation](https://developer.chrome.com/blog/soft-navigations-experiment/), and how developers can use this to try out the proposed API to see how it fits your needs.
+The Chrome team [have published an article about its implementation](https://developer.chrome.com/blog/soft-navigations-experiment/), and how developers can use this to try out the proposed API to see how it fits your needs.
 
 And remember, if you find bugs, https://crbug.com is the best way to get them fixed!
 
