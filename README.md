@@ -65,6 +65,7 @@ That's all neat, but how would developers use the above? Great question!
 ### Reporting a soft navigation
 
 If developers want to augment their current reporting with soft navigations, they'd need to do something like the following:
+
 ```javascript
 const soft_navs = await new Promise(resolve => {
   (new PerformanceObserver( list => resolve(list.getEntries()))).observe(
@@ -72,19 +73,35 @@ const soft_navs = await new Promise(resolve => {
   });
 ```
 
-That would give them a list of past soft navigations they can send to their server for processing.
+Or by using `getEntriesByType`:
+
+```javascript
+const soft_navs = performance.getEntriesByType('soft-navigation');
+```
+
+That would give them a list of past and future soft navigations they can send to their server for processing.
 
 They would be able to also get soft navigations as they come (similar to other performance entries):
+
 ```javascript
 const soft_navs = [];
 (new PerformanceObserver( list => soft_navs.push(...list.getEntries()))).observe(
     {type: 'soft-navigation'});
 ```
 
+Or to include past soft navigations:
+
+```javascript
+const soft_navs = [];
+(new PerformanceObserver( list => soft_navs.push(...list.getEntries()))).observe(
+    {type: 'soft-navigation', buffered: true});
+```
+
 ### Correlating performance entries with a soft navigation
 
 For that developers would need to collect `soft_navs` into an array as above.
 Then they can, for each entry (which can be LCP, FCP, or any other entry type), find its corresponding duration as following:
+
 ```javascript
 const lcp_entries = [];
 (new PerformanceObserver( list => lcp_entries.push(...list.getEntries()))).observe(
@@ -142,7 +159,7 @@ You can do that by:
   - Looking for "A soft navigation has been detected" in the console logs
   - Alternatively, running the example code above in your console to observe `SoftNavigationEntry` entries
  
-The Chrome team [have published an article about its implementation](https://developer.chrome.com/blog/soft-navigations-experiment/), and how developers can use this to try out the proposed API to see how it fits your needs.
+The Chrome team [have published an article about it's implementation](https://developer.chrome.com/blog/soft-navigations-experiment/), and how developers can use this to try out the proposed API to see how it fits your needs.
 
 And remember, if you find bugs, https://crbug.com is the best way to get them fixed!
 
