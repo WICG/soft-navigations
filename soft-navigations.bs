@@ -18,22 +18,22 @@ Markup Shorthands: markdown on
 <pre class=anchors>
 urlPrefix: https://html.spec.whatwg.org/C; spec: HTML;
     type: dfn; url: #update-the-navigation-api-entries-for-a-same-document-navigation; text: update the navigation API entries for a same-document navigation;
-urlPrefix: https://html.spec.whatwg.org/C; spec: HTML;
     type: dfn; url: #execute-the-script-element; text: execute the script element;
-urlPrefix: https://html.spec.whatwg.org/C; spec: HTML;
     type: dfn; url: #document; text: document;
-urlPrefix: https://html.spec.whatwg.org/C; spec: HTML;
     type: dfn; url: #navigation; text: navigation;
-urlPrefix: https://html.spec.whatwg.org/C; spec: HTML;
     type: dfn; url: #update-document-for-history-step-application; text: update document for history step application;
-urlPrefix: https://html.spec.whatwg.org/C; spec: HTML;
     type: dfn; url: #top-level-traversable; text: top-level traversable;
+    type: dfn; url: #integration-with-jaavascript-jobs; text: Job-related host hooks;
 urlPrefix: https://dom.spec.whatwg.org/; spec: DOM;
     type: dfn; url: #concept-event-dispatch; text: event dispatch;
 urlPrefix: https://dom.spec.whatwg.org/; spec: DOM;
     type: dfn; url: #concept-node-insert; text: node insert;
 urlPrefix: https://dom.spec.whatwg.org/; spec: DOM;
     type: dfn; url: #dom-event-istrusted; text: isTrusted;
+urlPrefix:https://tc39.es/ecma262/#;type:dfn;spec:ecma-262
+    url:sec-createresolvingfunctions;text: CreateResolvingFunctions
+    url:sec-jobs;text: Jobs and Host Operations to Enqueue Jobs
+    url:sec-promise-objects;text: Promise Object
 </pre>
 <pre class=link-defaults>
 </pre>
@@ -48,10 +48,12 @@ Single Page App or SPA is a common web development pattern on the web today, but
 Specifically, JS-driven same-document navigations in SPAs have not been something that browsers detect, and hence went unmeasured.
 
 This specification outlines a heuristic to enable browsers to detect such navigations as Soft Navigations, and report them to the performance timeline and performance observers.
+</div>
 
 Task Attribution {#sec-task-attribution-intro}
 -----------------
 
+<div class="non-normative">
 The above heuristic relies on the ability to track task ancestory and to know that certain tasks were triggered by other tasks.
 This specification also outlines a mechanism that would enable user agents to deduce that information, and use it in web exposed features, such as soft navigations.
 
@@ -62,6 +64,7 @@ Being able to keep track of which task initiated which can be valuable in multip
   * Enable causal user activation delegation.
   * Enable accumulating knowledge of resource loading dependency chains, and enable developers to draw insights from them.
 
+</div>
 ISSUE: Should we discuss potential connection with AsyncContext and its use cases?
 
 Algorithms {#sec-algos}
@@ -174,11 +177,11 @@ To <dfn export>get current task</dfn>, run the following steps:
   1. [=stack/Push=] |scope| to the [=relevant agent=]'s [=agent/event loop=]'s [=task scope stack=].
   1. Return |scope|'s [=task scope/task=].
 
-Note: The first 2 steps here really need to be a peek operation.
+ISSUE: It'd be better to define a peek operation in infra and use that.
 
 ### Get current task ID ### {#sec-current-task-id}
 To <dfn export>get current task id</dfn>, run the following steps:
-  1. Let |task| be the result of [=get current task=].
+  1. Let |task| be the result of [=getting current task=].
   1. Return |task|'s [=task attribution ID=].
 
 TaskAttribution HTML integration {#sec-task-attribution-integration}
@@ -209,11 +212,42 @@ Add these steps after step 3, "Let task be a new task":
 Add a terminating step:
   1. [=Tear down a task scope=]
 
-TODO: handle microtasks
+At HostEnqueuePromiseJob add the following steps:
+  1. Let |task| be <var ignore>job</var>.|promise|.[task]
+  2. Set |task| as the currently running task.
+
+In [=Job-related host hooks=], add the following sub-section.
+
+`HostCreatePromiseResolversCallback (promise)` {#sec-hostcreate-promise-resolvers-callback-html}
+----------------------------------------------
+Javascript contains an [=implementation-defined=] [=HostCreatePromiseResolversCallback=](promise).
+User agents must use the following implementation:
+  1. Let |task| be the result of [=get current task id|getting the current task id=].
+  1. Let promise.[task] be |task|.
+
+
 TODO: handle timeouts
+
 TODO: handle postmessages
+
 TODO: handle same document navigations
-TODO: other cases??
+
+TODO: other cases?? (rAF, rIC, view transitions, observers, etc)
+
+TaskAttribution ECMA262 integration {#sec-ecma252}
+=========================================
+
+In [=CreateResolvingFunctions=] add a step before the final one:
+  1. Call [=HostCreatePromiseResolversCallback=] with |promise|.
+
+In [=Jobs and Host Operations to Enqueue Jobs=], add the following subsecion.
+
+`HostCreatePromiseResolversCallback (promise)` {#sec-hostcreate-promise-resolvers-callback-ecma}
+----------------------------------------------
+The [=host-defined=] abstract operation <dfn>HostCreatePromiseResolversCallback</dfn> takes arguments |promise| (a [=Promise Object=]) and returns nothing.
+
+The default implementation of HostCreatePromiseResolversCallback performs no steps.
+ECMAScript [=hosts=] that are not web browsers must use the default implementation of HostCreatePromiseResolversCallback.
 
 
 Security & privacy considerations {#priv-sec}
