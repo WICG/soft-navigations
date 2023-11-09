@@ -6,7 +6,7 @@
   <link href="https://www.w3.org/StyleSheets/TR/2021/cg-draft" rel="stylesheet">
   <meta content="Bikeshed version b06c00b8e, updated Tue Jul 11 13:41:16 2023 -0700" name="generator">
   <link href="https://wicg.github.io/soft-navigations/" rel="canonical">
-  <meta content="561a31c862f8b2053b1775aa4b69657c7ee2ea66" name="document-revision">
+  <meta content="91fdf942c35c221a4535b9e1da444f125b3c50fb" name="document-revision">
 <style>/* Boilerplate: style-autolinks */
 .css.css, .property.property, .descriptor.descriptor {
     color: var(--a-normal-text);
@@ -640,7 +640,7 @@ c-[il] { color: #000000 } /* Literal.Number.Integer.Long */
   <div class="head">
    <p data-fill-with="logo"><a class="logo" href="https://www.w3.org/"> <img alt="W3C" height="48" src="https://www.w3.org/StyleSheets/TR/2021/logos/W3C" width="72"> </a> </p>
    <h1 class="p-name no-ref" id="title">Soft Navigations</h1>
-   <p id="w3c-state"><a href="https://www.w3.org/standards/types#CG-DRAFT">Draft Community Group Report</a>, <time class="dt-updated" datetime="2023-07-28">28 July 2023</time></p>
+   <p id="w3c-state"><a href="https://www.w3.org/standards/types#CG-DRAFT">Draft Community Group Report</a>, <time class="dt-updated" datetime="2023-11-09">9 November 2023</time></p>
    <div data-fill-with="spec-metadata">
     <dl>
      <dt>This version:
@@ -702,8 +702,17 @@ A human-readable <a href="http://www.w3.org/community/about/agreements/cla-deed/
         <li><a href="#sec-current-task-id"><span class="secno">4.4.2</span> <span class="content">Get current task ID</span></a>
        </ol>
      </ol>
-    <li><a href="#sec-task-attribution-integration"><span class="secno">5</span> <span class="content">TaskAttribution HTML integration</span></a>
-    <li><a href="#priv-sec"><span class="secno">6</span> <span class="content">Security &amp; privacy considerations</span></a>
+    <li>
+     <a href="#sec-task-attribution-integration"><span class="secno">5</span> <span class="content">TaskAttribution HTML integration</span></a>
+     <ol class="toc">
+      <li><a href="#sec-hostcreate-promise-resolvers-callback-html"><span class="secno">5.1</span> <span class="content"><code class="highlight">HostCreatePromiseResolversCallback <c- p>(</c->promise<c- p>)</c-></code></span></a>
+     </ol>
+    <li>
+     <a href="#sec-ecma252"><span class="secno">6</span> <span class="content">TaskAttribution ECMA262 integration</span></a>
+     <ol class="toc">
+      <li><a href="#sec-hostcreate-promise-resolvers-callback-ecma"><span class="secno">6.1</span> <span class="content"><code class="highlight">HostCreatePromiseResolversCallback <c- p>(</c->promise<c- p>)</c-></code></span></a>
+     </ol>
+    <li><a href="#priv-sec"><span class="secno">7</span> <span class="content">Security &amp; privacy considerations</span></a>
     <li>
      <a href="#index"><span class="secno"></span> <span class="content">Index</span></a>
      <ol class="toc">
@@ -713,7 +722,7 @@ A human-readable <a href="http://www.w3.org/community/about/agreements/cla-deed/
     <li>
      <a href="#references"><span class="secno"></span> <span class="content">References</span></a>
      <ol class="toc">
-      <li><a href="#informative"><span class="secno"></span> <span class="content">Informative References</span></a>
+      <li><a href="#normative"><span class="secno"></span> <span class="content">Normative References</span></a>
      </ol>
     <li><a href="#issues-index"><span class="secno"></span> <span class="content">Issues Index</span></a>
    </ol>
@@ -725,9 +734,11 @@ A human-readable <a href="http://www.w3.org/community/about/agreements/cla-deed/
     <p>Single Page App or SPA is a common web development pattern on the web today, but also one that browsers haven’t been able to measure performance metrics for.
 Specifically, JS-driven same-document navigations in SPAs have not been something that browsers detect, and hence went unmeasured.</p>
     <p>This specification outlines a heuristic to enable browsers to detect such navigations as Soft Navigations, and report them to the performance timeline and performance observers.</p>
-    <h3 class="heading settled" data-level="1.1" id="sec-task-attribution-intro"><span class="secno">1.1. </span><span class="content">Task Attribution</span><a class="self-link" href="#sec-task-attribution-intro"></a></h3>
-    <p>The above heuristic relies on the ability to track task ancestory and to know that certain tasks were triggered by other tasks.
-This specification also outlines a mechanism that would enable user agents to deduce that information, and use it in web exposed features, such as soft navigations.</p>
+   </div>
+   <h3 class="heading settled" data-level="1.1" id="sec-task-attribution-intro"><span class="secno">1.1. </span><span class="content">Task Attribution</span><a class="self-link" href="#sec-task-attribution-intro"></a></h3>
+   <div class="non-normative">
+     The above heuristic relies on the ability to track task ancestory and to know that certain tasks were triggered by other tasks.
+This specification also outlines a mechanism that would enable user agents to deduce that information, and use it in web exposed features, such as soft navigations. 
     <p>The user agent’s event loop is continuously running tasks, as well as microtasks.
 Being able to keep track of which task initiated which can be valuable in multiple cases:</p>
     <ul>
@@ -740,197 +751,232 @@ Being able to keep track of which task initiated which can be valuable in multip
      <li data-md>
       <p>Enable accumulating knowledge of resource loading dependency chains, and enable developers to draw insights from them.</p>
     </ul>
-    <p class="issue" id="issue-f6bc5739"><a class="self-link" href="#issue-f6bc5739"></a> Should we discuss potential connection with AsyncContext and its use cases?</p>
-    <h2 class="heading settled" data-level="2" id="sec-algos"><span class="secno">2. </span><span class="content">Algorithms</span><a class="self-link" href="#sec-algos"></a></h2>
-    <div class="note" role="note">
-      A Soft Navigation is a same document navigation which satisfies the following conditions: 
-     <ul>
-      <li data-md>
-       <p>Its navigating task is a descendent of a user interaction task.</p>
-      <li data-md>
-       <p>There exists a DOM modification operation whose task is a descendent of the same user interaction task.</p>
-     </ul>
-    </div>
-    <p>To <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport id="check-soft-navigation">check soft navigation</dfn>, with a <a data-link-type="dfn" href="https://html.spec.whatwg.org/C#document" id="ref-for-document">Document</a> <var>doc</var>, run the following steps:</p>
-    <ul>
-     <li data-md>
-      <p>If <var>doc</var>’s <a data-link-type="dfn" href="#document-soft-navigation-same-document-commit" id="ref-for-document-soft-navigation-same-document-commit">soft navigation same document commit</a> is true and <var>doc</var>’s <a data-link-type="dfn" href="#document-soft-navigation-dom-modification" id="ref-for-document-soft-navigation-dom-modification">soft navigation DOM modification</a> is true, call <a data-link-type="dfn" href="#emit-soft-navigation-entry" id="ref-for-emit-soft-navigation-entry">emit soft navigation entry</a> with <var>doc</var>.</p>
-    </ul>
-    <p>To <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport id="emit-soft-navigation-entry">emit soft navigation entry</dfn>, with a <a data-link-type="dfn" href="https://html.spec.whatwg.org/C#document" id="ref-for-document①">Document</a> <var>doc</var>, run the following steps:</p>
-    <ul>
-     <li data-md>
-      <p>Queue an entry</p>
-     <li data-md>
-      <p>Add an entry to the performance timeline</p>
-     <li data-md>
-      <p>Reset LCP flags</p>
-     <li data-md>
-      <p>Reset FP/FCP flags.</p>
-     <li data-md>
-      <p>Reset the doc’s flag</p>
-    </ul>
-    <p>TODO: Actually define all the above.</p>
-    <h2 class="heading settled" data-level="3" id="sec-html"><span class="secno">3. </span><span class="content">HTML integration</span><a class="self-link" href="#sec-html"></a></h2>
-    <h3 class="heading settled" data-level="3.1" id="sec-html-document"><span class="secno">3.1. </span><span class="content">Document</span><a class="self-link" href="#sec-html-document"></a></h3>
-    <p>Each <a data-link-type="dfn" href="https://html.spec.whatwg.org/C#document" id="ref-for-document②">document</a> has a <dfn class="dfn-paneled" data-dfn-for="document" data-dfn-type="dfn" data-noexport id="document-potential-soft-navigation-task-id">potential soft navigation task id</dfn>, a <a data-link-type="dfn" href="#task-task-attribution-id" id="ref-for-task-task-attribution-id">task attribution ID</a>.</p>
-    <p>Each <a data-link-type="dfn" href="https://html.spec.whatwg.org/C#document" id="ref-for-document③">document</a> has a <dfn class="dfn-paneled" data-dfn-for="document" data-dfn-type="dfn" data-noexport id="document-soft-navigation-same-document-commit">soft navigation same document commit</dfn> flag, initially unset.</p>
-    <p>Each <a data-link-type="dfn" href="https://html.spec.whatwg.org/C#document" id="ref-for-document④">document</a> has a <dfn class="dfn-paneled" data-dfn-for="document" data-dfn-type="dfn" data-noexport id="document-soft-navigation-dom-modification">soft navigation DOM modification</dfn> flag, initially unset.</p>
-    <p>In <a data-link-type="dfn" href="https://html.spec.whatwg.org/C#update-document-for-history-step-application" id="ref-for-update-document-for-history-step-application">update document for history step application</a>, add the following steps before 5.5.1 (if <code class="highlight">documentsEntryChanged</code> is true and if <code class="highlight">documentIsNew</code> is false):</p>
-    <ul>
-     <li data-md>
-      <p>Let <a data-link-type="dfn" href="https://html.spec.whatwg.org/C#document" id="ref-for-document⑤">document</a>’s <a data-link-type="dfn" href="#document-soft-navigation-same-document-commit" id="ref-for-document-soft-navigation-same-document-commit①">soft navigation same document commit</a> be the result of <a data-link-type="dfn" href="#check-ancestor-for-task" id="ref-for-check-ancestor-for-task">Check ancestor for task</a> with the document’s soft navigation ID and the result of calling <a data-link-type="dfn" href="#get-current-task-id" id="ref-for-get-current-task-id">get current task ID</a>.</p>
-     <li data-md>
-      <p>Call <a data-link-type="dfn" href="#check-soft-navigation" id="ref-for-check-soft-navigation">check soft navigation</a>.</p>
-    </ul>
-    <p>At <a data-link-type="dfn" href="https://dom.spec.whatwg.org/#concept-event-dispatch" id="ref-for-concept-event-dispatch">event dispatch</a>, after step 5.4 ("Let <code class="highlight">isActivationEvent</code> be true..."), add the following step:</p>
-    <ul>
-     <li data-md>
-      <p>If <var>isActivationEvent</var> is true, and <var>event</var>’s <a data-link-type="dfn" href="https://dom.spec.whatwg.org/#dom-event-istrusted" id="ref-for-dom-event-istrusted">isTrusted</a> is true, and <var>target</var>’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/nav-history-apis.html#concept-document-window" id="ref-for-concept-document-window">associated Document</a> is a <a data-link-type="dfn" href="https://html.spec.whatwg.org/C#top-level-traversable" id="ref-for-top-level-traversable">top-level traversable</a>,
-let <var>target</var>’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/nav-history-apis.html#concept-document-window" id="ref-for-concept-document-window①">associated Document</a>'s <a data-link-type="dfn" href="#document-potential-soft-navigation-task-id" id="ref-for-document-potential-soft-navigation-task-id">potential soft navigation task id</a> be the result of calling <a data-link-type="dfn" href="#get-current-task-id" id="ref-for-get-current-task-id①">get current task ID</a>.</p>
-    </ul>
-    <p>At <a data-link-type="dfn" href="https://dom.spec.whatwg.org/#concept-node-insert" id="ref-for-concept-node-insert">node insert</a>, add these initial steps:</p>
-    <ul>
-     <li data-md>
-      <p>Let <var>doc</var> be <var>parent</var>’s <a data-link-type="dfn" href="https://dom.spec.whatwg.org/#concept-node-document" id="ref-for-concept-node-document">node document</a>.</p>
-     <li data-md>
-      <p>Let <var>doc</var>’s <a data-link-type="dfn" href="#document-soft-navigation-dom-modification" id="ref-for-document-soft-navigation-dom-modification①">soft navigation DOM modification</a> be the result of running <a data-link-type="dfn" href="#check-ancestor-for-task" id="ref-for-check-ancestor-for-task①">Check ancestor for task</a> with the <var>doc</var>’s <a data-link-type="dfn" href="#document-potential-soft-navigation-task-id" id="ref-for-document-potential-soft-navigation-task-id①">potential soft navigation task id</a> and the result of calling <a data-link-type="dfn" href="#get-current-task-id" id="ref-for-get-current-task-id②">get current task ID</a>.</p>
-     <li data-md>
-      <p>Call <a data-link-type="dfn" href="#check-soft-navigation" id="ref-for-check-soft-navigation①">check soft navigation</a>.</p>
-    </ul>
-    <h2 class="heading settled" data-level="4" id="sec-task-attribution-algorithms"><span class="secno">4. </span><span class="content">Task Attibution Algorithms</span><a class="self-link" href="#sec-task-attribution-algorithms"></a></h2>
-    <p>The general principle behind task attribution is quite simple:</p>
-    <ul>
-     <li data-md>
-      <p>Script execution creates a task scope</p>
-     <li data-md>
-      <p>Tasks and microtasks that are queued during a task scope’s lifetime are considered its descendents.</p>
-     <li data-md>
-      <p>Certain registered callbacks get an explicit parent task defined. (e.g. the task that registered the callback)</p>
-    </ul>
-    <p>Each task maintains a connection to its parent task, enabling an implicit data structure that enables querying a task to find if another, specific one is its ancestor.</p>
-    <h3 class="heading settled" data-level="4.1" id="sec-task-scope"><span class="secno">4.1. </span><span class="content">Task scope</span><a class="self-link" href="#sec-task-scope"></a></h3>
-    <p>A <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport id="concept-task-scope">task scope</dfn> is formally defined as a structure.</p>
-    <p>A <a data-link-type="dfn" href="#concept-task-scope" id="ref-for-concept-task-scope">task scope</a> has <dfn class="dfn-paneled" data-dfn-for="task scope" data-dfn-type="dfn" data-noexport id="task-scope-task-continuation-data">task continuation data</dfn>, a <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#struct" id="ref-for-struct">struct</a>.</p>
-    <p>A <a data-link-type="dfn" href="#concept-task-scope" id="ref-for-concept-task-scope①">task scope</a> has a <dfn class="dfn-paneled" data-dfn-for="task scope" data-dfn-type="dfn" data-noexport id="task-scope-task">task</dfn>, a <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-task" id="ref-for-concept-task">task</a>.</p>
-    <h3 class="heading settled" data-level="4.2" id="sec-task-scope-stack"><span class="secno">4.2. </span><span class="content">Task scope stack</span><a class="self-link" href="#sec-task-scope-stack"></a></h3>
-     A <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport id="task-scope-stack">task scope stack</dfn> is a <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#stack" id="ref-for-stack">stack</a> of <a data-link-type="dfn" href="#concept-task-scope" id="ref-for-concept-task-scope②">task scopes</a>. 
-    <p>To <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport id="create-a-task-scope">create a task scope</dfn>, given <var>task</var>, a <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-task" id="ref-for-concept-task①">task</a>, do the following:</p>
-    <ol>
-     <li data-md>
-      <p>Let <var>scope</var> be a new <a data-link-type="dfn" href="#concept-task-scope" id="ref-for-concept-task-scope③">task scope</a>.</p>
-     <li data-md>
-      <p>Set <var>task</var>’s <a data-link-type="dfn" href="#task-task-attribution-id" id="ref-for-task-task-attribution-id①">task attribution ID</a> with an <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#implementation-defined" id="ref-for-implementation-defined">implementation-defined</a> unique value.</p>
-     <li data-md>
-      <p>Set <var>scope</var>’s <a data-link-type="dfn" href="#task-scope-task-continuation-data" id="ref-for-task-scope-task-continuation-data">task continuation data</a> to SOMETHING!! Push the continuation data on the isolate???</p>
-     <li data-md>
-      <p>Set <var>scope</var>’s <a data-link-type="dfn" href="#task-scope-task" id="ref-for-task-scope-task">task</a> to <var>task</var>. If <var>task</var> is nullptr, create one???</p>
-     <li data-md>
-      <p>Push <var>scope</var> to the <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#relevant-agent" id="ref-for-relevant-agent">relevant agent</a>'s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-agent-event-loop" id="ref-for-concept-agent-event-loop">event loop</a>'s <a data-link-type="dfn" href="#task-scope-stack" id="ref-for-task-scope-stack">task scope stack</a>.</p>
-    </ol>
-    <p>To <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport id="tear-down-a-task-scope">tear down a task scope</dfn>, do the following:</p>
-    <ol>
-     <li data-md>
-      <p>Pop <var>scope</var> from the <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#relevant-agent" id="ref-for-relevant-agent①">relevant agent</a>'s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-agent-event-loop" id="ref-for-concept-agent-event-loop①">event loop</a>'s <a data-link-type="dfn" href="#task-scope-stack" id="ref-for-task-scope-stack①">task scope stack</a></p>
-     <li data-md>
-      <p>Set the isolate’s continuation data thing to the one at the top of the stack</p>
-    </ol>
-    <h3 class="heading settled" data-level="4.3" id="sec-is-ancestor"><span class="secno">4.3. </span><span class="content">Is ancestor</span><a class="self-link" href="#sec-is-ancestor"></a></h3>
-     To <dfn class="dfn-paneled" data-dfn-type="dfn" data-export id="check-ancestor-for-task">check ancestor for task</dfn>, given <var>ancestor id</var>, a <a data-link-type="dfn" href="#task-task-attribution-id" id="ref-for-task-task-attribution-id②">task attribution ID</a>, run the following: 
-    <ol>
-     <li data-md>
-      <p>Let <var>task</var> be the result of <a data-link-type="dfn" href="#get-current-task" id="ref-for-get-current-task">get current task</a>.</p>
-     <li data-md>
-      <p>While true:</p>
-      <ol>
-       <li data-md>
-        <p>Let <var>id</var> be<var>task</var>’s <a data-link-type="dfn" href="#task-task-attribution-id" id="ref-for-task-task-attribution-id③">task attribution ID</a>.</p>
-       <li data-md>
-        <p>If <var>id</var> is unset, return false.</p>
-       <li data-md>
-        <p>If <var>id</var> equals <var>ancestor id</var>, return true.</p>
-       <li data-md>
-        <p>Set <var>task</var> to <var>task</var>’s <a data-link-type="dfn" href="#task-parent-task" id="ref-for-task-parent-task">parent task</a>.</p>
-      </ol>
-    </ol>
-    <h3 class="heading settled" data-level="4.4" id="sec-is-ancestor-in-set"><span class="secno">4.4. </span><span class="content">Is ancestor in set</span><a class="self-link" href="#sec-is-ancestor-in-set"></a></h3>
-    <p>To <dfn data-dfn-type="dfn" data-export id="check-ancestor-set-for-task">check ancestor set for task<a class="self-link" href="#check-ancestor-set-for-task"></a></dfn>, given <var>ancestor id set</var>, a <a data-link-type="dfn" href="#task-task-attribution-id" id="ref-for-task-task-attribution-id④">task attribution ID</a> <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#ordered-set" id="ref-for-ordered-set">set</a>, run the following:</p>
-    <ol>
-     <li data-md>
-      <p>Let <var>task</var> be the result of <a data-link-type="dfn" href="#get-current-task" id="ref-for-get-current-task①">get current task</a>.</p>
-     <li data-md>
-      <p>While true:</p>
-      <ol>
-       <li data-md>
-        <p>Let <var>id</var> be <var>task</var>’s <a data-link-type="dfn" href="#task-task-attribution-id" id="ref-for-task-task-attribution-id⑤">task attribution ID</a> if <var>task</var> is set, or be unset otherwise.</p>
-       <li data-md>
-        <p>If <var>id</var> is unset, return false.</p>
-       <li data-md>
-        <p>If <var>ancestor id set</var> <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#header-list-contains" id="ref-for-header-list-contains">contains</a> <var>id</var>, return true.</p>
-       <li data-md>
-        <p>Set <var>task</var> to <var>task</var>’s <a data-link-type="dfn" href="#task-parent-task" id="ref-for-task-parent-task①">parent task</a>.</p>
-      </ol>
-    </ol>
-    <h4 class="heading settled" data-level="4.4.1" id="sec-current-task"><span class="secno">4.4.1. </span><span class="content">Get current task</span><a class="self-link" href="#sec-current-task"></a></h4>
-     To <dfn class="dfn-paneled" data-dfn-type="dfn" data-export id="get-current-task">get current task</dfn>, run the following steps: 
-    <ol>
-     <li data-md>
-      <p>Let <var>scope</var> be the result of <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#stack-pop" id="ref-for-stack-pop">popping</a> the <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#relevant-agent" id="ref-for-relevant-agent②">relevant agent</a>'s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-agent-event-loop" id="ref-for-concept-agent-event-loop②">event loop</a>'s <a data-link-type="dfn" href="#task-scope-stack" id="ref-for-task-scope-stack②">task scope stack</a>.</p>
-     <li data-md>
-      <p><a data-link-type="dfn" href="https://infra.spec.whatwg.org/#stack-push" id="ref-for-stack-push">Push</a> <var>scope</var> to the <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#relevant-agent" id="ref-for-relevant-agent③">relevant agent</a>'s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-agent-event-loop" id="ref-for-concept-agent-event-loop③">event loop</a>'s <a data-link-type="dfn" href="#task-scope-stack" id="ref-for-task-scope-stack③">task scope stack</a>.</p>
-     <li data-md>
-      <p>Return <var>scope</var>’s <a data-link-type="dfn" href="#task-scope-task" id="ref-for-task-scope-task①">task</a>.</p>
-    </ol>
-    <p class="note" role="note"><span class="marker">Note:</span> The first 2 steps here really need to be a peek operation.</p>
-    <h4 class="heading settled" data-level="4.4.2" id="sec-current-task-id"><span class="secno">4.4.2. </span><span class="content">Get current task ID</span><a class="self-link" href="#sec-current-task-id"></a></h4>
-     To <dfn class="dfn-paneled" data-dfn-type="dfn" data-export id="get-current-task-id">get current task id</dfn>, run the following steps: 
-    <ol>
-     <li data-md>
-      <p>Let <var>task</var> be the result of <a data-link-type="dfn" href="#get-current-task" id="ref-for-get-current-task②">get current task</a>.</p>
-     <li data-md>
-      <p>Return <var>task</var>’s <a data-link-type="dfn" href="#task-task-attribution-id" id="ref-for-task-task-attribution-id⑥">task attribution ID</a>.</p>
-    </ol>
-    <h2 class="heading settled" data-level="5" id="sec-task-attribution-integration"><span class="secno">5. </span><span class="content">TaskAttribution HTML integration</span><a class="self-link" href="#sec-task-attribution-integration"></a></h2>
-    <p>Each <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#event-loop" id="ref-for-event-loop">event loop</a> has a <a data-link-type="dfn" href="#task-scope-stack" id="ref-for-task-scope-stack④">task scope stack</a>.</p>
-    <p>In <a data-link-type="dfn" href="https://html.spec.whatwg.org/C#execute-the-script-element" id="ref-for-execute-the-script-element">Execute the script element</a>, add initial steps:</p>
-    <ol>
-     <li data-md>
-      <p>Let <var>task</var> be a new <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-task" id="ref-for-concept-task②">task</a>.</p>
-     <li data-md>
-      <p><a data-link-type="dfn" href="#create-a-task-scope" id="ref-for-create-a-task-scope">Create a task scope</a> with <var>task</var>.</p>
-    </ol>
-    <p>Add a terminating step:</p>
-    <ol>
-     <li data-md>
-      <p><a data-link-type="dfn" href="#tear-down-a-task-scope" id="ref-for-tear-down-a-task-scope">Tear down a task scope</a></p>
-    </ol>
-    <p>A <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-task" id="ref-for-concept-task③">task</a> has a <dfn class="dfn-paneled" data-dfn-for="task" data-dfn-type="dfn" data-noexport id="task-task-attribution-id">task attribution ID</dfn>, an <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#implementation-defined" id="ref-for-implementation-defined①">implementation-defined</a> value,
-representing a unique identifier. It is initially unset.</p>
-    <p>A <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-task" id="ref-for-concept-task④">task</a> has a <dfn class="dfn-paneled" data-dfn-for="task" data-dfn-type="dfn" data-noexport id="task-parent-task">parent task</dfn>, a <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-task" id="ref-for-concept-task⑤">task</a>, initially unset.</p>
-    <p class="note" role="note"><span class="marker">Note:</span> Should we move that info into a "task attribution info" structure and only link those?</p>
-    <p>In <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#queue-a-task" id="ref-for-queue-a-task">queue a task</a>:</p>
-    <p>Add these steps after step 3, "Let task be a new task":</p>
-    <ol>
-     <li data-md>
-      <p>Set <var>task</var>’s <a data-link-type="dfn" href="#task-parent-task" id="ref-for-task-parent-task②">parent task</a> to the result of <a data-link-type="dfn" href="#get-current-task-id" id="ref-for-get-current-task-id③">get current task ID</a>.</p>
-     <li data-md>
-      <p><a data-link-type="dfn" href="#create-a-task-scope" id="ref-for-create-a-task-scope①">Create a task scope</a> with <var>task</var>.</p>
-    </ol>
-    <p>Add a terminating step:</p>
-    <ol>
-     <li data-md>
-      <p><a data-link-type="dfn" href="#tear-down-a-task-scope" id="ref-for-tear-down-a-task-scope①">Tear down a task scope</a></p>
-    </ol>
-    <p>TODO: handle microtasks
-TODO: handle timeouts
-TODO: handle postmessages
-TODO: handle same document navigations
-TODO: other cases??</p>
-    <h2 class="heading settled" data-level="6" id="priv-sec"><span class="secno">6. </span><span class="content">Security &amp; privacy considerations</span><a class="self-link" href="#priv-sec"></a></h2>
-     Exposing Soft Navigations to the performance timeline doesn’t have security and privacy implications on its own.
-However, reseting the various paint timing entries as a result of a detected soft navigation can have implications, especially before <a href="https://github.com/kyraseevers/Partitioning-visited-links-history">visited links are partitioned</a>. As such, exposing such paint operations without partitioning the :visited cache needs to only be done after careful analysis of the paint operations in question, to make sure they don’t expose the user’s history across origins. 
-    <p>Task Attribution as infrastructure doesn’t directly expose any data to the web, it doesn’t have any privacy and security implications.
-Web exposed specifications that rely on this infrastructure could have such implications. As such, they need to be individually examined and have those implications outlined.</p>
    </div>
+    ISSUE: Should we discuss potential connection with AsyncContext and its use cases? 
+   <h2 class="heading settled" data-level="2" id="sec-algos"><span class="secno">2. </span><span class="content">Algorithms</span><a class="self-link" href="#sec-algos"></a></h2>
+   <div class="note" role="note">
+     A Soft Navigation is a same document navigation which satisfies the following conditions: 
+    <ul>
+     <li data-md>
+      <p>Its navigating task is a descendent of a user interaction task.</p>
+     <li data-md>
+      <p>There exists a DOM modification operation whose task is a descendent of the same user interaction task.</p>
+    </ul>
+   </div>
+   <p>To <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport id="check-soft-navigation">check soft navigation</dfn>, with a <a data-link-type="dfn" href="https://html.spec.whatwg.org/C#document" id="ref-for-document">Document</a> <var>doc</var>, run the following steps:</p>
+   <ul>
+    <li data-md>
+     <p>If <var>doc</var>’s <a data-link-type="dfn" href="#document-soft-navigation-same-document-commit" id="ref-for-document-soft-navigation-same-document-commit">soft navigation same document commit</a> is true and <var>doc</var>’s <a data-link-type="dfn" href="#document-soft-navigation-dom-modification" id="ref-for-document-soft-navigation-dom-modification">soft navigation DOM modification</a> is true, call <a data-link-type="dfn" href="#emit-soft-navigation-entry" id="ref-for-emit-soft-navigation-entry">emit soft navigation entry</a> with <var>doc</var>.</p>
+   </ul>
+   <p>To <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport id="emit-soft-navigation-entry">emit soft navigation entry</dfn>, with a <a data-link-type="dfn" href="https://html.spec.whatwg.org/C#document" id="ref-for-document①">Document</a> <var>doc</var>, run the following steps:</p>
+   <ul>
+    <li data-md>
+     <p>Queue an entry</p>
+    <li data-md>
+     <p>Add an entry to the performance timeline</p>
+    <li data-md>
+     <p>Reset LCP flags</p>
+    <li data-md>
+     <p>Reset FP/FCP flags.</p>
+    <li data-md>
+     <p>Reset the doc’s flag</p>
+   </ul>
+   <p>TODO: Actually define all the above.</p>
+   <h2 class="heading settled" data-level="3" id="sec-html"><span class="secno">3. </span><span class="content">HTML integration</span><a class="self-link" href="#sec-html"></a></h2>
+   <h3 class="heading settled" data-level="3.1" id="sec-html-document"><span class="secno">3.1. </span><span class="content">Document</span><a class="self-link" href="#sec-html-document"></a></h3>
+   <p>Each <a data-link-type="dfn" href="https://html.spec.whatwg.org/C#document" id="ref-for-document②">document</a> has a <dfn class="dfn-paneled" data-dfn-for="document" data-dfn-type="dfn" data-noexport id="document-potential-soft-navigation-task-id">potential soft navigation task id</dfn>, a <a data-link-type="dfn" href="#task-task-attribution-id" id="ref-for-task-task-attribution-id">task attribution ID</a>.</p>
+   <p>Each <a data-link-type="dfn" href="https://html.spec.whatwg.org/C#document" id="ref-for-document③">document</a> has a <dfn class="dfn-paneled" data-dfn-for="document" data-dfn-type="dfn" data-noexport id="document-soft-navigation-same-document-commit">soft navigation same document commit</dfn> flag, initially unset.</p>
+   <p>Each <a data-link-type="dfn" href="https://html.spec.whatwg.org/C#document" id="ref-for-document④">document</a> has a <dfn class="dfn-paneled" data-dfn-for="document" data-dfn-type="dfn" data-noexport id="document-soft-navigation-dom-modification">soft navigation DOM modification</dfn> flag, initially unset.</p>
+   <p>In <a data-link-type="dfn" href="https://html.spec.whatwg.org/C#update-document-for-history-step-application" id="ref-for-update-document-for-history-step-application">update document for history step application</a>, add the following steps before 5.5.1 (if <code class="highlight">documentsEntryChanged</code> is true and if <code class="highlight">documentIsNew</code> is false):</p>
+   <ul>
+    <li data-md>
+     <p>Let <a data-link-type="dfn" href="https://html.spec.whatwg.org/C#document" id="ref-for-document⑤">document</a>’s <a data-link-type="dfn" href="#document-soft-navigation-same-document-commit" id="ref-for-document-soft-navigation-same-document-commit①">soft navigation same document commit</a> be the result of <a data-link-type="dfn" href="#check-ancestor-for-task" id="ref-for-check-ancestor-for-task">Check ancestor for task</a> with the document’s soft navigation ID and the result of calling <a data-link-type="dfn" href="#get-current-task-id" id="ref-for-get-current-task-id">get current task ID</a>.</p>
+    <li data-md>
+     <p>Call <a data-link-type="dfn" href="#check-soft-navigation" id="ref-for-check-soft-navigation">check soft navigation</a>.</p>
+   </ul>
+   <p>At <a data-link-type="dfn" href="https://dom.spec.whatwg.org/#concept-event-dispatch" id="ref-for-concept-event-dispatch">event dispatch</a>, after step 5.4 ("Let <code class="highlight">isActivationEvent</code> be true..."), add the following step:</p>
+   <ul>
+    <li data-md>
+     <p>If <var>isActivationEvent</var> is true, and <var>event</var>’s <a data-link-type="dfn" href="https://dom.spec.whatwg.org/#dom-event-istrusted" id="ref-for-dom-event-istrusted">isTrusted</a> is true, and <var>target</var>’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/nav-history-apis.html#concept-document-window" id="ref-for-concept-document-window">associated Document</a> is a <a data-link-type="dfn" href="https://html.spec.whatwg.org/C#top-level-traversable" id="ref-for-top-level-traversable">top-level traversable</a>,
+let <var>target</var>’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/nav-history-apis.html#concept-document-window" id="ref-for-concept-document-window①">associated Document</a>'s <a data-link-type="dfn" href="#document-potential-soft-navigation-task-id" id="ref-for-document-potential-soft-navigation-task-id">potential soft navigation task id</a> be the result of calling <a data-link-type="dfn" href="#get-current-task-id" id="ref-for-get-current-task-id①">get current task ID</a>.</p>
+   </ul>
+   <p>At <a data-link-type="dfn" href="https://dom.spec.whatwg.org/#concept-node-insert" id="ref-for-concept-node-insert">node insert</a>, add these initial steps:</p>
+   <ul>
+    <li data-md>
+     <p>Let <var>doc</var> be <var>parent</var>’s <a data-link-type="dfn" href="https://dom.spec.whatwg.org/#concept-node-document" id="ref-for-concept-node-document">node document</a>.</p>
+    <li data-md>
+     <p>Let <var>doc</var>’s <a data-link-type="dfn" href="#document-soft-navigation-dom-modification" id="ref-for-document-soft-navigation-dom-modification①">soft navigation DOM modification</a> be the result of running <a data-link-type="dfn" href="#check-ancestor-for-task" id="ref-for-check-ancestor-for-task①">Check ancestor for task</a> with the <var>doc</var>’s <a data-link-type="dfn" href="#document-potential-soft-navigation-task-id" id="ref-for-document-potential-soft-navigation-task-id①">potential soft navigation task id</a> and the result of calling <a data-link-type="dfn" href="#get-current-task-id" id="ref-for-get-current-task-id②">get current task ID</a>.</p>
+    <li data-md>
+     <p>Call <a data-link-type="dfn" href="#check-soft-navigation" id="ref-for-check-soft-navigation①">check soft navigation</a>.</p>
+   </ul>
+   <h2 class="heading settled" data-level="4" id="sec-task-attribution-algorithms"><span class="secno">4. </span><span class="content">Task Attibution Algorithms</span><a class="self-link" href="#sec-task-attribution-algorithms"></a></h2>
+   <p>The general principle behind task attribution is quite simple:</p>
+   <ul>
+    <li data-md>
+     <p>Script execution creates a task scope</p>
+    <li data-md>
+     <p>Tasks and microtasks that are queued during a task scope’s lifetime are considered its descendents.</p>
+    <li data-md>
+     <p>Certain registered callbacks get an explicit parent task defined. (e.g. the task that registered the callback)</p>
+   </ul>
+   <p>Each task maintains a connection to its parent task, enabling an implicit data structure that enables querying a task to find if another, specific one is its ancestor.</p>
+   <h3 class="heading settled" data-level="4.1" id="sec-task-scope"><span class="secno">4.1. </span><span class="content">Task scope</span><a class="self-link" href="#sec-task-scope"></a></h3>
+   <p>A <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport id="concept-task-scope">task scope</dfn> is formally defined as a structure.</p>
+   <p>A <a data-link-type="dfn" href="#concept-task-scope" id="ref-for-concept-task-scope">task scope</a> has <dfn class="dfn-paneled" data-dfn-for="task scope" data-dfn-type="dfn" data-noexport id="task-scope-task-continuation-data">task continuation data</dfn>, a <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#struct" id="ref-for-struct">struct</a>.</p>
+   <p>A <a data-link-type="dfn" href="#concept-task-scope" id="ref-for-concept-task-scope①">task scope</a> has a <dfn class="dfn-paneled" data-dfn-for="task scope" data-dfn-type="dfn" data-noexport id="task-scope-task">task</dfn>, a <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-task" id="ref-for-concept-task">task</a>.</p>
+   <h3 class="heading settled" data-level="4.2" id="sec-task-scope-stack"><span class="secno">4.2. </span><span class="content">Task scope stack</span><a class="self-link" href="#sec-task-scope-stack"></a></h3>
+    A <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport id="task-scope-stack">task scope stack</dfn> is a <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#stack" id="ref-for-stack">stack</a> of <a data-link-type="dfn" href="#concept-task-scope" id="ref-for-concept-task-scope②">task scopes</a>. 
+   <p>To <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport id="create-a-task-scope">create a task scope</dfn>, given <var>task</var>, a <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-task" id="ref-for-concept-task①">task</a>, do the following:</p>
+   <ol>
+    <li data-md>
+     <p>Let <var>scope</var> be a new <a data-link-type="dfn" href="#concept-task-scope" id="ref-for-concept-task-scope③">task scope</a>.</p>
+    <li data-md>
+     <p>Set <var>task</var>’s <a data-link-type="dfn" href="#task-task-attribution-id" id="ref-for-task-task-attribution-id①">task attribution ID</a> with an <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#implementation-defined" id="ref-for-implementation-defined">implementation-defined</a> unique value.</p>
+    <li data-md>
+     <p>Set <var>scope</var>’s <a data-link-type="dfn" href="#task-scope-task-continuation-data" id="ref-for-task-scope-task-continuation-data">task continuation data</a> to SOMETHING!! Push the continuation data on the isolate???</p>
+    <li data-md>
+     <p>Set <var>scope</var>’s <a data-link-type="dfn" href="#task-scope-task" id="ref-for-task-scope-task">task</a> to <var>task</var>. If <var>task</var> is nullptr, create one???</p>
+    <li data-md>
+     <p>Push <var>scope</var> to the <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#relevant-agent" id="ref-for-relevant-agent">relevant agent</a>'s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-agent-event-loop" id="ref-for-concept-agent-event-loop">event loop</a>'s <a data-link-type="dfn" href="#task-scope-stack" id="ref-for-task-scope-stack">task scope stack</a>.</p>
+   </ol>
+   <p>To <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport id="tear-down-a-task-scope">tear down a task scope</dfn>, do the following:</p>
+   <ol>
+    <li data-md>
+     <p>Pop <var>scope</var> from the <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#relevant-agent" id="ref-for-relevant-agent①">relevant agent</a>'s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-agent-event-loop" id="ref-for-concept-agent-event-loop①">event loop</a>'s <a data-link-type="dfn" href="#task-scope-stack" id="ref-for-task-scope-stack①">task scope stack</a></p>
+    <li data-md>
+     <p>Set the isolate’s continuation data thing to the one at the top of the stack</p>
+   </ol>
+   <h3 class="heading settled" data-level="4.3" id="sec-is-ancestor"><span class="secno">4.3. </span><span class="content">Is ancestor</span><a class="self-link" href="#sec-is-ancestor"></a></h3>
+    To <dfn class="dfn-paneled" data-dfn-type="dfn" data-export id="check-ancestor-for-task">check ancestor for task</dfn>, given <var>ancestor id</var>, a <a data-link-type="dfn" href="#task-task-attribution-id" id="ref-for-task-task-attribution-id②">task attribution ID</a>, run the following: 
+   <ol>
+    <li data-md>
+     <p>Let <var>task</var> be the result of <a data-link-type="dfn" href="#get-current-task" id="ref-for-get-current-task">get current task</a>.</p>
+    <li data-md>
+     <p>While true:</p>
+     <ol>
+      <li data-md>
+       <p>Let <var>id</var> be<var>task</var>’s <a data-link-type="dfn" href="#task-task-attribution-id" id="ref-for-task-task-attribution-id③">task attribution ID</a>.</p>
+      <li data-md>
+       <p>If <var>id</var> is unset, return false.</p>
+      <li data-md>
+       <p>If <var>id</var> equals <var>ancestor id</var>, return true.</p>
+      <li data-md>
+       <p>Set <var>task</var> to <var>task</var>’s <a data-link-type="dfn" href="#task-parent-task" id="ref-for-task-parent-task">parent task</a>.</p>
+     </ol>
+   </ol>
+   <h3 class="heading settled" data-level="4.4" id="sec-is-ancestor-in-set"><span class="secno">4.4. </span><span class="content">Is ancestor in set</span><a class="self-link" href="#sec-is-ancestor-in-set"></a></h3>
+   <p>To <dfn data-dfn-type="dfn" data-export id="check-ancestor-set-for-task">check ancestor set for task<a class="self-link" href="#check-ancestor-set-for-task"></a></dfn>, given <var>ancestor id set</var>, a <a data-link-type="dfn" href="#task-task-attribution-id" id="ref-for-task-task-attribution-id④">task attribution ID</a> <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#ordered-set" id="ref-for-ordered-set">set</a>, run the following:</p>
+   <ol>
+    <li data-md>
+     <p>Let <var>task</var> be the result of <a data-link-type="dfn" href="#get-current-task" id="ref-for-get-current-task①">get current task</a>.</p>
+    <li data-md>
+     <p>While true:</p>
+     <ol>
+      <li data-md>
+       <p>Let <var>id</var> be <var>task</var>’s <a data-link-type="dfn" href="#task-task-attribution-id" id="ref-for-task-task-attribution-id⑤">task attribution ID</a> if <var>task</var> is set, or be unset otherwise.</p>
+      <li data-md>
+       <p>If <var>id</var> is unset, return false.</p>
+      <li data-md>
+       <p>If <var>ancestor id set</var> <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#header-list-contains" id="ref-for-header-list-contains">contains</a> <var>id</var>, return true.</p>
+      <li data-md>
+       <p>Set <var>task</var> to <var>task</var>’s <a data-link-type="dfn" href="#task-parent-task" id="ref-for-task-parent-task①">parent task</a>.</p>
+     </ol>
+   </ol>
+   <h4 class="heading settled" data-level="4.4.1" id="sec-current-task"><span class="secno">4.4.1. </span><span class="content">Get current task</span><a class="self-link" href="#sec-current-task"></a></h4>
+    To <dfn class="dfn-paneled" data-dfn-type="dfn" data-export id="get-current-task">get current task</dfn>, run the following steps: 
+   <ol>
+    <li data-md>
+     <p>Let <var>scope</var> be the result of <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#stack-pop" id="ref-for-stack-pop">popping</a> the <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#relevant-agent" id="ref-for-relevant-agent②">relevant agent</a>'s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-agent-event-loop" id="ref-for-concept-agent-event-loop②">event loop</a>'s <a data-link-type="dfn" href="#task-scope-stack" id="ref-for-task-scope-stack②">task scope stack</a>.</p>
+    <li data-md>
+     <p><a data-link-type="dfn" href="https://infra.spec.whatwg.org/#stack-push" id="ref-for-stack-push">Push</a> <var>scope</var> to the <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#relevant-agent" id="ref-for-relevant-agent③">relevant agent</a>'s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-agent-event-loop" id="ref-for-concept-agent-event-loop③">event loop</a>'s <a data-link-type="dfn" href="#task-scope-stack" id="ref-for-task-scope-stack③">task scope stack</a>.</p>
+    <li data-md>
+     <p>Return <var>scope</var>’s <a data-link-type="dfn" href="#task-scope-task" id="ref-for-task-scope-task①">task</a>.</p>
+   </ol>
+   <p class="issue" id="issue-a58bc80a"><a class="self-link" href="#issue-a58bc80a"></a> It’d be better to define a peek operation in infra and use that.</p>
+   <h4 class="heading settled" data-level="4.4.2" id="sec-current-task-id"><span class="secno">4.4.2. </span><span class="content">Get current task ID</span><a class="self-link" href="#sec-current-task-id"></a></h4>
+    To <dfn class="dfn-paneled" data-dfn-type="dfn" data-export id="get-current-task-id">get current task id</dfn>, run the following steps: 
+   <ol>
+    <li data-md>
+     <p>Let <var>task</var> be the result of <a data-link-type="dfn" href="#get-current-task" id="ref-for-get-current-task②">getting current task</a>.</p>
+    <li data-md>
+     <p>Return <var>task</var>’s <a data-link-type="dfn" href="#task-task-attribution-id" id="ref-for-task-task-attribution-id⑥">task attribution ID</a>.</p>
+   </ol>
+   <h2 class="heading settled" data-level="5" id="sec-task-attribution-integration"><span class="secno">5. </span><span class="content">TaskAttribution HTML integration</span><a class="self-link" href="#sec-task-attribution-integration"></a></h2>
+   <p>Each <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#event-loop" id="ref-for-event-loop">event loop</a> has a <a data-link-type="dfn" href="#task-scope-stack" id="ref-for-task-scope-stack④">task scope stack</a>.</p>
+   <p>In <a data-link-type="dfn" href="https://html.spec.whatwg.org/C#execute-the-script-element" id="ref-for-execute-the-script-element">Execute the script element</a>, add initial steps:</p>
+   <ol>
+    <li data-md>
+     <p>Let <var>task</var> be a new <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-task" id="ref-for-concept-task②">task</a>.</p>
+    <li data-md>
+     <p><a data-link-type="dfn" href="#create-a-task-scope" id="ref-for-create-a-task-scope">Create a task scope</a> with <var>task</var>.</p>
+   </ol>
+   <p>Add a terminating step:</p>
+   <ol>
+    <li data-md>
+     <p><a data-link-type="dfn" href="#tear-down-a-task-scope" id="ref-for-tear-down-a-task-scope">Tear down a task scope</a></p>
+   </ol>
+   <p>A <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-task" id="ref-for-concept-task③">task</a> has a <dfn class="dfn-paneled" data-dfn-for="task" data-dfn-type="dfn" data-noexport id="task-task-attribution-id">task attribution ID</dfn>, an <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#implementation-defined" id="ref-for-implementation-defined①">implementation-defined</a> value,
+representing a unique identifier. It is initially unset.</p>
+   <p>A <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-task" id="ref-for-concept-task④">task</a> has a <dfn class="dfn-paneled" data-dfn-for="task" data-dfn-type="dfn" data-noexport id="task-parent-task">parent task</dfn>, a <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-task" id="ref-for-concept-task⑤">task</a>, initially unset.</p>
+   <p class="note" role="note"><span class="marker">Note:</span> Should we move that info into a "task attribution info" structure and only link those?</p>
+   <p>In <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#queue-a-task" id="ref-for-queue-a-task">queue a task</a>:</p>
+   <p>Add these steps after step 3, "Let task be a new task":</p>
+   <ol>
+    <li data-md>
+     <p>Set <var>task</var>’s <a data-link-type="dfn" href="#task-parent-task" id="ref-for-task-parent-task②">parent task</a> to the result of <a data-link-type="dfn" href="#get-current-task-id" id="ref-for-get-current-task-id③">get current task ID</a>.</p>
+    <li data-md>
+     <p><a data-link-type="dfn" href="#create-a-task-scope" id="ref-for-create-a-task-scope①">Create a task scope</a> with <var>task</var>.</p>
+   </ol>
+   <p>Add a terminating step:</p>
+   <ol>
+    <li data-md>
+     <p><a data-link-type="dfn" href="#tear-down-a-task-scope" id="ref-for-tear-down-a-task-scope①">Tear down a task scope</a></p>
+   </ol>
+   <p>In HostEnqueuePromiseJob add the following steps:</p>
+   <ol>
+    <li data-md>
+     <p>Let <var>task</var> be <var>job</var>.<var>promise</var>.[task]</p>
+    <li data-md>
+     <p>Set <var>task</var> as the currently running task.</p>
+   </ol>
+   <p>In <a data-link-type="dfn" href="https://html.spec.whatwg.org/C#integration-with-jaavascript-jobs" id="ref-for-integration-with-jaavascript-jobs">Job-related host hooks</a>, add the following sub-section.</p>
+   <h3 class="heading settled" data-level="5.1" id="sec-hostcreate-promise-resolvers-callback-html"><span class="secno">5.1. </span><span class="content"><code class="highlight">HostCreatePromiseResolversCallback <c- p>(</c->promise<c- p>)</c-></code></span><a class="self-link" href="#sec-hostcreate-promise-resolvers-callback-html"></a></h3>
+    Javascript contains an <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#implementation-defined" id="ref-for-implementation-defined②">implementation-defined</a> <a data-link-type="dfn" href="#hostcreatepromiseresolverscallback" id="ref-for-hostcreatepromiseresolverscallback">HostCreatePromiseResolversCallback</a>(promise).
+User agents must use the following implementation: 
+   <ol>
+    <li data-md>
+     <p>Let <var>task</var> be the result of <a data-link-type="dfn" href="#get-current-task-id" id="ref-for-get-current-task-id④">getting the current task id</a>.</p>
+    <li data-md>
+     <p>Let promise.[task] be <var>task</var>.</p>
+   </ol>
+   <p>In <a data-link-type="dfn" href="https://html.spec.whatwg.org/C#timer-initialisation-steps" id="ref-for-timer-initialisation-steps">timer initialisation steps</a>, before step 8, add the following steps:</p>
+   <ol>
+    <li data-md>
+     <p>Let <var>parentTaskId</var> be the result of <a data-link-type="dfn" href="#get-current-task-id" id="ref-for-get-current-task-id⑤">getting current task id</a>.</p>
+    <li data-md>
+     <p>If <var>handler</var> is a Function, set <var>handler</var>.<var>parentTaskId</var> to <var>parentTaskId</var>. Otherwise, <a data-link-type="dfn" href="#create-a-task-scope" id="ref-for-create-a-task-scope②">create a task scope</a>.</p>
+   </ol>
+   <p>When callbacks are invoked, create a task scope and assign it a parent if the callback has one.</p>
+   <p>TODO: handle timeouts</p>
+   <p>TODO: handle postmessages</p>
+   <p>TODO: handle same document navigations</p>
+   <p>TODO: other cases?? (rAF, rIC, view transitions, observers, etc)</p>
+   <h2 class="heading settled" data-level="6" id="sec-ecma252"><span class="secno">6. </span><span class="content">TaskAttribution ECMA262 integration</span><a class="self-link" href="#sec-ecma252"></a></h2>
+   <p>In <a data-link-type="dfn" href="https://tc39.es/ecma262/#sec-createresolvingfunctions" id="ref-for-sec-createresolvingfunctions">CreateResolvingFunctions</a> add a step before the final one:</p>
+   <ol>
+    <li data-md>
+     <p>Call <a data-link-type="dfn" href="#hostcreatepromiseresolverscallback" id="ref-for-hostcreatepromiseresolverscallback①">HostCreatePromiseResolversCallback</a> with <var>promise</var>.</p>
+   </ol>
+   <p>In <a data-link-type="dfn" href="https://tc39.es/ecma262/#sec-jobs" id="ref-for-sec-jobs">Jobs and Host Operations to Enqueue Jobs</a>, add the following subsecion.</p>
+   <h3 class="heading settled" data-level="6.1" id="sec-hostcreate-promise-resolvers-callback-ecma"><span class="secno">6.1. </span><span class="content"><code class="highlight">HostCreatePromiseResolversCallback <c- p>(</c->promise<c- p>)</c-></code></span><a class="self-link" href="#sec-hostcreate-promise-resolvers-callback-ecma"></a></h3>
+    The <a data-link-type="dfn" href="https://tc39.es/ecma262/multipage/overview.html#host-defined" id="ref-for-host-defined">host-defined</a> abstract operation <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport id="hostcreatepromiseresolverscallback">HostCreatePromiseResolversCallback</dfn> takes arguments <var>promise</var> (a <a data-link-type="dfn" href="https://tc39.es/ecma262/#sec-promise-objects" id="ref-for-sec-promise-objects">Promise Object</a>) and returns nothing. 
+   <p>The default implementation of HostCreatePromiseResolversCallback performs no steps.
+ECMAScript <a data-link-type="dfn" href="https://tc39.es/ecma262/multipage/overview.html#host" id="ref-for-host">hosts</a> that are not web browsers must use the default implementation of HostCreatePromiseResolversCallback.</p>
+   <h2 class="heading settled" data-level="7" id="priv-sec"><span class="secno">7. </span><span class="content">Security &amp; privacy considerations</span><a class="self-link" href="#priv-sec"></a></h2>
+    Exposing Soft Navigations to the performance timeline doesn’t have security and privacy implications on its own.
+However, reseting the various paint timing entries as a result of a detected soft navigation can have implications, especially before <a href="https://github.com/kyraseevers/Partitioning-visited-links-history">visited links are partitioned</a>. As such, exposing such paint operations without partitioning the :visited cache needs to only be done after careful analysis of the paint operations in question, to make sure they don’t expose the user’s history across origins. 
+   <p>Task Attribution as infrastructure doesn’t directly expose any data to the web, it doesn’t have any privacy and security implications.
+Web exposed specifications that rely on this infrastructure could have such implications. As such, they need to be individually examined and have those implications outlined.</p>
   </main>
 <script src="https://www.w3.org/scripts/TR/2021/fixup.js"></script>
   <h2 class="no-num no-ref heading settled" id="index"><span class="content">Index</span><a class="self-link" href="#index"></a></h2>
@@ -943,6 +989,7 @@ Web exposed specifications that rely on this infrastructure could have such impl
    <li><a href="#emit-soft-navigation-entry">emit soft navigation entry</a><span>, in § 2</span>
    <li><a href="#get-current-task">get current task</a><span>, in § 4.4.1</span>
    <li><a href="#get-current-task-id">get current task id</a><span>, in § 4.4.2</span>
+   <li><a href="#hostcreatepromiseresolverscallback">HostCreatePromiseResolversCallback</a><span>, in § 6.1</span>
    <li><a href="#task-parent-task">parent task</a><span>, in § 5</span>
    <li><a href="#document-potential-soft-navigation-task-id">potential soft navigation task id</a><span>, in § 3.1</span>
    <li><a href="#document-soft-navigation-dom-modification">soft navigation DOM modification</a><span>, in § 3.1</span>
@@ -965,6 +1012,15 @@ Web exposed specifications that rely on this infrastructure could have such impl
      <li><span class="dfn-paneled" id="59bfea49">node insert</span>
     </ul>
    <li>
+    <a data-link-type="biblio">[ECMASCRIPT]</a> defines the following terms:
+    <ul>
+     <li><span class="dfn-paneled" id="d417ee4f">createresolvingfunctions</span>
+     <li><span class="dfn-paneled" id="ef7caa3a">host-defined</span>
+     <li><span class="dfn-paneled" id="eb79d01a">hosts</span>
+     <li><span class="dfn-paneled" id="20e5ac7f">jobs and host operations to enqueue jobs</span>
+     <li><span class="dfn-paneled" id="7795a18c">promise object</span>
+    </ul>
+   <li>
     <a data-link-type="biblio">[FETCH]</a> defines the following terms:
     <ul>
      <li><span class="dfn-paneled" id="d5434eef">contains</span>
@@ -977,9 +1033,11 @@ Web exposed specifications that rely on this infrastructure could have such impl
      <li><span class="dfn-paneled" id="c6d19e56">event loop</span>
      <li><span class="dfn-paneled" id="b78d6a64">event loop <small>(for agent)</small></span>
      <li><span class="dfn-paneled" id="9ed0e01d">execute the script element</span>
+     <li><span class="dfn-paneled" id="17691326">job-related host hooks</span>
      <li><span class="dfn-paneled" id="9a517a7d">queue a task</span>
      <li><span class="dfn-paneled" id="d8049b98">relevant agent</span>
      <li><span class="dfn-paneled" id="e270bd2a">task</span>
+     <li><span class="dfn-paneled" id="32301e7b">timer initialisation steps</span>
      <li><span class="dfn-paneled" id="5fd199e1">top-level traversable</span>
      <li><span class="dfn-paneled" id="d0c5bc48">update document for history step application</span>
     </ul>
@@ -995,10 +1053,12 @@ Web exposed specifications that rely on this infrastructure could have such impl
     </ul>
   </ul>
   <h2 class="no-num no-ref heading settled" id="references"><span class="content">References</span><a class="self-link" href="#references"></a></h2>
-  <h3 class="no-num no-ref heading settled" id="informative"><span class="content">Informative References</span><a class="self-link" href="#informative"></a></h3>
+  <h3 class="no-num no-ref heading settled" id="normative"><span class="content">Normative References</span><a class="self-link" href="#normative"></a></h3>
   <dl>
    <dt id="biblio-dom">[DOM]
    <dd>Anne van Kesteren. <a href="https://dom.spec.whatwg.org/"><cite>DOM Standard</cite></a>. Living Standard. URL: <a href="https://dom.spec.whatwg.org/">https://dom.spec.whatwg.org/</a>
+   <dt id="biblio-ecmascript">[ECMASCRIPT]
+   <dd><a href="https://tc39.es/ecma262/multipage/"><cite>ECMAScript Language Specification</cite></a>. URL: <a href="https://tc39.es/ecma262/multipage/">https://tc39.es/ecma262/multipage/</a>
    <dt id="biblio-fetch">[FETCH]
    <dd>Anne van Kesteren. <a href="https://fetch.spec.whatwg.org/"><cite>Fetch Standard</cite></a>. Living Standard. URL: <a href="https://fetch.spec.whatwg.org/">https://fetch.spec.whatwg.org/</a>
    <dt id="biblio-html">[HTML]
@@ -1008,7 +1068,7 @@ Web exposed specifications that rely on this infrastructure could have such impl
   </dl>
   <h2 class="no-num no-ref heading settled" id="issues-index"><span class="content">Issues Index</span><a class="self-link" href="#issues-index"></a></h2>
   <div style="counter-reset:issue">
-   <div class="issue"> Should we discuss potential connection with AsyncContext and its use cases? <a class="issue-return" href="#issue-f6bc5739" title="Jump to section">↵</a></div>
+   <div class="issue"> It’d be better to define a peek operation in infra and use that. <a class="issue-return" href="#issue-a58bc80a" title="Jump to section">↵</a></div>
   </div>
 <script>/* Boilerplate: script-dfn-panel */
 "use strict";
@@ -1322,18 +1382,25 @@ window.dfnpanelData['4523ab1a'] = {"dfnID": "4523ab1a", "url": "https://dom.spec
 window.dfnpanelData['b87df86e'] = {"dfnID": "b87df86e", "url": "https://dom.spec.whatwg.org/#dom-event-istrusted", "dfnText": "istrusted", "refSections": [{"refs": [{"id": "ref-for-dom-event-istrusted"}], "title": "3.1. Document"}], "external": true};
 window.dfnpanelData['5216e1a0'] = {"dfnID": "5216e1a0", "url": "https://dom.spec.whatwg.org/#concept-node-document", "dfnText": "node document", "refSections": [{"refs": [{"id": "ref-for-concept-node-document"}], "title": "3.1. Document"}], "external": true};
 window.dfnpanelData['59bfea49'] = {"dfnID": "59bfea49", "url": "https://dom.spec.whatwg.org/#concept-node-insert", "dfnText": "node insert", "refSections": [{"refs": [{"id": "ref-for-concept-node-insert"}], "title": "3.1. Document"}], "external": true};
+window.dfnpanelData['d417ee4f'] = {"dfnID": "d417ee4f", "url": "https://tc39.es/ecma262/#sec-createresolvingfunctions", "dfnText": "createresolvingfunctions", "refSections": [{"refs": [{"id": "ref-for-sec-createresolvingfunctions"}], "title": "6. TaskAttribution ECMA262 integration"}], "external": true};
+window.dfnpanelData['ef7caa3a'] = {"dfnID": "ef7caa3a", "url": "https://tc39.es/ecma262/multipage/overview.html#host-defined", "dfnText": "host-defined", "refSections": [{"refs": [{"id": "ref-for-host-defined"}], "title": "6.1. HostCreatePromiseResolversCallback (promise)"}], "external": true};
+window.dfnpanelData['eb79d01a'] = {"dfnID": "eb79d01a", "url": "https://tc39.es/ecma262/multipage/overview.html#host", "dfnText": "hosts", "refSections": [{"refs": [{"id": "ref-for-host"}], "title": "6.1. HostCreatePromiseResolversCallback (promise)"}], "external": true};
+window.dfnpanelData['20e5ac7f'] = {"dfnID": "20e5ac7f", "url": "https://tc39.es/ecma262/#sec-jobs", "dfnText": "jobs and host operations to enqueue jobs", "refSections": [{"refs": [{"id": "ref-for-sec-jobs"}], "title": "6. TaskAttribution ECMA262 integration"}], "external": true};
+window.dfnpanelData['7795a18c'] = {"dfnID": "7795a18c", "url": "https://tc39.es/ecma262/#sec-promise-objects", "dfnText": "promise object", "refSections": [{"refs": [{"id": "ref-for-sec-promise-objects"}], "title": "6.1. HostCreatePromiseResolversCallback (promise)"}], "external": true};
 window.dfnpanelData['d5434eef'] = {"dfnID": "d5434eef", "url": "https://fetch.spec.whatwg.org/#header-list-contains", "dfnText": "contains", "refSections": [{"refs": [{"id": "ref-for-header-list-contains"}], "title": "4.4. Is ancestor in set"}], "external": true};
 window.dfnpanelData['3349d69f'] = {"dfnID": "3349d69f", "url": "https://html.spec.whatwg.org/multipage/nav-history-apis.html#concept-document-window", "dfnText": "associated document", "refSections": [{"refs": [{"id": "ref-for-concept-document-window"}, {"id": "ref-for-concept-document-window\u2460"}], "title": "3.1. Document"}], "external": true};
 window.dfnpanelData['a7eb59db'] = {"dfnID": "a7eb59db", "url": "https://html.spec.whatwg.org/C#document", "dfnText": "document", "refSections": [{"refs": [{"id": "ref-for-document"}, {"id": "ref-for-document\u2460"}], "title": "2. Algorithms"}, {"refs": [{"id": "ref-for-document\u2461"}, {"id": "ref-for-document\u2462"}, {"id": "ref-for-document\u2463"}, {"id": "ref-for-document\u2464"}], "title": "3.1. Document"}], "external": true};
 window.dfnpanelData['c6d19e56'] = {"dfnID": "c6d19e56", "url": "https://html.spec.whatwg.org/multipage/webappapis.html#event-loop", "dfnText": "event loop", "refSections": [{"refs": [{"id": "ref-for-event-loop"}], "title": "5. TaskAttribution HTML integration"}], "external": true};
 window.dfnpanelData['b78d6a64'] = {"dfnID": "b78d6a64", "url": "https://html.spec.whatwg.org/multipage/webappapis.html#concept-agent-event-loop", "dfnText": "event loop (for agent)", "refSections": [{"refs": [{"id": "ref-for-concept-agent-event-loop"}, {"id": "ref-for-concept-agent-event-loop\u2460"}], "title": "4.2. Task scope stack"}, {"refs": [{"id": "ref-for-concept-agent-event-loop\u2461"}, {"id": "ref-for-concept-agent-event-loop\u2462"}], "title": "4.4.1. Get current task"}], "external": true};
 window.dfnpanelData['9ed0e01d'] = {"dfnID": "9ed0e01d", "url": "https://html.spec.whatwg.org/C#execute-the-script-element", "dfnText": "execute the script element", "refSections": [{"refs": [{"id": "ref-for-execute-the-script-element"}], "title": "5. TaskAttribution HTML integration"}], "external": true};
+window.dfnpanelData['17691326'] = {"dfnID": "17691326", "url": "https://html.spec.whatwg.org/C#integration-with-jaavascript-jobs", "dfnText": "job-related host hooks", "refSections": [{"refs": [{"id": "ref-for-integration-with-jaavascript-jobs"}], "title": "5. TaskAttribution HTML integration"}], "external": true};
 window.dfnpanelData['9a517a7d'] = {"dfnID": "9a517a7d", "url": "https://html.spec.whatwg.org/multipage/webappapis.html#queue-a-task", "dfnText": "queue a task", "refSections": [{"refs": [{"id": "ref-for-queue-a-task"}], "title": "5. TaskAttribution HTML integration"}], "external": true};
 window.dfnpanelData['d8049b98'] = {"dfnID": "d8049b98", "url": "https://html.spec.whatwg.org/multipage/webappapis.html#relevant-agent", "dfnText": "relevant agent", "refSections": [{"refs": [{"id": "ref-for-relevant-agent"}, {"id": "ref-for-relevant-agent\u2460"}], "title": "4.2. Task scope stack"}, {"refs": [{"id": "ref-for-relevant-agent\u2461"}, {"id": "ref-for-relevant-agent\u2462"}], "title": "4.4.1. Get current task"}], "external": true};
 window.dfnpanelData['e270bd2a'] = {"dfnID": "e270bd2a", "url": "https://html.spec.whatwg.org/multipage/webappapis.html#concept-task", "dfnText": "task", "refSections": [{"refs": [{"id": "ref-for-concept-task"}], "title": "4.1. Task scope"}, {"refs": [{"id": "ref-for-concept-task\u2460"}], "title": "4.2. Task scope stack"}, {"refs": [{"id": "ref-for-concept-task\u2461"}, {"id": "ref-for-concept-task\u2462"}, {"id": "ref-for-concept-task\u2463"}, {"id": "ref-for-concept-task\u2464"}], "title": "5. TaskAttribution HTML integration"}], "external": true};
+window.dfnpanelData['32301e7b'] = {"dfnID": "32301e7b", "url": "https://html.spec.whatwg.org/C#timer-initialisation-steps", "dfnText": "timer initialisation steps", "refSections": [{"refs": [{"id": "ref-for-timer-initialisation-steps"}], "title": "5.1. HostCreatePromiseResolversCallback (promise)"}], "external": true};
 window.dfnpanelData['5fd199e1'] = {"dfnID": "5fd199e1", "url": "https://html.spec.whatwg.org/C#top-level-traversable", "dfnText": "top-level traversable", "refSections": [{"refs": [{"id": "ref-for-top-level-traversable"}], "title": "3.1. Document"}], "external": true};
 window.dfnpanelData['d0c5bc48'] = {"dfnID": "d0c5bc48", "url": "https://html.spec.whatwg.org/C#update-document-for-history-step-application", "dfnText": "update document for history step application", "refSections": [{"refs": [{"id": "ref-for-update-document-for-history-step-application"}], "title": "3.1. Document"}], "external": true};
-window.dfnpanelData['860300d4'] = {"dfnID": "860300d4", "url": "https://infra.spec.whatwg.org/#implementation-defined", "dfnText": "implementation-defined", "refSections": [{"refs": [{"id": "ref-for-implementation-defined"}], "title": "4.2. Task scope stack"}, {"refs": [{"id": "ref-for-implementation-defined\u2460"}], "title": "5. TaskAttribution HTML integration"}], "external": true};
+window.dfnpanelData['860300d4'] = {"dfnID": "860300d4", "url": "https://infra.spec.whatwg.org/#implementation-defined", "dfnText": "implementation-defined", "refSections": [{"refs": [{"id": "ref-for-implementation-defined"}], "title": "4.2. Task scope stack"}, {"refs": [{"id": "ref-for-implementation-defined\u2460"}], "title": "5. TaskAttribution HTML integration"}, {"refs": [{"id": "ref-for-implementation-defined\u2461"}], "title": "5.1. HostCreatePromiseResolversCallback (promise)"}], "external": true};
 window.dfnpanelData['fca74142'] = {"dfnID": "fca74142", "url": "https://infra.spec.whatwg.org/#stack-pop", "dfnText": "pop", "refSections": [{"refs": [{"id": "ref-for-stack-pop"}], "title": "4.4.1. Get current task"}], "external": true};
 window.dfnpanelData['7c3de606'] = {"dfnID": "7c3de606", "url": "https://infra.spec.whatwg.org/#stack-push", "dfnText": "push", "refSections": [{"refs": [{"id": "ref-for-stack-push"}], "title": "4.4.1. Get current task"}], "external": true};
 window.dfnpanelData['15e48c39'] = {"dfnID": "15e48c39", "url": "https://infra.spec.whatwg.org/#ordered-set", "dfnText": "set", "refSections": [{"refs": [{"id": "ref-for-ordered-set"}], "title": "4.4. Is ancestor in set"}], "external": true};
@@ -1348,13 +1415,14 @@ window.dfnpanelData['concept-task-scope'] = {"dfnID": "concept-task-scope", "url
 window.dfnpanelData['task-scope-task-continuation-data'] = {"dfnID": "task-scope-task-continuation-data", "url": "#task-scope-task-continuation-data", "dfnText": "task continuation data", "refSections": [{"refs": [{"id": "ref-for-task-scope-task-continuation-data"}], "title": "4.2. Task scope stack"}], "external": false};
 window.dfnpanelData['task-scope-task'] = {"dfnID": "task-scope-task", "url": "#task-scope-task", "dfnText": "task", "refSections": [{"refs": [{"id": "ref-for-task-scope-task"}], "title": "4.2. Task scope stack"}, {"refs": [{"id": "ref-for-task-scope-task\u2460"}], "title": "4.4.1. Get current task"}], "external": false};
 window.dfnpanelData['task-scope-stack'] = {"dfnID": "task-scope-stack", "url": "#task-scope-stack", "dfnText": "task scope stack", "refSections": [{"refs": [{"id": "ref-for-task-scope-stack"}, {"id": "ref-for-task-scope-stack\u2460"}], "title": "4.2. Task scope stack"}, {"refs": [{"id": "ref-for-task-scope-stack\u2461"}, {"id": "ref-for-task-scope-stack\u2462"}], "title": "4.4.1. Get current task"}, {"refs": [{"id": "ref-for-task-scope-stack\u2463"}], "title": "5. TaskAttribution HTML integration"}], "external": false};
-window.dfnpanelData['create-a-task-scope'] = {"dfnID": "create-a-task-scope", "url": "#create-a-task-scope", "dfnText": "create a task scope", "refSections": [{"refs": [{"id": "ref-for-create-a-task-scope"}, {"id": "ref-for-create-a-task-scope\u2460"}], "title": "5. TaskAttribution HTML integration"}], "external": false};
+window.dfnpanelData['create-a-task-scope'] = {"dfnID": "create-a-task-scope", "url": "#create-a-task-scope", "dfnText": "create a task scope", "refSections": [{"refs": [{"id": "ref-for-create-a-task-scope"}, {"id": "ref-for-create-a-task-scope\u2460"}], "title": "5. TaskAttribution HTML integration"}, {"refs": [{"id": "ref-for-create-a-task-scope\u2461"}], "title": "5.1. HostCreatePromiseResolversCallback (promise)"}], "external": false};
 window.dfnpanelData['tear-down-a-task-scope'] = {"dfnID": "tear-down-a-task-scope", "url": "#tear-down-a-task-scope", "dfnText": "tear down a task scope", "refSections": [{"refs": [{"id": "ref-for-tear-down-a-task-scope"}, {"id": "ref-for-tear-down-a-task-scope\u2460"}], "title": "5. TaskAttribution HTML integration"}], "external": false};
 window.dfnpanelData['check-ancestor-for-task'] = {"dfnID": "check-ancestor-for-task", "url": "#check-ancestor-for-task", "dfnText": "check ancestor for task", "refSections": [{"refs": [{"id": "ref-for-check-ancestor-for-task"}, {"id": "ref-for-check-ancestor-for-task\u2460"}], "title": "3.1. Document"}], "external": false};
 window.dfnpanelData['get-current-task'] = {"dfnID": "get-current-task", "url": "#get-current-task", "dfnText": "get current task", "refSections": [{"refs": [{"id": "ref-for-get-current-task"}], "title": "4.3. Is ancestor"}, {"refs": [{"id": "ref-for-get-current-task\u2460"}], "title": "4.4. Is ancestor in set"}, {"refs": [{"id": "ref-for-get-current-task\u2461"}], "title": "4.4.2. Get current task ID"}], "external": false};
-window.dfnpanelData['get-current-task-id'] = {"dfnID": "get-current-task-id", "url": "#get-current-task-id", "dfnText": "get current task id", "refSections": [{"refs": [{"id": "ref-for-get-current-task-id"}, {"id": "ref-for-get-current-task-id\u2460"}, {"id": "ref-for-get-current-task-id\u2461"}], "title": "3.1. Document"}, {"refs": [{"id": "ref-for-get-current-task-id\u2462"}], "title": "5. TaskAttribution HTML integration"}], "external": false};
+window.dfnpanelData['get-current-task-id'] = {"dfnID": "get-current-task-id", "url": "#get-current-task-id", "dfnText": "get current task id", "refSections": [{"refs": [{"id": "ref-for-get-current-task-id"}, {"id": "ref-for-get-current-task-id\u2460"}, {"id": "ref-for-get-current-task-id\u2461"}], "title": "3.1. Document"}, {"refs": [{"id": "ref-for-get-current-task-id\u2462"}], "title": "5. TaskAttribution HTML integration"}, {"refs": [{"id": "ref-for-get-current-task-id\u2463"}, {"id": "ref-for-get-current-task-id\u2464"}], "title": "5.1. HostCreatePromiseResolversCallback (promise)"}], "external": false};
 window.dfnpanelData['task-task-attribution-id'] = {"dfnID": "task-task-attribution-id", "url": "#task-task-attribution-id", "dfnText": "task attribution ID", "refSections": [{"refs": [{"id": "ref-for-task-task-attribution-id"}], "title": "3.1. Document"}, {"refs": [{"id": "ref-for-task-task-attribution-id\u2460"}], "title": "4.2. Task scope stack"}, {"refs": [{"id": "ref-for-task-task-attribution-id\u2461"}, {"id": "ref-for-task-task-attribution-id\u2462"}], "title": "4.3. Is ancestor"}, {"refs": [{"id": "ref-for-task-task-attribution-id\u2463"}, {"id": "ref-for-task-task-attribution-id\u2464"}], "title": "4.4. Is ancestor in set"}, {"refs": [{"id": "ref-for-task-task-attribution-id\u2465"}], "title": "4.4.2. Get current task ID"}], "external": false};
 window.dfnpanelData['task-parent-task'] = {"dfnID": "task-parent-task", "url": "#task-parent-task", "dfnText": "parent task", "refSections": [{"refs": [{"id": "ref-for-task-parent-task"}], "title": "4.3. Is ancestor"}, {"refs": [{"id": "ref-for-task-parent-task\u2460"}], "title": "4.4. Is ancestor in set"}, {"refs": [{"id": "ref-for-task-parent-task\u2461"}], "title": "5. TaskAttribution HTML integration"}], "external": false};
+window.dfnpanelData['hostcreatepromiseresolverscallback'] = {"dfnID": "hostcreatepromiseresolverscallback", "url": "#hostcreatepromiseresolverscallback", "dfnText": "HostCreatePromiseResolversCallback", "refSections": [{"refs": [{"id": "ref-for-hostcreatepromiseresolverscallback"}], "title": "5.1. HostCreatePromiseResolversCallback (promise)"}, {"refs": [{"id": "ref-for-hostcreatepromiseresolverscallback\u2460"}], "title": "6. TaskAttribution ECMA262 integration"}], "external": false};
 </script>
 <script>/* Boilerplate: script-dom-helper */
 function query(sel) { return document.querySelector(sel); }
