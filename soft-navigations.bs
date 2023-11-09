@@ -24,11 +24,10 @@ urlPrefix: https://html.spec.whatwg.org/C; spec: HTML;
     type: dfn; url: #update-document-for-history-step-application; text: update document for history step application;
     type: dfn; url: #top-level-traversable; text: top-level traversable;
     type: dfn; url: #integration-with-jaavascript-jobs; text: Job-related host hooks;
+    type: dfn; url: #timer-initialisation-steps; text: timer initialisation steps;
 urlPrefix: https://dom.spec.whatwg.org/; spec: DOM;
     type: dfn; url: #concept-event-dispatch; text: event dispatch;
-urlPrefix: https://dom.spec.whatwg.org/; spec: DOM;
     type: dfn; url: #concept-node-insert; text: node insert;
-urlPrefix: https://dom.spec.whatwg.org/; spec: DOM;
     type: dfn; url: #dom-event-istrusted; text: isTrusted;
 urlPrefix:https://tc39.es/ecma262/#;type:dfn;spec:ecma-262
     url:sec-createresolvingfunctions;text: CreateResolvingFunctions
@@ -212,7 +211,7 @@ Add these steps after step 3, "Let task be a new task":
 Add a terminating step:
   1. [=Tear down a task scope=]
 
-At HostEnqueuePromiseJob add the following steps:
+In HostEnqueuePromiseJob add the following steps:
   1. Let |task| be <var ignore>job</var>.|promise|.[task]
   2. Set |task| as the currently running task.
 
@@ -225,6 +224,11 @@ User agents must use the following implementation:
   1. Let |task| be the result of [=get current task id|getting the current task id=].
   1. Let promise.[task] be |task|.
 
+In [=timer initialisation steps=], before step 8, add the following steps:
+  1. Let |parentTaskId| be the result of [=getting current task id=].
+  2. If |handler| is a Function, set |handler|.|parentTaskId| to |parentTaskId|. Otherwise, [=create a task scope=].
+
+When callbacks are invoked, create a task scope and assign it a parent if the callback has one.
 
 TODO: handle timeouts
 
