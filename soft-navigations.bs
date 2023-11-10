@@ -224,6 +224,8 @@ User agents must use the following implementation:
   1. Let |task| be the result of [=get current task id|getting the current task id=].
   1. Let promise.[task] be |task|.
 
+Note: The above is only needed if we need to add a new hook. Alternatively, we could modify HostMakeJobCallback and attach the task to the callable. 
+
 In [=timer initialisation steps=], before step 8, add the following steps:
   1. Let |parentTaskId| be the result of [=getting current task id=].
   2. If |handler| is a Function, set |handler|.|parentTaskId| to |parentTaskId|. Otherwise, [=create a task scope=].
@@ -238,8 +240,12 @@ TODO: handle same document navigations
 
 TODO: other cases?? (rAF, rIC, view transitions, observers, etc)
 
-TaskAttribution ECMA262 integration {#sec-ecma252}
+TaskAttribution ECMA262 integration {#sec-ecma262}
 =========================================
+
+Note: This is a rough sketch for an early review. If this will be needed, it'll be pushed through TC39 and the regular ECMAScript channels.
+
+Note: It seems like we can use HostMakeJobCallback instead of defining a new hook..
 
 In [=CreateResolvingFunctions=] add a step before the final one:
   1. Call [=HostCreatePromiseResolversCallback=] with |promise|.
