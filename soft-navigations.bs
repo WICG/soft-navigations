@@ -25,14 +25,15 @@ urlPrefix: https://html.spec.whatwg.org/C; spec: HTML;
     type: dfn; url: #top-level-traversable; text: top-level traversable;
     type: dfn; url: #integration-with-jaavascript-jobs; text: Job-related host hooks;
     type: dfn; url: #timer-initialisation-steps; text: timer initialisation steps;
+    type: dfn; url: #hostcalljobcallback; text: HostCallJobCallback;
+    type: dfn; url: #hostmakejobcallback; text: HostMakeJobCallback;
+    type: dfn; url: #prepare-to-run-a-callback; text: prepare to run a callback
 urlPrefix: https://dom.spec.whatwg.org/; spec: DOM;
     type: dfn; url: #concept-event-dispatch; text: event dispatch;
     type: dfn; url: #concept-node-insert; text: node insert;
     type: dfn; url: #dom-event-istrusted; text: isTrusted;
-urlPrefix:https://tc39.es/ecma262/#;type:dfn;spec:ecma-262
-    url:sec-createresolvingfunctions;text: CreateResolvingFunctions
-    url:sec-jobs;text: Jobs and Host Operations to Enqueue Jobs
-    url:sec-promise-objects;text: Promise Object
+urlPrefix: https://webidl.spec.whatwg.org/
+    type: dfn; url: #invoke-a-callback-function; text: invoke a callback function;
 </pre>
 <pre class=link-defaults>
 </pre>
@@ -134,11 +135,6 @@ A [=task scope=] has <dfn for="task scope">task continuation data</dfn>, a [=str
 
 A [=task scope=] has a <dfn for="task scope">task</dfn>, a [=/task=].
 
-
-
-## Task scope stack ## {#sec-task-scope-stack}
-A <dfn>task scope stack</dfn> is a [=stack=] of <a>task scopes</a>.
-
 To <dfn>create a task scope</dfn>, given |task|, a [=/task=], do the following:
   1. Let |scope| be a new [=task scope=].
   1. Set |task|'s [=task attribution ID=] with an [=implementation-defined=] unique value.
@@ -159,7 +155,6 @@ To <dfn export>check ancestor for task</dfn>, given |ancestor id|, a [=task attr
     1. If |id| equals |ancestor id|, return true.
     1. Set |task| to |task|'s [=parent task=].
 
-
 ## Is ancestor in set ## {#sec-is-ancestor-in-set}
 
 To <dfn export>check ancestor set for task</dfn>, given |ancestor id set|, a [=task attribution ID=] [=/set=], run the following:
@@ -172,25 +167,37 @@ To <dfn export>check ancestor set for task</dfn>, given |ancestor id set|, a [=t
 
 ### Get current task ### {#sec-current-task}
 To <dfn export>get current task</dfn>, run the following steps:
-  1. Let |scope| be the result of [=popping=] the [=relevant agent=]'s [=agent/event loop=]'s [=task scope stack=].
-  1. [=stack/Push=] |scope| to the [=relevant agent=]'s [=agent/event loop=]'s [=task scope stack=].
+  1. Let |event loop| be the [=relevant agent=]'s [=agent/event loop=].
+  1. If |event loop|'s [=task override=] is set, return it.
+  1. Let |scope| be the result of [=popping=] the |event loop|'s [=task scope stack=].
+  1. [=stack/Push=] |scope| to the |event loop|'s [=task scope stack=].
   1. Return |scope|'s [=task scope/task=].
 
-ISSUE: It'd be better to define a peek operation in infra and use that.
+ISSUE: Move to `peek` once that's defined: https://github.com/whatwg/infra/pull/624
 
 ### Get current task ID ### {#sec-current-task-id}
 To <dfn export>get current task id</dfn>, run the following steps:
   1. Let |task| be the result of [=getting current task=].
   1. Return |task|'s [=task attribution ID=].
 
+### Create a new task scope {#sec-create-new-task-scope}
+To <dfn>create a new task scope</dfn> with an optional |parent task| [=/task=], run the following steps:
+  1. Let |task| be a new [=/task=].
+  1. If |parent task| is provided, set |task|'s [=parent task=] to |parent task|.
+  1. [=Create a task scope=] with |task|.
+
 TaskAttribution HTML integration {#sec-task-attribution-integration}
 ================================
 
-Each [=/event loop=] has a <a>task scope stack</a>.
+Each [=/event loop=] has a <dfn>task scope stack</dfn>, a [=stack=] of <a>task scopes</a>.
+
+
+Each [=/event loop=] has a <dfn>task override</dfn>, a [=/task=]. It is initially unset.
 
 In [=Execute the script element=], add initial steps:
-  1. Let |task| be a new [=/task=].
-  1. [=Create a task scope=] with |task|.
+  1. [=Create a new task scope=].
+
+TODO: Handle parent scope passing for executing scripts.
 
 Add a terminating step:
   1. [=Tear down a task scope=]
@@ -200,71 +207,54 @@ representing a unique identifier. It is initially unset.
 
 A [=/task=] has a <dfn for="task">parent task</dfn>, a [=/task=], initially unset.
 
-Note: Should we move that info into a "task attribution info" structure and only link those?
-
 In [=queue a task=]:
 
 Add these steps after step 3, "Let task be a new task":
-  1. Set |task|'s [=parent task=] to the result of [=get current task ID=].
-  2. [=Create a task scope=] with |task|.
+  1. Set |task|'s [=parent task=] to the result of [=getting current task ID=].
+  1. [=Create a task scope=] with |task|.
 
 Add a terminating step:
   1. [=Tear down a task scope=]
 
-In HostEnqueuePromiseJob add the following steps:
-  1. Let |task| be <var ignore>job</var>.|promise|.[task]
-  2. Set |task| as the currently running task.
-
-In [=Job-related host hooks=], add the following sub-section.
-
-`HostCreatePromiseResolversCallback (promise)` {#sec-hostcreate-promise-resolvers-callback-html}
-----------------------------------------------
-Javascript contains an [=implementation-defined=] [=HostCreatePromiseResolversCallback=](promise).
-User agents must use the following implementation:
-  1. Let |task| be the result of [=get current task id|getting the current task id=].
-  1. Let promise.[task] be |task|.
-
-Note: The above is only needed if we need to add a new hook. Alternatively, we could modify HostMakeJobCallback and attach the task to the callable. 
+In [=HostMakeJobCallback=], add the following steps:
+  1. Let |task| be the result of [=getting current task=].
+  1. Let <var ignore>callable</var>.[task] be |task|.
 
 In [=timer initialisation steps=], before step 8, add the following steps:
-  1. Let |parentTaskId| be the result of [=getting current task id=].
-  2. If |handler| is a Function, set |handler|.|parentTaskId| to |parentTaskId|. Otherwise, [=create a task scope=].
+  1. Let |parent task| be the result of [=getting current task=].
+  1. If |handler| is a Function, set |handler|'s parent task to |parent task|.
+  1. Otherwise, [=create a task scope=] with |parent task|..
 
-When callbacks are invoked, create a task scope and assign it a parent if the callback has one.
+TODO: How do we properly set the parent task on the callback function??
 
-TODO: handle timeouts
+In [=prepare to run a callback=], add the following steps::
+  1. Let |task| be <var ignore>callback</var>.[task]
+  1. Let |event loop| be the [=relevant agent=]'s [=agent/event loop=].
+  1. Set |event loop|'s [=task override=] to |task|.
+
+TODO: if we need cleanup steps, we can add them in "clean up after running a callback"
 
 TODO: handle postmessages
 
 TODO: handle same document navigations
 
-TODO: other cases?? (rAF, rIC, view transitions, observers, etc)
+TODO: other cases?? (rAF, rIC, view transitions, observers, JS loading, etc)
 
-TaskAttribution ECMA262 integration {#sec-ecma262}
-=========================================
+TaskAttribution WebIDL integration {#sec-web-idl-integration}
+========================================
 
-Note: This is a rough sketch for an early review. If this will be needed, it'll be pushed through TC39 and the regular ECMAScript channels.
-
-Note: It seems like we can use HostMakeJobCallback instead of defining a new hook..
-
-In [=CreateResolvingFunctions=] add a step before the final one:
-  1. Call [=HostCreatePromiseResolversCallback=] with |promise|.
-
-In [=Jobs and Host Operations to Enqueue Jobs=], add the following subsecion.
-
-`HostCreatePromiseResolversCallback (promise)` {#sec-hostcreate-promise-resolvers-callback-ecma}
-----------------------------------------------
-The [=host-defined=] abstract operation <dfn>HostCreatePromiseResolversCallback</dfn> takes arguments |promise| (a [=Promise Object=]) and returns nothing.
-
-The default implementation of HostCreatePromiseResolversCallback performs no steps.
-ECMAScript [=hosts=] that are not web browsers must use the default implementation of HostCreatePromiseResolversCallback.
-
+In [=invoke a callback function=], add the following steps:
+  1. [=create a new task scope=] with <var ignore>callback</var>'s parent task if set, and with nothing otherwise.
 
 Security & privacy considerations {#priv-sec}
 ===============================================
 Exposing Soft Navigations to the performance timeline doesn't have security and privacy implications on its own.
-However, reseting the various paint timing entries as a result of a detected soft navigation can have implications, especially before [visited links are partitioned](https://github.com/kyraseevers/Partitioning-visited-links-history). As such, exposing such paint operations without partitioning the :visited cache needs to only be done after careful analysis of the paint operations in question, to make sure they don't expose the user's history across origins.
+However, reseting the various paint timing entries as a result of a detected soft navigation can have implications,
+especially before [visited links are partitioned](https://github.com/kyraseevers/Partitioning-visited-links-history).
+As such, exposing such paint operations without partitioning the :visited cache needs to only be done after careful
+ analysis of the paint operations in question, to make sure they don't expose the user's history across origins.
 
-Task Attribution as infrastructure doesn't directly expose any data to the web, it doesn't have any privacy and security implications.
-Web exposed specifications that rely on this infrastructure could have such implications. As such, they need to be individually examined and have those implications outlined.
+Task Attribution as infrastructure doesn't directly expose any data to the web, so it doesn't have any privacy and security implications.
+Web exposed specifications that rely on this infrastructure could have such implications. As such, they need to be
+individually examined and have those implications outlined.
 
