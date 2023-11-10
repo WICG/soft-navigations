@@ -118,25 +118,25 @@ The general principle behind task attribution is quite simple:
 
 Each task maintains a connection to its parent task, enabling an implicit data structure that enables querying a task to find if another, specific one is its ancestor.
 
+
 ## Task scope ## {#sec-task-scope}
 
 
 A <dfn id=concept-task-scope>task scope</dfn> is formally defined as a structure.
 
-A [=task scope=] has <dfn for="task scope">task continuation data</dfn>, a [=struct=].
-
 A [=task scope=] has a <dfn for="task scope">task</dfn>, a [=/task=].
 
-To <dfn>create a task scope</dfn>, given |task|, a [=/task=], do the following:
+To <dfn>create a task scope</dfn>, given an optional |parent task|, a [=/task=], do the following:
+  1. Let |task| be a new [=/task=].
+  1. Set |task|'s [=task attribution ID=] to an [=implementation-defined=] unique value.
+  1. If |parent task| is provided, set |task|'s [=parent task=] to |parent task|.
   1. Let |scope| be a new [=task scope=].
-  1. Set |task|'s [=task attribution ID=] with an [=implementation-defined=] unique value.
-  1. Set |scope|'s [=task continuation data=] to SOMETHING!! Push the continuation data on the isolate???
-  1. Set |scope|'s [=task scope/task=] to |task|. If |task| is nullptr, create one???
+  1. Set |scope|'s [=task scope/task=] to |task|.
   1. Push |scope| to the [=relevant agent=]'s [=agent/event loop=]'s [=task scope stack=].
+
 
 To <dfn>tear down a task scope</dfn>, do the following:
   1. Pop |scope| from the [=relevant agent=]'s [=agent/event loop=]'s [=task scope stack=]
-  1. Set the isolate's continuation data thing to the one at the top of the stack
 
 ## Is ancestor ## {#sec-is-ancestor}
 To <dfn export>check ancestor for task</dfn>, given |ancestor id|, a [=task attribution ID=], run the following:
@@ -160,7 +160,6 @@ To <dfn export>check ancestor set for task</dfn>, given |ancestor id set|, a [=t
 ### Get current task ### {#sec-current-task}
 To <dfn export>get current task</dfn>, run the following steps:
   1. Let |event loop| be the [=relevant agent=]'s [=agent/event loop=].
-  1. If |event loop|'s [=task override=] is set, return it.
   1. Let |scope| be the result of [=peeking=] into the |event loop|'s [=task scope stack=].
   1. Return |scope|'s [=task scope/task=].
 
@@ -169,33 +168,31 @@ To <dfn export>get current task id</dfn>, run the following steps:
   1. Let |task| be the result of [=getting current task=].
   1. Return |task|'s [=task attribution ID=].
 
-### Create a new task scope {#sec-create-new-task-scope}
-To <dfn>create a new task scope</dfn> with an optional |parent task| [=/task=], run the following steps:
-  1. Let |task| be a new [=/task=].
-  1. If |parent task| is provided, set |task|'s [=parent task=] to |parent task|.
-  1. [=Create a task scope=] with |task|.
-
 TaskAttribution HTML integration {#sec-task-attribution-integration}
 ================================
 
-Each [=/event loop=] has a <dfn>task scope stack</dfn>, a [=stack=] of <a>task scopes</a>.
-
-
-Each [=/event loop=] has a <dfn>task override</dfn>, a [=/task=]. It is initially unset.
-
-In [=Execute the script element=], add initial steps:
-  1. [=Create a new task scope=].
-
-TODO: Handle parent scope passing for executing scripts.
-
-Add a terminating step:
-  1. [=Tear down a task scope=]
+## Task additions  ## {#sec-task}
 
 A [=/task=] has a <dfn for="task">task attribution ID</dfn>, an [=implementation-defined=] value,
 representing a unique identifier. It is initially unset.
 
 A [=/task=] has a <dfn for="task">parent task</dfn>, a [=/task=], initially unset.
 
+## Event Loop additions ##{#sec-event-loop}
+Each [=/event loop=] has a <dfn>task scope stack</dfn>, a [=stack=] of <a>task scopes</a>.
+
+## Script execution ##{#sec-script}
+In [=Execute the script element=], add initial steps:
+  1. [=Create a task scope=].
+
+Also, add a terminating step:
+  1. [=Tear down a task scope=]
+
+TODO: Handle parent scope passing for executing scripts.
+
+TODO: investigate "prepare to run a script"
+
+## Task queueing ##{#sec-task-queueing}
 In [=queue a task=]:
 
 Add these steps after step 3, "Let task be a new task":
@@ -205,10 +202,9 @@ Add these steps after step 3, "Let task be a new task":
 Add a terminating step:
   1. [=Tear down a task scope=]
 
-In [=HostMakeJobCallback=], add the following steps:
-  1. Let |task| be the result of [=getting current task=].
-  1. Let <var ignore>callable</var>.[task] be |task|.
+TODO: Do we need this both when queueing a task and when calling a callback?
 
+## Timers ##{#sec-timers}
 In [=timer initialisation steps=], before step 8, add the following steps:
   1. Let |parent task| be the result of [=getting current task=].
   1. If |handler| is a Function, set |handler|'s parent task to |parent task|.
@@ -216,12 +212,32 @@ In [=timer initialisation steps=], before step 8, add the following steps:
 
 TODO: How do we properly set the parent task on the callback function??
 
+## Callbacks ##{#sec-callbacks}
 In [=prepare to run a callback=], add the following steps::
-  1. Let |task| be <var ignore>callback</var>.[task]
-  1. Let |event loop| be the [=relevant agent=]'s [=agent/event loop=].
-  1. Set |event loop|'s [=task override=] to |task|.
+  1. Let |task| be <var ignore>callback</var>'s parent task
+  1. [=create a task scope=] with |task| if set, and with nothing otherwise.
 
-TODO: if we need cleanup steps, we can add them in "clean up after running a callback"
+<p class=note>
+The above is called from both promise continuations and from "regular" script callbacks.
+That does not match Chromium where Blink is not notified when promise continuations are run inside of V8.
+This is subtly different than what's implemented in Chromium, as there the continuation task overrides
+the task stack, where here it pushes a new child task of itself onto that stack.
+At the same time, there shouldn't be any functional differences between the two.
+</p>
+
+
+In [=clean up after running a callback=], add the following step:
+  1. [=Tear down a task scope=].
+
+## HostMakeJobCallback ##{#sec-hostmakejobcallback}
+In [=HostMakeJobCallback=], add the following steps:
+  1. Let |task| be the result of [=getting current task=].
+  1. Let <var ignore>callable</var>.[task] be |task|.
+
+Note: This is needed to ensure the current task is registered on the promise resolvers when they are created.
+
+
+## Other ##{#sec-other}
 
 TODO: handle postmessages
 
@@ -229,11 +245,6 @@ TODO: handle same document navigations
 
 TODO: other cases?? (rAF, rIC, view transitions, observers, JS loading, etc)
 
-TaskAttribution WebIDL integration {#sec-web-idl-integration}
-========================================
-
-In [=invoke|invoke a callback function=] add the following steps:
-  1. [=create a new task scope=] with <var ignore>callback</var>'s parent task if set, and with nothing otherwise.
 
 Security & privacy considerations {#priv-sec}
 ===============================================
