@@ -17,23 +17,15 @@ Markup Shorthands: markdown on
 
 <pre class=anchors>
 urlPrefix: https://html.spec.whatwg.org/C; spec: HTML;
-    type: dfn; url: #update-the-navigation-api-entries-for-a-same-document-navigation; text: update the navigation API entries for a same-document navigation;
     type: dfn; url: #execute-the-script-element; text: execute the script element;
-    type: dfn; url: #document; text: document;
-    type: dfn; url: #navigation; text: navigation;
     type: dfn; url: #update-document-for-history-step-application; text: update document for history step application;
     type: dfn; url: #top-level-traversable; text: top-level traversable;
-    type: dfn; url: #integration-with-jaavascript-jobs; text: Job-related host hooks;
     type: dfn; url: #timer-initialisation-steps; text: timer initialisation steps;
-    type: dfn; url: #hostcalljobcallback; text: HostCallJobCallback;
     type: dfn; url: #hostmakejobcallback; text: HostMakeJobCallback;
-    type: dfn; url: #prepare-to-run-a-callback; text: prepare to run a callback
 urlPrefix: https://dom.spec.whatwg.org/; spec: DOM;
     type: dfn; url: #concept-event-dispatch; text: event dispatch;
     type: dfn; url: #concept-node-insert; text: node insert;
     type: dfn; url: #dom-event-istrusted; text: isTrusted;
-urlPrefix: https://webidl.spec.whatwg.org/
-    type: dfn; url: #invoke-a-callback-function; text: invoke a callback function;
 </pre>
 <pre class=link-defaults>
 </pre>
@@ -169,11 +161,8 @@ To <dfn export>check ancestor set for task</dfn>, given |ancestor id set|, a [=t
 To <dfn export>get current task</dfn>, run the following steps:
   1. Let |event loop| be the [=relevant agent=]'s [=agent/event loop=].
   1. If |event loop|'s [=task override=] is set, return it.
-  1. Let |scope| be the result of [=popping=] the |event loop|'s [=task scope stack=].
-  1. [=stack/Push=] |scope| to the |event loop|'s [=task scope stack=].
+  1. Let |scope| be the result of [=peeking=] into the |event loop|'s [=task scope stack=].
   1. Return |scope|'s [=task scope/task=].
-
-ISSUE: Move to `peek` once that's defined: https://github.com/whatwg/infra/pull/624
 
 ### Get current task ID ### {#sec-current-task-id}
 To <dfn export>get current task id</dfn>, run the following steps:
@@ -243,7 +232,7 @@ TODO: other cases?? (rAF, rIC, view transitions, observers, JS loading, etc)
 TaskAttribution WebIDL integration {#sec-web-idl-integration}
 ========================================
 
-In [=invoke a callback function=], add the following steps:
+In [=invoke|invoke a callback function=] add the following steps:
   1. [=create a new task scope=] with <var ignore>callback</var>'s parent task if set, and with nothing otherwise.
 
 Security & privacy considerations {#priv-sec}
