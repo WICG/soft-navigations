@@ -217,6 +217,8 @@ In [=prepare to run a callback=], add the following steps::
   1. Let |task| be <var ignore>callback</var>'s parent task
   1. [=create a task scope=] with |task| if set, and with nothing otherwise.
 
+TODO: I don't actually have a callback here! Need to pipe it
+
 <p class=note>
 The above is called from both promise continuations and from "regular" script callbacks.
 That does not match Chromium where Blink is not notified when promise continuations are run inside of V8.
