@@ -22,6 +22,7 @@ urlPrefix: https://html.spec.whatwg.org/C; spec: HTML;
     type: dfn; url: #top-level-traversable; text: top-level traversable;
     type: dfn; url: #timer-initialisation-steps; text: timer initialisation steps;
     type: dfn; url: #hostmakejobcallback; text: HostMakeJobCallback;
+    type: dfn; url: #message-port-post-message-steps; text: message port post message steps;
 urlPrefix: https://dom.spec.whatwg.org/; spec: DOM;
     type: dfn; url: #concept-event-dispatch; text: event dispatch;
     type: dfn; url: #concept-node-insert; text: node insert;
@@ -211,6 +212,7 @@ In [=timer initialisation steps=], before step 8, add the following steps:
   1. Otherwise, [=create a task scope=] with |parent task|..
 
 TODO: How do we properly set the parent task on the callback function??
+TODO: need a teardown here for the second case??
 
 ## Callbacks ##{#sec-callbacks}
 In [=prepare to run a callback=], add the following steps::
@@ -218,6 +220,9 @@ In [=prepare to run a callback=], add the following steps::
   1. [=create a task scope=] with |task| if set, and with nothing otherwise.
 
 TODO: I don't actually have a callback here! Need to pipe it
+
+TODO: Figure out if we need to do something in particular with the FinalizationRegsitry.
+TODO: need a teardown here.
 
 <p class=note>
 The above is called from both promise continuations and from "regular" script callbacks.
@@ -238,10 +243,27 @@ In [=HostMakeJobCallback=], add the following steps:
 
 Note: This is needed to ensure the current task is registered on the promise resolvers when they are created.
 
+## MessagePorts ## {#sec-messageport}
+
+<p class=note>
+For message ports, we want the `message` event callback task to have the task that initiated the `postMessage` as its parent.
+</p>
+
+In [=message port post message steps=], add the following steps.
+
+Before step 7, which adds a task, add the following steps:
+  1. Let |parent task| be the result of [=getting current task=].
+
+In step 7.3, which fires the `messageerror` event, call [=create a task scope=] with |parent task| before firing the event, and [=tear down a task scope=] after firing it..
+
+Before step 7.6, which fires the `message` event, add the following steps:
+  1. Call [=create a task scope=] with |parent task|.
+
+After step 7.6, add the following steps:
+  1. Call [=tear down a task scope=].
 
 ## Other ##{#sec-other}
 
-TODO: handle postmessages
 
 TODO: handle same document navigations
 
