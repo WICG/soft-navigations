@@ -23,6 +23,10 @@ urlPrefix: https://html.spec.whatwg.org/C; spec: HTML;
     type: dfn; url: #timer-initialisation-steps; text: timer initialisation steps;
     type: dfn; url: #hostmakejobcallback; text: HostMakeJobCallback;
     type: dfn; url: #message-port-post-message-steps; text: message port post message steps;
+    type: dfn; url: #apply-the-history-step; text: apply the history step;
+    type: dfn; url: #tn-append-session-history-traversal-steps; text: append session history traversal steps;
+    type: dfn; url: #tn-append-session-history-synchronous-navigation-steps; text: append session history synchronous navigation steps;
+    type: dfn; url: #navigate-fragid; text: navigate to a fragment;
 urlPrefix: https://dom.spec.whatwg.org/; spec: DOM;
     type: dfn; url: #concept-event-dispatch; text: event dispatch;
     type: dfn; url: #concept-node-insert; text: node insert;
@@ -261,6 +265,20 @@ Before step 7.6, which fires the `message` event, add the following steps:
 
 After step 7.6, add the following steps:
   1. Call [=tear down a task scope=].
+
+## Same-document navigations ## {#sec-same-document-navigations}
+A [=/traversable navigable=] has a <dfn>navigation task</dfn>, a [=/task=], initially unset.
+
+In [=append session history traversal steps=], also set |traversable|'s [=navigation task=] to the result of [=getting current task=].
+In [=append session history synchronous navigation steps=], also set |traversable|'s [=navigation task=] to the result of [=getting current task=].
+
+In [=apply the history step=] in step 14.11.2, pass the navigable's task to [=update document for history step application=].
+
+In [=navigate to a fragment=] step 14, pass the result if [=getting current task=].
+
+In [=update document for history step application=], before firing the popstate event in step 5.5.2, [=create a task scope=] with |task|. [=tear down a task scope=] after firing the event.
+
+TODO: more formally define the above.
 
 ## Other ##{#sec-other}
 
