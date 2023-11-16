@@ -6,7 +6,7 @@
   <link href="https://www.w3.org/StyleSheets/TR/2021/cg-draft" rel="stylesheet">
   <meta content="Bikeshed version b06c00b8e, updated Tue Jul 11 13:41:16 2023 -0700" name="generator">
   <link href="https://wicg.github.io/soft-navigations/" rel="canonical">
-  <meta content="fd6d71050c64c834921fb0c18a841f0ee761d49d" name="document-revision">
+  <meta content="53c79793b83656bfeeee0e5994d78a3f56558038" name="document-revision">
 <style>/* Boilerplate: style-autolinks */
 .css.css, .property.property, .descriptor.descriptor {
     color: var(--a-normal-text);
@@ -743,7 +743,8 @@ A human-readable <a href="http://www.w3.org/community/about/agreements/cla-deed/
    <h2 class="heading settled" data-level="1" id="sec-intro"><span class="secno">1. </span><span class="content">Introduction</span><a class="self-link" href="#sec-intro"></a></h2>
    <div class="non-normative">
      <em>This section is non-normative.</em> 
-    <p>Single Page App or SPA is a common web development pattern on the web today, but also one that browsers haven’t been able to measure performance metrics for.
+    <p>A Single Page Application or an SPA is a web application that dynamically rewrites the DOM contents when the user navigates from one piece of content to another, instead of loading a new HTML page.
+Development of SPAs has become a common  pattern on the web today. At the same time, browsers haven’t been able to measure performance metrics for such sites.
 Specifically, JS-driven same-document navigations in SPAs have not been something that browsers detect, and hence went unmeasured.</p>
     <p>This specification outlines a heuristic to enable browsers to detect such navigations as Soft Navigations, and report them to the performance timeline and performance observers.</p>
    </div>
