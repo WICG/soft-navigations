@@ -33,6 +33,11 @@ urlPrefix: https://dom.spec.whatwg.org/; spec: DOM;
     type: dfn; url: #dom-event-istrusted; text: isTrusted;
 urlPrefix: https://www.w3.org/TR/css-view-transitions-1/
     type: dfn; url: #dom-document-startviewtransition; text: startViewTransition();
+urlPrefix: https://w3c.github.io/largest-contentful-paint/
+    type: dfn; url: #has-dispatched-scroll-event; text: has dispatched scroll event;
+    type: dfn; url: #has-dispatched-input-event; text: has dispatched input event;
+urlPrefix: https://www.w3.org/TR/paint-timing/
+    type: dfn; url: #previously-reported-paints; text: previously reported paints;
 </pre>
 <pre class=link-defaults>
 </pre>
@@ -85,12 +90,12 @@ A Soft Navigation is a same document navigation which satisfies the following co
     </div>
 
 To <dfn>check soft navigation</dfn>, with a [=Document=] |doc|, run the following steps:
- 1. If |doc|'s [=soft navigation same document commit=] is false or |doc|'s [=soft navigation DOM modification=] is false, return.
- 1. Check that a contentful paint was painted, otherwise return. (XXX)
+ 1. If |doc|'s [=soft navigation same document commit=] is false or |doc|'s [=soft navigation contentful paint=] is false, return.
  1. Let |global| be |doc|'s [=relevant global object=].
  1. Let |entry| be the result of calling [=create a soft navigation entry=] with |global|, |url|, and |start time|.
  1. Call [=emit soft navigation entry=] with |global| and |entry|.
 
+## Soft navigation entry ## {#sec-entry}
 To <dfn>create a soft navigation entry</dfn>, with a [=/global object=] |global|, a [=string=] |url|, a {{DOMHighResTimeStamp}} |start time|, run the following steps:
  1. Let |entry| be a new {{SoftNavigationEntry}} object in |global|'s [=global object/realm=].
  1. Set |entry|'s {{PerformanceEntry/name}} to be |url|.
@@ -107,11 +112,11 @@ Note: `id` and `navigationId` are set further down, in [=queue a PerformanceEntr
 To <dfn>emit soft navigation entry</dfn>, with a [=/global object=] |global|, and a {{SoftNavigationEntry}} |entry|, run the following steps:
  1. [=queue a performanceentry|Queue=] |entry|.
  1. Add |entry| to |global|'s [=performance entry buffer=].
- 1. Reset LCP flags (XXX)
- 1. Reset FP/FCP flags. (XXX)
- 1. Reset the doc's flag (XXX)
+ 1. Set |global|'s [=has dispatched scroll event=] and [=has dispatched input event=] to false.
+ 1. Let |doc| be |global|'s [=associated Document=].
+ 1. Set |doc|'s [=previously reported paints=] to the empty [=/set=].
+ 1. Set |doc|'s [=soft navigation same document commit=] and [=soft navigation contentful paint=] to false.
 
-TODO: Actually define all the above (XXX)
 
 HTML integration {#sec-html}
 =================
@@ -123,25 +128,43 @@ Each [=document=] has a <dfn for=document>potential soft navigation task id</dfn
 
 Each [=document=] has a <dfn for=document>soft navigation same document commit</dfn> flag, initially unset.
 
-Each [=document=] has a <dfn for=document>soft navigation DOM modification</dfn> flag, initially unset.
+Each [=document=] has a <dfn for=document>soft navigation contentful paint</dfn> flag, initially unset.
+
+Each [=node=] has a <dfn for=node>modified by soft navigation</dfn> flag, initially unset.
 
 In [=update document for history step application=], add the following steps before 5.5.1 (if `documentsEntryChanged` is true and if `documentIsNew` is false):
-* Let <a>document</a>'s [=soft navigation same document commit=] be the result of [=Check ancestor for task=] with the document's soft navigation ID and the result of calling [=get current task ID=].
-* Call [=check soft navigation=].
+ 1. Let <a>document</a>'s [=soft navigation same document commit=] be the result of [=Check ancestor for task=]
+    with the document's soft navigation ID and the result of calling [=get current task ID=].
+ 1. Call [=check soft navigation=].
 
 At [=event dispatch=], after step 5.4 ("Let `isActivationEvent` be true..."), add the following step:
-* If <var ignore>isActivationEvent</var> is true, and <var ignore>event</var>'s [=isTrusted=] is true, and |target|'s [=associated Document=] is a [=top-level traversable=],
-    let |target|'s [=associated Document=]'s [=potential soft navigation task id=] be the result of calling [=get current task ID=].
+ 1. If <var ignore>isActivationEvent</var> is true, and <var ignore>event</var>'s [=isTrusted=] is true,
+    and |target|'s [=associated Document=] is a [=top-level traversable=], let |target|'s [=associated Document=]'s
+    [=potential soft navigation task id=] be the result of calling [=get current task ID=].
 
 
 At [=node insert=], add these initial steps:
-* Let |doc| be <var ignore>parent</var>'s [=node document=].
-* Let |doc|'s [=soft navigation DOM modification=] be the result of running [=Check ancestor for task=] with the |doc|'s [=potential soft navigation task id=] and the result of calling [=get current task ID=].
-* Call [=check soft navigation=].
+ 1. Let |doc| be <var ignore>parent</var>'s [=node document=].
+ 1. Let |is soft navigation modification| be the result of running [=Check ancestor for task=]
+    with the |doc|'s [=potential soft navigation task id=] and the result of calling [=get current task ID=].
+ 1. Set <var ignore>node</var>'s [=node/modified by soft navigation=] to |is soft navigation modification|.
 
+TODO: multiple interactions require us to keep the task ID here (on the document), not just a boolean.
+
+LCP integration {#sec-lcp-integration}
+==========================
+In [=potentially add a LargestContentfulPaint entry=], add the following steps:
+ 1. If <var ignore>element</var>'s [=node/modified by soft navigation=] is true, set |doc|'s [=soft navigation contentful paint=] to true.
+ 1. Call [=check soft navigation=].
 
 Task Attibution Algorithms {#sec-task-attribution-algorithms}
 =========================
+
+<p class=note>
+The task attribution algorithms and their integration with HTML are likely to end up integrated into HTML directly.
+Integration with other specifications is likely to end up in these specifications directly.
+</p>
+
 
 The general principle behind task attribution is quite simple:
   * Script execution creates a task scope
