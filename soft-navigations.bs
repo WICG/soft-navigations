@@ -43,7 +43,8 @@ Introduction {#sec-intro}
 <div class="non-normative">
 <em>This section is non-normative.</em>
 
-Single Page App or SPA is a common web development pattern on the web today, but also one that browsers haven't been able to measure performance metrics for.
+A Single Page Application or an SPA is a web application that dynamically rewrites the DOM contents when the user navigates from one piece of content to another, instead of loading a new HTML page.
+Development of SPAs has become a common  pattern on the web today. At the same time, browsers haven't been able to measure performance metrics for such sites.
 Specifically, JS-driven same-document navigations in SPAs have not been something that browsers detect, and hence went unmeasured.
 
 This specification outlines a heuristic to enable browsers to detect such navigations as Soft Navigations, and report them to the performance timeline and performance observers.
