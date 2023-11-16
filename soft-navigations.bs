@@ -31,6 +31,8 @@ urlPrefix: https://dom.spec.whatwg.org/; spec: DOM;
     type: dfn; url: #concept-event-dispatch; text: event dispatch;
     type: dfn; url: #concept-node-insert; text: node insert;
     type: dfn; url: #dom-event-istrusted; text: isTrusted;
+urlPrefix: https://www.w3.org/TR/css-view-transitions-1/
+    type: dfn; url: #dom-document-startviewtransition; text: startViewTransition();
 </pre>
 <pre class=link-defaults>
 </pre>
@@ -216,6 +218,7 @@ In [=timer initialisation steps=], before step 8, add the following steps:
   1. Otherwise, [=create a task scope=] with |parent task|..
 
 TODO: How do we properly set the parent task on the callback function??
+
 TODO: need a teardown here for the second case??
 
 ## Callbacks ##{#sec-callbacks}
@@ -223,10 +226,15 @@ In [=prepare to run a callback=], add the following steps::
   1. Let |task| be <var ignore>callback</var>'s parent task
   1. [=create a task scope=] with |task| if set, and with nothing otherwise.
 
+ISSUE: "prepare to run a callback" is too generic here. It'd be better to call this from more specific places inside the JS hooks and from invoke.
+
 TODO: I don't actually have a callback here! Need to pipe it
 
 TODO: Figure out if we need to do something in particular with the FinalizationRegsitry.
+
 TODO: need a teardown here.
+
+TODO: Need to define registration semantics for everything that doesn't need anything more specific.
 
 <p class=note>
 The above is called from both promise continuations and from "regular" script callbacks.
@@ -270,23 +278,20 @@ After step 7.6, add the following steps:
 A [=/traversable navigable=] has a <dfn>navigation task</dfn>, a [=/task=], initially unset.
 
 In [=append session history traversal steps=], also set |traversable|'s [=navigation task=] to the result of [=getting current task=].
+
 In [=append session history synchronous navigation steps=], also set |traversable|'s [=navigation task=] to the result of [=getting current task=].
 
 In [=apply the history step=] in step 14.11.2, pass the navigable's task to [=update document for history step application=].
 
-In [=navigate to a fragment=] step 14, pass the result if [=getting current task=].
+In [=navigate to a fragment=] step 14, pass the result of [=getting current task=].
 
 In [=update document for history step application=], before firing the popstate event in step 5.5.2, [=create a task scope=] with |task|. [=tear down a task scope=] after firing the event.
 
 TODO: more formally define the above.
 
-## Other ##{#sec-other}
-
-
-TODO: handle same document navigations
-
-TODO: other cases?? (rAF, rIC, view transitions, observers, JS loading, etc)
-
+## View transitions ## {#sec-view-transitions}
+In [=startViewTransition()=] add the following initial steps:
+  1. Set updateCallback's parent task to the result of [=getting current task=].
 
 Security & privacy considerations {#priv-sec}
 ===============================================
