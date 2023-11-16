@@ -64,7 +64,15 @@ Being able to keep track of which task initiated which can be valuable in multip
   * Enable accumulating knowledge of resource loading dependency chains, and enable developers to draw insights from them.
 
 </div>
-ISSUE: Should we discuss potential connection with AsyncContext and its use cases?
+
+The `SoftNavigationEntry` interface {#sec-interface}
+==================================
+
+<pre class=idl>
+[Exposed=Window]
+interface SoftNavigationEntry : PerformanceEntry {
+};
+</pre>
 
 Algorithms {#sec-algos}
 =====================
@@ -76,17 +84,33 @@ A Soft Navigation is a same document navigation which satisfies the following co
     </div>
 
 To <dfn>check soft navigation</dfn>, with a [=Document=] |doc|, run the following steps:
-* If |doc|'s [=soft navigation same document commit=] is true and |doc|'s [=soft navigation DOM modification=] is true, call [=emit soft navigation entry=] with |doc|.
+ 1. If |doc|'s [=soft navigation same document commit=] is false or |doc|'s [=soft navigation DOM modification=] is false, return.
+ 1. Check that a contentful paint was painted, otherwise return. (XXX)
+ 1. Let |global| be |doc|'s [=relevant global object=].
+ 1. Let |entry| be the result of calling [=create a soft navigation entry=] with |global|, |url|, and |start time|.
+ 1. Call [=emit soft navigation entry=] with |global| and |entry|.
 
-To <dfn>emit soft navigation entry</dfn>, with a [=Document=] |doc|, run the following steps:
+To <dfn>create a soft navigation entry</dfn>, with a [=/global object=] |global|, a [=string=] |url|, a {{DOMHighResTimeStamp}} |start time|, run the following steps:
+ 1. Let |entry| be a new {{SoftNavigationEntry}} object in |global|'s [=global object/realm=].
+ 1. Set |entry|'s {{PerformanceEntry/name}} to be |url|.
+ 1. Set |entry|'s {{PerformanceEntry/entryType}} to be "soft-navigation".
+ 1. Set |entry|'s {{PerformanceEntry/startTime}} to be |start time|.
+ 1. Let |now| be the [=current high resolution time=] given |global|;
+ 1. Let |duration| be the [=duration=] between |now| and |start time|.
+ 1. Set |entry|'s {{PerformanceEntry/duration}} to be |duration|.
+ 1. Return |entry|.
 
-  * Queue an entry
-  * Add an entry to the performance timeline
-  * Reset LCP flags
-  * Reset FP/FCP flags.
-  * Reset the doc's flag
+Note: `id` and `navigationId` are set further down, in [=queue a PerformanceEntry=].
 
-TODO: Actually define all the above.
+
+To <dfn>emit soft navigation entry</dfn>, with a [=/global object=] |global|, and a {{SoftNavigationEntry}} |entry|, run the following steps:
+ 1. [=queue a performanceentry|Queue=] |entry|.
+ 1. Add |entry| to |global|'s [=performance entry buffer=].
+ 1. Reset LCP flags (XXX)
+ 1. Reset FP/FCP flags. (XXX)
+ 1. Reset the doc's flag (XXX)
+
+TODO: Actually define all the above (XXX)
 
 HTML integration {#sec-html}
 =================
