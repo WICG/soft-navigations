@@ -6,7 +6,7 @@
   <link href="https://www.w3.org/StyleSheets/TR/2021/cg-draft" rel="stylesheet">
   <meta content="Bikeshed version b06c00b8e, updated Tue Jul 11 13:41:16 2023 -0700" name="generator">
   <link href="https://wicg.github.io/soft-navigations/" rel="canonical">
-  <meta content="5df2e2912eeaa06fcdba08bea7df4a78811b8797" name="document-revision">
+  <meta content="589054d3d03f9397270fc0cb01d4c4f1234672d3" name="document-revision">
 <style>/* Boilerplate: style-autolinks */
 .css.css, .property.property, .descriptor.descriptor {
     color: var(--a-normal-text);
@@ -799,8 +799,9 @@ Being able to keep track of which task initiated which can be valuable in multip
     <li data-md>
      <p>Let <var>entry</var> be the result of calling <a data-link-type="dfn" href="#create-a-soft-navigation-entry" id="ref-for-create-a-soft-navigation-entry">create a soft navigation entry</a> with <var>global</var>, <var>url</var>, and <var>start time</var>.</p>
     <li data-md>
-     <p>Call <a data-link-type="dfn" href="#emit-soft-navigation-entry" id="ref-for-emit-soft-navigation-entry">emit soft navigation entry</a> with <var>global</var> and <var>entry</var>.</p>
+     <p>Call <a data-link-type="dfn" href="#emit-soft-navigation-entry" id="ref-for-emit-soft-navigation-entry">emit soft navigation entry</a> with <var>global</var>, <var>entry</var>, <var>url</var> and <var>start time</var>.</p>
    </ol>
+   <p>TODO: Where are we getting the URL and start time from?????</p>
    <h3 class="heading settled" data-level="3.1" id="sec-entry"><span class="secno">3.1. </span><span class="content">Soft navigation entry</span><a class="self-link" href="#sec-entry"></a></h3>
     To <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport id="create-a-soft-navigation-entry">create a soft navigation entry</dfn>, with a <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#global-object" id="ref-for-global-object">global object</a> <var>global</var>, a <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#string" id="ref-for-string">string</a> <var>url</var>, a <code class="idl"><a data-link-type="idl" href="https://w3c.github.io/hr-time/#dom-domhighrestimestamp" id="ref-for-dom-domhighrestimestamp">DOMHighResTimeStamp</a></code> <var>start time</var>, run the following steps: 
    <ol>
@@ -867,7 +868,7 @@ and <var>target</var>’s <a data-link-type="dfn" href="https://html.spec.whatwg
    </ol>
    <p>TODO: multiple interactions require us to keep the task ID here (on the document), not just a boolean.</p>
    <h2 class="heading settled" data-level="5" id="sec-lcp-integration"><span class="secno">5. </span><span class="content">LCP integration</span><a class="self-link" href="#sec-lcp-integration"></a></h2>
-    In <a data-link-type="dfn" href="https://w3c.github.io/largest-contentful-paint/#potentially-add-a-largestcontentfulpaint-entry" id="ref-for-potentially-add-a-largestcontentfulpaint-entry">potentially add a LargestContentfulPaint entry</a>, add the following steps: 
+    In <a data-link-type="dfn" href="https://w3c.github.io/largest-contentful-paint/#potentially-add-a-largestcontentfulpaint-entry" id="ref-for-potentially-add-a-largestcontentfulpaint-entry">potentially add a LargestContentfulPaint entry</a>, add the following initial steps: 
    <ol>
     <li data-md>
      <p>If <var>element</var>’s <a data-link-type="dfn" href="#node-modified-by-soft-navigation" id="ref-for-node-modified-by-soft-navigation①">modified by soft navigation</a> is true, set <var>doc</var>’s <a data-link-type="dfn" href="#document-soft-navigation-contentful-paint" id="ref-for-document-soft-navigation-contentful-paint②">soft navigation contentful paint</a> to true.</p>
@@ -952,7 +953,7 @@ Integration with other specifications is likely to end up in these specification
     <li data-md>
      <p>Let <var>event loop</var> be the <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#relevant-agent" id="ref-for-relevant-agent②">relevant agent</a>'s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-agent-event-loop" id="ref-for-concept-agent-event-loop②">event loop</a>.</p>
     <li data-md>
-     <p>Let <var>scope</var> be the result of <a data-link-type="dfn" href="https://encoding.spec.whatwg.org/#i-o-queue-peek" id="ref-for-i-o-queue-peek">peeking</a> into the <var>event loop</var>’s <a data-link-type="dfn" href="#task-scope-stack" id="ref-for-task-scope-stack②">task scope stack</a>.</p>
+     <p>Let <var>scope</var> be the result of <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#stack-peek" id="ref-for-stack-peek">peeking</a> into the <var>event loop</var>’s <a data-link-type="dfn" href="#task-scope-stack" id="ref-for-task-scope-stack②">task scope stack</a>.</p>
     <li data-md>
      <p>Return <var>scope</var>’s <a data-link-type="dfn" href="#task-scope-task" id="ref-for-task-scope-task①">task</a>.</p>
    </ol>
@@ -1174,11 +1175,6 @@ individually examined and have those implications outlined.</p>
      <li><span class="dfn-paneled" id="59bfea49">node insert</span>
     </ul>
    <li>
-    <a data-link-type="biblio">[ENCODING]</a> defines the following terms:
-    <ul>
-     <li><span class="dfn-paneled" id="44417574">peek</span>
-    </ul>
-   <li>
     <a data-link-type="biblio">[FETCH]</a> defines the following terms:
     <ul>
      <li><span class="dfn-paneled" id="d5434eef">contains</span>
@@ -1222,6 +1218,7 @@ individually examined and have those implications outlined.</p>
     <a data-link-type="biblio">[INFRA]</a> defines the following terms:
     <ul>
      <li><span class="dfn-paneled" id="860300d4">implementation-defined</span>
+     <li><span class="dfn-paneled" id="a5ad1660">peek</span>
      <li><span class="dfn-paneled" id="15e48c39">set</span>
      <li><span class="dfn-paneled" id="ceacaa1c">stack</span>
      <li><span class="dfn-paneled" id="0698d556">string</span>
@@ -1256,8 +1253,6 @@ individually examined and have those implications outlined.</p>
   <dl>
    <dt id="biblio-dom">[DOM]
    <dd>Anne van Kesteren. <a href="https://dom.spec.whatwg.org/"><cite>DOM Standard</cite></a>. Living Standard. URL: <a href="https://dom.spec.whatwg.org/">https://dom.spec.whatwg.org/</a>
-   <dt id="biblio-encoding">[ENCODING]
-   <dd>Anne van Kesteren. <a href="https://encoding.spec.whatwg.org/"><cite>Encoding Standard</cite></a>. Living Standard. URL: <a href="https://encoding.spec.whatwg.org/">https://encoding.spec.whatwg.org/</a>
    <dt id="biblio-fetch">[FETCH]
    <dd>Anne van Kesteren. <a href="https://fetch.spec.whatwg.org/"><cite>Fetch Standard</cite></a>. Living Standard. URL: <a href="https://fetch.spec.whatwg.org/">https://fetch.spec.whatwg.org/</a>
    <dt id="biblio-hr-time-3">[HR-TIME-3]
@@ -1602,7 +1597,6 @@ window.dfnpanelData['b87df86e'] = {"dfnID": "b87df86e", "url": "https://dom.spec
 window.dfnpanelData['d462b34f'] = {"dfnID": "d462b34f", "url": "https://dom.spec.whatwg.org/#boundary-point-node", "dfnText": "node", "refSections": [{"refs": [{"id": "ref-for-boundary-point-node"}], "title": "4.1. Document"}], "external": true};
 window.dfnpanelData['5216e1a0'] = {"dfnID": "5216e1a0", "url": "https://dom.spec.whatwg.org/#concept-node-document", "dfnText": "node document", "refSections": [{"refs": [{"id": "ref-for-concept-node-document"}], "title": "4.1. Document"}], "external": true};
 window.dfnpanelData['59bfea49'] = {"dfnID": "59bfea49", "url": "https://dom.spec.whatwg.org/#concept-node-insert", "dfnText": "node insert", "refSections": [{"refs": [{"id": "ref-for-concept-node-insert"}], "title": "4.1. Document"}], "external": true};
-window.dfnpanelData['44417574'] = {"dfnID": "44417574", "url": "https://encoding.spec.whatwg.org/#i-o-queue-peek", "dfnText": "peek", "refSections": [{"refs": [{"id": "ref-for-i-o-queue-peek"}], "title": "6.3.1. Get current task"}], "external": true};
 window.dfnpanelData['d5434eef'] = {"dfnID": "d5434eef", "url": "https://fetch.spec.whatwg.org/#header-list-contains", "dfnText": "contains", "refSections": [{"refs": [{"id": "ref-for-header-list-contains"}], "title": "6.3. Is ancestor in set"}], "external": true};
 window.dfnpanelData['0e9f636b'] = {"dfnID": "0e9f636b", "url": "https://w3c.github.io/hr-time/#dom-domhighrestimestamp", "dfnText": "DOMHighResTimeStamp", "refSections": [{"refs": [{"id": "ref-for-dom-domhighrestimestamp"}], "title": "3.1. Soft navigation entry"}], "external": true};
 window.dfnpanelData['7e7cc1d8'] = {"dfnID": "7e7cc1d8", "url": "https://w3c.github.io/hr-time/#dfn-current-high-resolution-time", "dfnText": "current high resolution time", "refSections": [{"refs": [{"id": "ref-for-dfn-current-high-resolution-time"}], "title": "3.1. Soft navigation entry"}], "external": true};
@@ -1632,6 +1626,7 @@ window.dfnpanelData['5fd199e1'] = {"dfnID": "5fd199e1", "url": "https://html.spe
 window.dfnpanelData['d0c1b934'] = {"dfnID": "d0c1b934", "url": "https://html.spec.whatwg.org/multipage/document-sequences.html#traversable-navigable", "dfnText": "traversable navigable", "refSections": [{"refs": [{"id": "ref-for-traversable-navigable"}], "title": "7.9. Same-document navigations"}], "external": true};
 window.dfnpanelData['d0c5bc48'] = {"dfnID": "d0c5bc48", "url": "https://html.spec.whatwg.org/C#update-document-for-history-step-application", "dfnText": "update document for history step application", "refSections": [{"refs": [{"id": "ref-for-update-document-for-history-step-application"}], "title": "4.1. Document"}, {"refs": [{"id": "ref-for-update-document-for-history-step-application\u2460"}, {"id": "ref-for-update-document-for-history-step-application\u2461"}], "title": "7.9. Same-document navigations"}], "external": true};
 window.dfnpanelData['860300d4'] = {"dfnID": "860300d4", "url": "https://infra.spec.whatwg.org/#implementation-defined", "dfnText": "implementation-defined", "refSections": [{"refs": [{"id": "ref-for-implementation-defined"}], "title": "6.1. Task scope"}, {"refs": [{"id": "ref-for-implementation-defined\u2460"}], "title": "7.1. Task additions"}], "external": true};
+window.dfnpanelData['a5ad1660'] = {"dfnID": "a5ad1660", "url": "https://infra.spec.whatwg.org/#stack-peek", "dfnText": "peek", "refSections": [{"refs": [{"id": "ref-for-stack-peek"}], "title": "6.3.1. Get current task"}], "external": true};
 window.dfnpanelData['15e48c39'] = {"dfnID": "15e48c39", "url": "https://infra.spec.whatwg.org/#ordered-set", "dfnText": "set", "refSections": [{"refs": [{"id": "ref-for-ordered-set"}], "title": "3.1. Soft navigation entry"}, {"refs": [{"id": "ref-for-ordered-set\u2460"}], "title": "6.3. Is ancestor in set"}], "external": true};
 window.dfnpanelData['ceacaa1c'] = {"dfnID": "ceacaa1c", "url": "https://infra.spec.whatwg.org/#stack", "dfnText": "stack", "refSections": [{"refs": [{"id": "ref-for-stack"}], "title": "7.2. Event Loop additions"}], "external": true};
 window.dfnpanelData['0698d556'] = {"dfnID": "0698d556", "url": "https://infra.spec.whatwg.org/#string", "dfnText": "string", "refSections": [{"refs": [{"id": "ref-for-string"}], "title": "3.1. Soft navigation entry"}], "external": true};
