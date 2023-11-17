@@ -156,7 +156,7 @@ TODO: multiple interactions require us to keep the task ID here (on the document
 
 LCP integration {#sec-lcp-integration}
 ==========================
-In [=potentially add a LargestContentfulPaint entry=], add the following steps:
+In [=potentially add a LargestContentfulPaint entry=], add the following initial steps:
  1. If <var ignore>element</var>'s [=node/modified by soft navigation=] is true, set |doc|'s [=soft navigation contentful paint=] to true.
  1. Call [=check soft navigation=].
 
