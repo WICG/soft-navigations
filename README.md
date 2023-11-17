@@ -22,35 +22,28 @@ From a user's perspective, while they don't necessarily care about the architect
 * Enable such measurement at scale - allowing the team that owns the measurement to be decoupled from the team that owns the app's logic.
 * Not rely on developers annotating soft navigations themselves.
 
-## Proposed Heuristics
+## Heuristics
 
 * The user initiated a soft navigation, by clicking on a DOM element, or using an unfocused "keydown" event.
-  - We considered using only semantic elements, but it seems to not match current real-world practices.
 * That operation resulted in an event handler firing (either a “click” event or a “navigate” event)
 * We then follow the tasks triggered by the event handler:
   - If it’s a “navigate” event, those tasks are part of the Promise passed to traverseTo()
   - If it’s a “click” or a "keydown" event, those tasks are spawned by the event handler itself
 * In case of a “click”  or a "keydown" event, the handler triggered tasks that included History.pushState() or History.replaceState() calls, or a change to the document’s location
-* The tasks modify DOM elements.
-  - We may try to limit that to specific DOM elements or some other heuristic regarding "meaningful" DOM modifications, in case we'd see the heuristic is too broad and captures modifications which should not be reasonably be considered 
-navigations".
-* The next paint that contains a contentful element will be considered the soft navigation’s FCP.
-* The next largest contentful element will trigger LCP entries.
-* Finally, we should consider limiting the amount of soft navigation detected in a certain timeframe (e.g. X per Y seconds).
+* The tasks appends DOM elements, which result in contentful paints.
+* The next paint after the user's interaction that contains a contentful element will be considered the soft navigation’s FCP.
+* The next largest contentful element paint after the user's interaction will be considered a soft navigation LCP candidate.
+* It is possible that the soft navigation detection would happen after the above paints have happened. In this case the entries would be queued internally and fired once detection happens.
 
 ### [Task attribution](https://bit.ly/task-attribution)
 
 The above heuristics rely on the ability to keep track of tasks and their provenance. We need to be able to tell that a certain task was posted by another, and be able to create a causality chain between DOM dirtying and URL modifications to the event handler that triggered the soft navigation.
 
-Note: We would need to specify TaskAttribution as part of the event loop's processing in order to properly specify the heuristics above.
-
 ## Proposed API shape
 ```
 SoftNavigationEntry : PerformanceEntry {
-   unsigned long NavigationId;
 }
 ```
-[NavigationID](https://pr-preview.s3.amazonaws.com/w3c/performance-timeline/192/ca6936d...clelland:6e5497e.html#dom-performanceentry-navigationid) will be defined in Performance Timeline. ([explainer](https://docs.google.com/document/d/1sUPyBLPYtKPyyuu1-3XqJT1QUE6n0cRBZP5IfH8cjQE/edit?resourcekey=0-PpjDpPLPsFk8ips35GXj1w))
 
 The inheritance from `PerformanceEntry` means that the entry will have `startTime`, `name`, `entryType` and `duration`:
 * `startTime` would be defined as the time in which the user's interaction was received. See [discussion](https://bugs.chromium.org/p/chromium/issues/detail?id=1369680).
@@ -115,10 +108,6 @@ for (entry of lcp_entries) {
 ```
 
 ## Required spec changes
-
-* This relies on performance timeline's navigationID
-* We'd need to specify Task Attribution
-* We would need to modify PaintTiming and LCP to restart their reporting once a soft navigation was encountered.
 * We need to add `PerformanceObserverInit` option named "includeSoftNavigationObservations", that will indicate that post-soft-navigation FP, FCP and LCP entries should be observed.
 
 ## Privacy and security considerations
@@ -138,13 +127,21 @@ Given the above mitigations, attacks such as [history sniffing attacks](https://
 
 Furthermore, cross-origin imformation about images or font resources is not exposed by Soft Navigation LCP, similarly to regular LCP.
 
-## Open Questions
+## Open Questions for future enhancements
 
 * Do we need to define FCP/LCP as contentful paints that are the result of the soft navigation?
 * Could we augment the heuristic to take both DOM additions and removals into account?
   - Currently, interactions such as Twitter/Gmail's "compose" button would be considered soft navigations, where one could argue they are really interactions.
   - A heuristic that requires either a modification of existing DOM nodes or addition *and* removal of nodes may be able to catch that, without increasing the rate of false negatives.
 * `<your questions here>`
+
+## Considered alternatives
+
+A few notes regarding heuristic alternatives:
+
+* We considered using only semantic elements, but it seems to not match current real-world practices.
+* We considered limiting DOM modifications to specific DOM elements or some other heuristic regarding "meaningful" DOM modifications. We haven't seen a necessity for this in practice.
+* Finally, we could consider limiting the amount of soft navigation detected in a certain timeframe (e.g. X per Y seconds), if we'd see that some web applications detect an excessive amount of soft navigations that don't correspond to the user experience.
 
 ## I want to take this for a spin!!
 
