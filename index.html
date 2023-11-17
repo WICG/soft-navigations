@@ -6,7 +6,7 @@
   <link href="https://www.w3.org/StyleSheets/TR/2021/cg-draft" rel="stylesheet">
   <meta content="Bikeshed version b06c00b8e, updated Tue Jul 11 13:41:16 2023 -0700" name="generator">
   <link href="https://wicg.github.io/soft-navigations/" rel="canonical">
-  <meta content="20e14ea29e550c59419a2029663de4333ef24f4f" name="document-revision">
+  <meta content="5df2e2912eeaa06fcdba08bea7df4a78811b8797" name="document-revision">
 <style>/* Boilerplate: style-autolinks */
 .css.css, .property.property, .descriptor.descriptor {
     color: var(--a-normal-text);
@@ -715,7 +715,7 @@ A human-readable <a href="http://www.w3.org/community/about/agreements/cla-deed/
        </ol>
      </ol>
     <li>
-     <a href="#sec-task-attribution-integration"><span class="secno">7</span> <span class="content">TaskAttribution HTML integration</span></a>
+     <a href="#sec-task-attribution-integration"><span class="secno">7</span> <span class="content">TaskAttribution integration</span></a>
      <ol class="toc">
       <li><a href="#sec-task"><span class="secno">7.1</span> <span class="content">Task additions</span></a>
       <li><a href="#sec-event-loop"><span class="secno">7.2</span> <span class="content">Event Loop additions</span></a>
@@ -723,7 +723,12 @@ A human-readable <a href="http://www.w3.org/community/about/agreements/cla-deed/
       <li><a href="#sec-task-queueing"><span class="secno">7.4</span> <span class="content">Task queueing</span></a>
       <li><a href="#sec-timers"><span class="secno">7.5</span> <span class="content">Timers</span></a>
       <li><a href="#sec-callbacks"><span class="secno">7.6</span> <span class="content">Callbacks</span></a>
-      <li><a href="#sec-hostmakejobcallback"><span class="secno">7.7</span> <span class="content">HostMakeJobCallback</span></a>
+      <li>
+       <a href="#sec-continuations"><span class="secno">7.7</span> <span class="content">Continuations</span></a>
+       <ol class="toc">
+        <li><a href="#sec-hostmakejobcallback"><span class="secno">7.7.1</span> <span class="content">HostMakeJobCallback ##{#sec-hostmakejobcallback}</span></a>
+        <li><a href="#sec-hostcalljobcallback"><span class="secno">7.7.2</span> <span class="content">HostCallJobCallback</span></a>
+       </ol>
       <li><a href="#sec-messageport"><span class="secno">7.8</span> <span class="content">MessagePorts</span></a>
       <li><a href="#sec-same-document-navigations"><span class="secno">7.9</span> <span class="content">Same-document navigations</span></a>
       <li><a href="#sec-view-transitions"><span class="secno">7.10</span> <span class="content">View transitions</span></a>
@@ -959,7 +964,9 @@ Integration with other specifications is likely to end up in these specification
     <li data-md>
      <p>Return <var>task</var>’s <a data-link-type="dfn" href="#task-task-attribution-id" id="ref-for-task-task-attribution-id⑥">task attribution ID</a>.</p>
    </ol>
-   <h2 class="heading settled" data-level="7" id="sec-task-attribution-integration"><span class="secno">7. </span><span class="content">TaskAttribution HTML integration</span><a class="self-link" href="#sec-task-attribution-integration"></a></h2>
+   <h2 class="heading settled" data-level="7" id="sec-task-attribution-integration"><span class="secno">7. </span><span class="content">TaskAttribution integration</span><a class="self-link" href="#sec-task-attribution-integration"></a></h2>
+   <p class="note" role="note"><span class="marker">Note:</span> Most of this integration is with the HTML spec, although some of it is with WebIDL and CSS ViewTransitions.
+The desired end state would be for these integrations to be embedded in the relevant specifications.</p>
    <h3 class="heading settled" data-level="7.1" id="sec-task"><span class="secno">7.1. </span><span class="content">Task additions</span><a class="self-link" href="#sec-task"></a></h3>
    <p>A <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-task" id="ref-for-concept-task③">task</a> has a <dfn class="dfn-paneled" data-dfn-for="task" data-dfn-type="dfn" data-noexport id="task-task-attribution-id">task attribution ID</dfn>, an <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#implementation-defined" id="ref-for-implementation-defined①">implementation-defined</a> value,
 representing a unique identifier. It is initially unset.</p>
@@ -998,51 +1005,80 @@ representing a unique identifier. It is initially unset.</p>
     <li data-md>
      <p><a data-link-type="dfn" href="#tear-down-a-task-scope" id="ref-for-tear-down-a-task-scope①">Tear down a task scope</a></p>
    </ol>
-   <p>TODO: Do we need this both when queueing a task and when calling a callback?</p>
    <h3 class="heading settled" data-level="7.5" id="sec-timers"><span class="secno">7.5. </span><span class="content">Timers</span><a class="self-link" href="#sec-timers"></a></h3>
     In <a data-link-type="dfn" href="https://html.spec.whatwg.org/C#timer-initialisation-steps" id="ref-for-timer-initialisation-steps">timer initialisation steps</a>, before step 8, add the following steps: 
    <ol>
     <li data-md>
      <p>Let <var>parent task</var> be the result of <a data-link-type="dfn" href="#get-current-task" id="ref-for-get-current-task⑤">getting current task</a>.</p>
     <li data-md>
-     <p>If <var>handler</var> is a Function, set <var>handler</var>’s parent task to <var>parent task</var>.</p>
+     <p>If <var>handler</var> is a Function, set <var>handler</var>’s <a data-link-type="dfn" href="#callback-function-parent-task" id="ref-for-callback-function-parent-task">parent task</a> to <var>parent task</var>.</p>
     <li data-md>
      <p>Otherwise, <a data-link-type="dfn" href="#create-a-task-scope" id="ref-for-create-a-task-scope②">create a task scope</a> with <var>parent task</var>..</p>
    </ol>
-   <p>TODO: How do we properly set the parent task on the callback function??</p>
-   <p>TODO: need a teardown here for the second case??</p>
+   <p>TODO: need a teardown here for the second case</p>
    <h3 class="heading settled" data-level="7.6" id="sec-callbacks"><span class="secno">7.6. </span><span class="content">Callbacks</span><a class="self-link" href="#sec-callbacks"></a></h3>
-    In <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#prepare-to-run-a-callback" id="ref-for-prepare-to-run-a-callback">prepare to run a callback</a>, add the following steps:: 
+   <p>A <a data-link-type="dfn" href="https://webidl.spec.whatwg.org/#dfn-callback-function" id="ref-for-dfn-callback-function">callback function</a> has a <dfn class="dfn-paneled" data-dfn-for="callback function" data-dfn-type="dfn" data-noexport id="callback-function-parent-task">parent task</dfn>, a <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-task" id="ref-for-concept-task⑦">task</a>, initially unset.</p>
+   <p>In <a data-link-type="dfn" href="https://webidl.spec.whatwg.org/#invoke-a-callback-function" id="ref-for-invoke-a-callback-function">invoke a callback function</a>, add the following steps after step 7:</p>
    <ol>
     <li data-md>
-     <p>Let <var>task</var> be <var>callback</var>’s parent task</p>
+     <p>Let <var>task</var> be <var>callback</var>’s <a data-link-type="dfn" href="#callback-function-parent-task" id="ref-for-callback-function-parent-task①">parent task</a>.</p>
     <li data-md>
      <p><a data-link-type="dfn" href="#create-a-task-scope" id="ref-for-create-a-task-scope③">create a task scope</a> with <var>task</var> if set, and with nothing otherwise.</p>
    </ol>
-   <p class="issue" id="issue-e48acb90"><a class="self-link" href="#issue-e48acb90"></a> "prepare to run a callback" is too generic here. It’d be better to call this from more specific places inside the JS hooks and from invoke.</p>
-   <p>TODO: I don’t actually have a callback here! Need to pipe it</p>
-   <p>TODO: Figure out if we need to do something in particular with the FinalizationRegsitry.</p>
-   <p>TODO: need a teardown here.</p>
-   <p>TODO: Need to define registration semantics for everything that doesn’t need anything more specific.</p>
-   <p class="note" role="note"> The above is called from both promise continuations and from "regular" script callbacks.
-That does not match Chromium where Blink is not notified when promise continuations are run inside of V8.
-This is subtly different than what’s implemented in Chromium, as there the continuation task overrides
-the task stack, where here it pushes a new child task of itself onto that stack.
-At the same time, there shouldn’t be any functional differences between the two. </p>
+   <p>Add a terminating step:</p>
+   <ol>
+    <li data-md>
+     <p><a data-link-type="dfn" href="#tear-down-a-task-scope" id="ref-for-tear-down-a-task-scope②">Tear down a task scope</a></p>
+   </ol>
+   <p>In <a data-link-type="dfn" href="https://webidl.spec.whatwg.org/#call-a-user-objects-operation" id="ref-for-call-a-user-objects-operation">call a user object’s operation</a>, add the following steps after step 7:</p>
+   <ol>
+    <li data-md>
+     <p>Let <var>task</var> be <var>value</var>’s <a data-link-type="dfn" href="#callback-function-parent-task" id="ref-for-callback-function-parent-task②">parent task</a>.</p>
+    <li data-md>
+     <p><a data-link-type="dfn" href="#create-a-task-scope" id="ref-for-create-a-task-scope④">create a task scope</a> with <var>task</var> if set, and with nothing otherwise.</p>
+   </ol>
+   <p>Add a terminating step before returning:</p>
+   <ol>
+    <li data-md>
+     <p><a data-link-type="dfn" href="#tear-down-a-task-scope" id="ref-for-tear-down-a-task-scope③">Tear down a task scope</a></p>
+   </ol>
+   <p class="issue" id="issue-eae2392e"><a class="self-link" href="#issue-eae2392e"></a> May be this should be called in "prepare to run a callback"/"clean up after running a callback", but we’d need to pipe in the callback for that.</p>
+   <p class="issue" id="issue-83823d90"><a class="self-link" href="#issue-83823d90"></a> May be we need to define registration semantics for everything that doesn’t need anything more specific.</p>
    <p>In <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#clean-up-after-running-a-callback" id="ref-for-clean-up-after-running-a-callback">clean up after running a callback</a>, add the following step:</p>
    <ol>
     <li data-md>
-     <p><a data-link-type="dfn" href="#tear-down-a-task-scope" id="ref-for-tear-down-a-task-scope②">Tear down a task scope</a>.</p>
+     <p><a data-link-type="dfn" href="#tear-down-a-task-scope" id="ref-for-tear-down-a-task-scope④">Tear down a task scope</a>.</p>
    </ol>
-   <h3 class="heading settled" data-level="7.7" id="sec-hostmakejobcallback"><span class="secno">7.7. </span><span class="content">HostMakeJobCallback</span><a class="self-link" href="#sec-hostmakejobcallback"></a></h3>
+   <h3 class="heading settled" data-level="7.7" id="sec-continuations"><span class="secno">7.7. </span><span class="content">Continuations</span><a class="self-link" href="#sec-continuations"></a></h3>
+   <h4 class="heading settled" data-level="7.7.1" id="sec-hostmakejobcallback"><span class="secno">7.7.1. </span><span class="content">HostMakeJobCallback ##{#sec-hostmakejobcallback}</span><a class="self-link" href="#sec-hostmakejobcallback"></a></h4>
     In <a data-link-type="dfn" href="https://html.spec.whatwg.org/C#hostmakejobcallback" id="ref-for-hostmakejobcallback">HostMakeJobCallback</a>, add the following steps: 
    <ol>
     <li data-md>
      <p>Let <var>task</var> be the result of <a data-link-type="dfn" href="#get-current-task" id="ref-for-get-current-task⑥">getting current task</a>.</p>
     <li data-md>
-     <p>Let <var>callable</var>.[task] be <var>task</var>.</p>
+     <p>Let <var>callable</var>’s [=callback function/parent task|  be <var>task</var>.</p>
    </ol>
-   <p class="note" role="note"><span class="marker">Note:</span> This is needed to ensure the current task is registered on the promise resolvers when they are created.</p>
+   <p class="note" role="note"><span class="marker">Note:</span> This is needed to ensure the current task is registered on the promise continuations when they are created.</p>
+   <p>TODO: Figure out if we need to do something in particular with the FinalizationRegsitry.</p>
+   <h4 class="heading settled" data-level="7.7.2" id="sec-hostcalljobcallback"><span class="secno">7.7.2. </span><span class="content">HostCallJobCallback</span><a class="self-link" href="#sec-hostcalljobcallback"></a></h4>
+   <p>In <a data-link-type="dfn" href="https://html.spec.whatwg.org/C#hostcalljobcallback" id="ref-for-hostcalljobcallback">HostCallJobCallback</a>, add initial steps:</p>
+   <ol>
+    <li data-md>
+     <p>Let <var>task</var> be <var>callback</var>’s <a data-link-type="dfn" href="#callback-function-parent-task" id="ref-for-callback-function-parent-task③">parent task</a>.</p>
+    <li data-md>
+     <p><a data-link-type="dfn" href="#create-a-task-scope" id="ref-for-create-a-task-scope⑤">create a task scope</a> with <var>task</var> if set, and with nothing otherwise.</p>
+   </ol>
+   <p>Add a terminating step:</p>
+   <ol>
+    <li data-md>
+     <p><a data-link-type="dfn" href="#tear-down-a-task-scope" id="ref-for-tear-down-a-task-scope⑤">Tear down a task scope</a></p>
+   </ol>
+   <p class="note" role="note"> The above is called when promise continuations are run.
+That does not match Chromium where Blink is not notified when promise continuations are run inside
+of V8, and hence is subtly different than what’s implemented in Chromium.
+In Chromium the the continuation task overrides the task stack, where here it pushes a new child
+task of itself onto that stack.  At the same time, there shouldn’t be any functional differences
+between the two. </p>
    <h3 class="heading settled" data-level="7.8" id="sec-messageport"><span class="secno">7.8. </span><span class="content">MessagePorts</span><a class="self-link" href="#sec-messageport"></a></h3>
    <p class="note" role="note"> For message ports, we want the <code class="highlight">message</code> event callback task to have the task that initiated the <code class="highlight">postMessage</code> as its parent. </p>
    <p>In <a data-link-type="dfn" href="https://html.spec.whatwg.org/C#message-port-post-message-steps" id="ref-for-message-port-post-message-steps">message port post message steps</a>, add the following steps.</p>
@@ -1051,30 +1087,30 @@ At the same time, there shouldn’t be any functional differences between the tw
     <li data-md>
      <p>Let <var>parent task</var> be the result of <a data-link-type="dfn" href="#get-current-task" id="ref-for-get-current-task⑦">getting current task</a>.</p>
    </ol>
-   <p>In step 7.3, which fires the <code class="highlight">messageerror</code> event, call <a data-link-type="dfn" href="#create-a-task-scope" id="ref-for-create-a-task-scope④">create a task scope</a> with <var>parent task</var> before firing the event, and <a data-link-type="dfn" href="#tear-down-a-task-scope" id="ref-for-tear-down-a-task-scope③">tear down a task scope</a> after firing it..</p>
+   <p>In step 7.3, which fires the <code class="highlight">messageerror</code> event, call <a data-link-type="dfn" href="#create-a-task-scope" id="ref-for-create-a-task-scope⑥">create a task scope</a> with <var>parent task</var> before firing the event, and <a data-link-type="dfn" href="#tear-down-a-task-scope" id="ref-for-tear-down-a-task-scope⑥">tear down a task scope</a> after firing it..</p>
    <p>Before step 7.6, which fires the <code class="highlight">message</code> event, add the following steps:</p>
    <ol>
     <li data-md>
-     <p>Call <a data-link-type="dfn" href="#create-a-task-scope" id="ref-for-create-a-task-scope⑤">create a task scope</a> with <var>parent task</var>.</p>
+     <p>Call <a data-link-type="dfn" href="#create-a-task-scope" id="ref-for-create-a-task-scope⑦">create a task scope</a> with <var>parent task</var>.</p>
    </ol>
    <p>After step 7.6, add the following steps:</p>
    <ol>
     <li data-md>
-     <p>Call <a data-link-type="dfn" href="#tear-down-a-task-scope" id="ref-for-tear-down-a-task-scope④">tear down a task scope</a>.</p>
+     <p>Call <a data-link-type="dfn" href="#tear-down-a-task-scope" id="ref-for-tear-down-a-task-scope⑦">tear down a task scope</a>.</p>
    </ol>
    <h3 class="heading settled" data-level="7.9" id="sec-same-document-navigations"><span class="secno">7.9. </span><span class="content">Same-document navigations</span><a class="self-link" href="#sec-same-document-navigations"></a></h3>
-    A <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/document-sequences.html#traversable-navigable" id="ref-for-traversable-navigable">traversable navigable</a> has a <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport id="navigation-task">navigation task</dfn>, a <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-task" id="ref-for-concept-task⑦">task</a>, initially unset. 
+    A <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/document-sequences.html#traversable-navigable" id="ref-for-traversable-navigable">traversable navigable</a> has a <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport id="navigation-task">navigation task</dfn>, a <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-task" id="ref-for-concept-task⑧">task</a>, initially unset. 
    <p>In <a data-link-type="dfn" href="https://html.spec.whatwg.org/C#tn-append-session-history-traversal-steps" id="ref-for-tn-append-session-history-traversal-steps">append session history traversal steps</a>, also set <var>traversable</var>’s <a data-link-type="dfn" href="#navigation-task" id="ref-for-navigation-task">navigation task</a> to the result of <a data-link-type="dfn" href="#get-current-task" id="ref-for-get-current-task⑧">getting current task</a>.</p>
    <p>In <a data-link-type="dfn" href="https://html.spec.whatwg.org/C#tn-append-session-history-synchronous-navigation-steps" id="ref-for-tn-append-session-history-synchronous-navigation-steps">append session history synchronous navigation steps</a>, also set <var>traversable</var>’s <a data-link-type="dfn" href="#navigation-task" id="ref-for-navigation-task①">navigation task</a> to the result of <a data-link-type="dfn" href="#get-current-task" id="ref-for-get-current-task⑨">getting current task</a>.</p>
    <p>In <a data-link-type="dfn" href="https://html.spec.whatwg.org/C#apply-the-history-step" id="ref-for-apply-the-history-step">apply the history step</a> in step 14.11.2, pass the navigable’s task to <a data-link-type="dfn" href="https://html.spec.whatwg.org/C#update-document-for-history-step-application" id="ref-for-update-document-for-history-step-application①">update document for history step application</a>.</p>
    <p>In <a data-link-type="dfn" href="https://html.spec.whatwg.org/C#navigate-fragid" id="ref-for-navigate-fragid">navigate to a fragment</a> step 14, pass the result of <a data-link-type="dfn" href="#get-current-task" id="ref-for-get-current-task①⓪">getting current task</a>.</p>
-   <p>In <a data-link-type="dfn" href="https://html.spec.whatwg.org/C#update-document-for-history-step-application" id="ref-for-update-document-for-history-step-application②">update document for history step application</a>, before firing the popstate event in step 5.5.2, <a data-link-type="dfn" href="#create-a-task-scope" id="ref-for-create-a-task-scope⑥">create a task scope</a> with <var>task</var>. <a data-link-type="dfn" href="#tear-down-a-task-scope" id="ref-for-tear-down-a-task-scope⑤">tear down a task scope</a> after firing the event.</p>
+   <p>In <a data-link-type="dfn" href="https://html.spec.whatwg.org/C#update-document-for-history-step-application" id="ref-for-update-document-for-history-step-application②">update document for history step application</a>, before firing the popstate event in step 5.5.2, <a data-link-type="dfn" href="#create-a-task-scope" id="ref-for-create-a-task-scope⑧">create a task scope</a> with <var>task</var>. <a data-link-type="dfn" href="#tear-down-a-task-scope" id="ref-for-tear-down-a-task-scope⑧">tear down a task scope</a> after firing the event.</p>
    <p>TODO: more formally define the above.</p>
    <h3 class="heading settled" data-level="7.10" id="sec-view-transitions"><span class="secno">7.10. </span><span class="content">View transitions</span><a class="self-link" href="#sec-view-transitions"></a></h3>
-    In <a data-link-type="dfn" href="https://www.w3.org/TR/css-view-transitions-1/#dom-document-startviewtransition" id="ref-for-dom-document-startviewtransition">startViewTransition()</a> add the following initial steps: 
+   <p>In <a data-link-type="dfn" href="https://www.w3.org/TR/css-view-transitions-1/#dom-document-startviewtransition" id="ref-for-dom-document-startviewtransition">startViewTransition()</a> add the following initial steps:</p>
    <ol>
     <li data-md>
-     <p>Set updateCallback’s parent task to the result of <a data-link-type="dfn" href="#get-current-task" id="ref-for-get-current-task①①">getting current task</a>.</p>
+     <p>Set updateCallback’s <a data-link-type="dfn" href="#callback-function-parent-task" id="ref-for-callback-function-parent-task④">parent task</a> to the result of <a data-link-type="dfn" href="#get-current-task" id="ref-for-get-current-task①①">getting current task</a>.</p>
    </ol>
    <h2 class="heading settled" data-level="8" id="priv-sec"><span class="secno">8. </span><span class="content">Security &amp; privacy considerations</span><a class="self-link" href="#priv-sec"></a></h2>
     Exposing Soft Navigations to the performance timeline doesn’t have security and privacy implications on its own.
@@ -1103,6 +1139,7 @@ individually examined and have those implications outlined.</p>
    <li>
     parent task
     <ul>
+     <li><a href="#callback-function-parent-task">dfn for callback function</a><span>, in § 7.6</span>
      <li><a href="#script-parent-task">dfn for script</a><span>, in § 7.3</span>
      <li><a href="#task-parent-task">dfn for task</a><span>, in § 7.1</span>
     </ul>
@@ -1165,11 +1202,11 @@ individually examined and have those implications outlined.</p>
      <li><span class="dfn-paneled" id="b78d6a64">event loop <small>(for agent)</small></span>
      <li><span class="dfn-paneled" id="9ed0e01d">execute the script element</span>
      <li><span class="dfn-paneled" id="4b6086d7">global object</span>
+     <li><span class="dfn-paneled" id="355696eb">hostcalljobcallback</span>
      <li><span class="dfn-paneled" id="d0010562">hostmakejobcallback</span>
      <li><span class="dfn-paneled" id="132c94e7">message port post message steps</span>
      <li><span class="dfn-paneled" id="887585a1">navigate to a fragment</span>
      <li><span class="dfn-paneled" id="5e31523c">prepare the script element</span>
-     <li><span class="dfn-paneled" id="b5c3b552">prepare to run a callback</span>
      <li><span class="dfn-paneled" id="9a517a7d">queue a task</span>
      <li><span class="dfn-paneled" id="b75a7d23">realm</span>
      <li><span class="dfn-paneled" id="d8049b98">relevant agent</span>
@@ -1209,6 +1246,9 @@ individually examined and have those implications outlined.</p>
     <a data-link-type="biblio">[WEBIDL]</a> defines the following terms:
     <ul>
      <li><span class="dfn-paneled" id="889e932f">Exposed</span>
+     <li><span class="dfn-paneled" id="feb93a86">call a user object's operation</span>
+     <li><span class="dfn-paneled" id="3ab7bf79">callback function</span>
+     <li><span class="dfn-paneled" id="10ce5f6f">invoke</span>
     </ul>
   </ul>
   <h2 class="no-num no-ref heading settled" id="references"><span class="content">References</span><a class="self-link" href="#references"></a></h2>
@@ -1241,7 +1281,8 @@ individually examined and have those implications outlined.</p>
 </pre>
   <h2 class="no-num no-ref heading settled" id="issues-index"><span class="content">Issues Index</span><a class="self-link" href="#issues-index"></a></h2>
   <div style="counter-reset:issue">
-   <div class="issue"> "prepare to run a callback" is too generic here. It’d be better to call this from more specific places inside the JS hooks and from invoke. <a class="issue-return" href="#issue-e48acb90" title="Jump to section">↵</a></div>
+   <div class="issue"> May be this should be called in "prepare to run a callback"/"clean up after running a callback", but we’d need to pipe in the callback for that. <a class="issue-return" href="#issue-eae2392e" title="Jump to section">↵</a></div>
+   <div class="issue"> May be we need to define registration semantics for everything that doesn’t need anything more specific. <a class="issue-return" href="#issue-83823d90" title="Jump to section">↵</a></div>
   </div>
 <script>/* Boilerplate: script-dfn-panel */
 "use strict";
@@ -1575,17 +1616,17 @@ window.dfnpanelData['c6d19e56'] = {"dfnID": "c6d19e56", "url": "https://html.spe
 window.dfnpanelData['b78d6a64'] = {"dfnID": "b78d6a64", "url": "https://html.spec.whatwg.org/multipage/webappapis.html#concept-agent-event-loop", "dfnText": "event loop (for agent)", "refSections": [{"refs": [{"id": "ref-for-concept-agent-event-loop"}, {"id": "ref-for-concept-agent-event-loop\u2460"}], "title": "6.1. Task scope"}, {"refs": [{"id": "ref-for-concept-agent-event-loop\u2461"}], "title": "6.3.1. Get current task"}], "external": true};
 window.dfnpanelData['9ed0e01d'] = {"dfnID": "9ed0e01d", "url": "https://html.spec.whatwg.org/C#execute-the-script-element", "dfnText": "execute the script element", "refSections": [{"refs": [{"id": "ref-for-execute-the-script-element"}], "title": "7.3. Script execution"}], "external": true};
 window.dfnpanelData['4b6086d7'] = {"dfnID": "4b6086d7", "url": "https://html.spec.whatwg.org/multipage/webappapis.html#global-object", "dfnText": "global object", "refSections": [{"refs": [{"id": "ref-for-global-object"}, {"id": "ref-for-global-object\u2460"}], "title": "3.1. Soft navigation entry"}], "external": true};
-window.dfnpanelData['d0010562'] = {"dfnID": "d0010562", "url": "https://html.spec.whatwg.org/C#hostmakejobcallback", "dfnText": "hostmakejobcallback", "refSections": [{"refs": [{"id": "ref-for-hostmakejobcallback"}], "title": "7.7. HostMakeJobCallback"}], "external": true};
+window.dfnpanelData['355696eb'] = {"dfnID": "355696eb", "url": "https://html.spec.whatwg.org/C#hostcalljobcallback", "dfnText": "hostcalljobcallback", "refSections": [{"refs": [{"id": "ref-for-hostcalljobcallback"}], "title": "7.7.2. HostCallJobCallback"}], "external": true};
+window.dfnpanelData['d0010562'] = {"dfnID": "d0010562", "url": "https://html.spec.whatwg.org/C#hostmakejobcallback", "dfnText": "hostmakejobcallback", "refSections": [{"refs": [{"id": "ref-for-hostmakejobcallback"}], "title": "7.7.1. HostMakeJobCallback ##{#sec-hostmakejobcallback}"}], "external": true};
 window.dfnpanelData['132c94e7'] = {"dfnID": "132c94e7", "url": "https://html.spec.whatwg.org/C#message-port-post-message-steps", "dfnText": "message port post message steps", "refSections": [{"refs": [{"id": "ref-for-message-port-post-message-steps"}], "title": "7.8. MessagePorts"}], "external": true};
 window.dfnpanelData['887585a1'] = {"dfnID": "887585a1", "url": "https://html.spec.whatwg.org/C#navigate-fragid", "dfnText": "navigate to a fragment", "refSections": [{"refs": [{"id": "ref-for-navigate-fragid"}], "title": "7.9. Same-document navigations"}], "external": true};
 window.dfnpanelData['5e31523c'] = {"dfnID": "5e31523c", "url": "https://html.spec.whatwg.org/C#prepare-the-script-element", "dfnText": "prepare the script element", "refSections": [{"refs": [{"id": "ref-for-prepare-the-script-element"}], "title": "7.3. Script execution"}], "external": true};
-window.dfnpanelData['b5c3b552'] = {"dfnID": "b5c3b552", "url": "https://html.spec.whatwg.org/multipage/webappapis.html#prepare-to-run-a-callback", "dfnText": "prepare to run a callback", "refSections": [{"refs": [{"id": "ref-for-prepare-to-run-a-callback"}], "title": "7.6. Callbacks"}], "external": true};
 window.dfnpanelData['9a517a7d'] = {"dfnID": "9a517a7d", "url": "https://html.spec.whatwg.org/multipage/webappapis.html#queue-a-task", "dfnText": "queue a task", "refSections": [{"refs": [{"id": "ref-for-queue-a-task"}], "title": "7.4. Task queueing"}], "external": true};
 window.dfnpanelData['b75a7d23'] = {"dfnID": "b75a7d23", "url": "https://html.spec.whatwg.org/multipage/webappapis.html#concept-global-object-realm", "dfnText": "realm", "refSections": [{"refs": [{"id": "ref-for-concept-global-object-realm"}], "title": "3.1. Soft navigation entry"}], "external": true};
 window.dfnpanelData['d8049b98'] = {"dfnID": "d8049b98", "url": "https://html.spec.whatwg.org/multipage/webappapis.html#relevant-agent", "dfnText": "relevant agent", "refSections": [{"refs": [{"id": "ref-for-relevant-agent"}, {"id": "ref-for-relevant-agent\u2460"}], "title": "6.1. Task scope"}, {"refs": [{"id": "ref-for-relevant-agent\u2461"}], "title": "6.3.1. Get current task"}], "external": true};
 window.dfnpanelData['e99bd18e'] = {"dfnID": "e99bd18e", "url": "https://html.spec.whatwg.org/multipage/webappapis.html#concept-relevant-global", "dfnText": "relevant global object", "refSections": [{"refs": [{"id": "ref-for-concept-relevant-global"}], "title": "3. Algorithms"}], "external": true};
 window.dfnpanelData['dd6462cb'] = {"dfnID": "dd6462cb", "url": "https://html.spec.whatwg.org/multipage/webappapis.html#concept-script", "dfnText": "script", "refSections": [{"refs": [{"id": "ref-for-concept-script"}], "title": "7.3. Script execution"}], "external": true};
-window.dfnpanelData['e270bd2a'] = {"dfnID": "e270bd2a", "url": "https://html.spec.whatwg.org/multipage/webappapis.html#concept-task", "dfnText": "task", "refSections": [{"refs": [{"id": "ref-for-concept-task"}, {"id": "ref-for-concept-task\u2460"}, {"id": "ref-for-concept-task\u2461"}], "title": "6.1. Task scope"}, {"refs": [{"id": "ref-for-concept-task\u2462"}, {"id": "ref-for-concept-task\u2463"}, {"id": "ref-for-concept-task\u2464"}], "title": "7.1. Task additions"}, {"refs": [{"id": "ref-for-concept-task\u2465"}], "title": "7.3. Script execution"}, {"refs": [{"id": "ref-for-concept-task\u2466"}], "title": "7.9. Same-document navigations"}], "external": true};
+window.dfnpanelData['e270bd2a'] = {"dfnID": "e270bd2a", "url": "https://html.spec.whatwg.org/multipage/webappapis.html#concept-task", "dfnText": "task", "refSections": [{"refs": [{"id": "ref-for-concept-task"}, {"id": "ref-for-concept-task\u2460"}, {"id": "ref-for-concept-task\u2461"}], "title": "6.1. Task scope"}, {"refs": [{"id": "ref-for-concept-task\u2462"}, {"id": "ref-for-concept-task\u2463"}, {"id": "ref-for-concept-task\u2464"}], "title": "7.1. Task additions"}, {"refs": [{"id": "ref-for-concept-task\u2465"}], "title": "7.3. Script execution"}, {"refs": [{"id": "ref-for-concept-task\u2466"}], "title": "7.6. Callbacks"}, {"refs": [{"id": "ref-for-concept-task\u2467"}], "title": "7.9. Same-document navigations"}], "external": true};
 window.dfnpanelData['32301e7b'] = {"dfnID": "32301e7b", "url": "https://html.spec.whatwg.org/C#timer-initialisation-steps", "dfnText": "timer initialisation steps", "refSections": [{"refs": [{"id": "ref-for-timer-initialisation-steps"}], "title": "7.5. Timers"}], "external": true};
 window.dfnpanelData['5fd199e1'] = {"dfnID": "5fd199e1", "url": "https://html.spec.whatwg.org/C#top-level-traversable", "dfnText": "top-level traversable", "refSections": [{"refs": [{"id": "ref-for-top-level-traversable"}], "title": "4.1. Document"}], "external": true};
 window.dfnpanelData['d0c1b934'] = {"dfnID": "d0c1b934", "url": "https://html.spec.whatwg.org/multipage/document-sequences.html#traversable-navigable", "dfnText": "traversable navigable", "refSections": [{"refs": [{"id": "ref-for-traversable-navigable"}], "title": "7.9. Same-document navigations"}], "external": true};
@@ -1603,6 +1644,9 @@ window.dfnpanelData['d52ccb4e'] = {"dfnID": "d52ccb4e", "url": "https://w3c.gith
 window.dfnpanelData['a9ea380f'] = {"dfnID": "a9ea380f", "url": "https://w3c.github.io/performance-timeline/#dfn-queue-a-performanceentry", "dfnText": "queue a performanceentry", "refSections": [{"refs": [{"id": "ref-for-dfn-queue-a-performanceentry"}, {"id": "ref-for-dfn-queue-a-performanceentry\u2460"}], "title": "3.1. Soft navigation entry"}], "external": true};
 window.dfnpanelData['cc7c9b78'] = {"dfnID": "cc7c9b78", "url": "https://w3c.github.io/performance-timeline/#dom-performanceentry-starttime", "dfnText": "startTime", "refSections": [{"refs": [{"id": "ref-for-dom-performanceentry-starttime"}], "title": "3.1. Soft navigation entry"}], "external": true};
 window.dfnpanelData['889e932f'] = {"dfnID": "889e932f", "url": "https://webidl.spec.whatwg.org/#Exposed", "dfnText": "Exposed", "refSections": [{"refs": [{"id": "ref-for-Exposed"}], "title": "2. The SoftNavigationEntry interface"}], "external": true};
+window.dfnpanelData['feb93a86'] = {"dfnID": "feb93a86", "url": "https://webidl.spec.whatwg.org/#call-a-user-objects-operation", "dfnText": "call a user object's operation", "refSections": [{"refs": [{"id": "ref-for-call-a-user-objects-operation"}], "title": "7.6. Callbacks"}], "external": true};
+window.dfnpanelData['3ab7bf79'] = {"dfnID": "3ab7bf79", "url": "https://webidl.spec.whatwg.org/#dfn-callback-function", "dfnText": "callback function", "refSections": [{"refs": [{"id": "ref-for-dfn-callback-function"}], "title": "7.6. Callbacks"}], "external": true};
+window.dfnpanelData['10ce5f6f'] = {"dfnID": "10ce5f6f", "url": "https://webidl.spec.whatwg.org/#invoke-a-callback-function", "dfnText": "invoke", "refSections": [{"refs": [{"id": "ref-for-invoke-a-callback-function"}], "title": "7.6. Callbacks"}], "external": true};
 window.dfnpanelData['softnavigationentry'] = {"dfnID": "softnavigationentry", "url": "#softnavigationentry", "dfnText": "SoftNavigationEntry", "refSections": [{"refs": [{"id": "ref-for-softnavigationentry"}, {"id": "ref-for-softnavigationentry\u2460"}], "title": "3.1. Soft navigation entry"}], "external": false};
 window.dfnpanelData['check-soft-navigation'] = {"dfnID": "check-soft-navigation", "url": "#check-soft-navigation", "dfnText": "check soft navigation", "refSections": [{"refs": [{"id": "ref-for-check-soft-navigation"}], "title": "4.1. Document"}, {"refs": [{"id": "ref-for-check-soft-navigation\u2460"}], "title": "5. LCP integration"}], "external": false};
 window.dfnpanelData['create-a-soft-navigation-entry'] = {"dfnID": "create-a-soft-navigation-entry", "url": "#create-a-soft-navigation-entry", "dfnText": "create a soft navigation entry", "refSections": [{"refs": [{"id": "ref-for-create-a-soft-navigation-entry"}], "title": "3. Algorithms"}], "external": false};
@@ -1613,15 +1657,16 @@ window.dfnpanelData['document-soft-navigation-contentful-paint'] = {"dfnID": "do
 window.dfnpanelData['node-modified-by-soft-navigation'] = {"dfnID": "node-modified-by-soft-navigation", "url": "#node-modified-by-soft-navigation", "dfnText": "modified by soft navigation", "refSections": [{"refs": [{"id": "ref-for-node-modified-by-soft-navigation"}], "title": "4.1. Document"}, {"refs": [{"id": "ref-for-node-modified-by-soft-navigation\u2460"}], "title": "5. LCP integration"}], "external": false};
 window.dfnpanelData['concept-task-scope'] = {"dfnID": "concept-task-scope", "url": "#concept-task-scope", "dfnText": "task scope", "refSections": [{"refs": [{"id": "ref-for-concept-task-scope"}, {"id": "ref-for-concept-task-scope\u2460"}], "title": "6.1. Task scope"}, {"refs": [{"id": "ref-for-concept-task-scope\u2461"}], "title": "7.2. Event Loop additions"}], "external": false};
 window.dfnpanelData['task-scope-task'] = {"dfnID": "task-scope-task", "url": "#task-scope-task", "dfnText": "task", "refSections": [{"refs": [{"id": "ref-for-task-scope-task"}], "title": "6.1. Task scope"}, {"refs": [{"id": "ref-for-task-scope-task\u2460"}], "title": "6.3.1. Get current task"}], "external": false};
-window.dfnpanelData['create-a-task-scope'] = {"dfnID": "create-a-task-scope", "url": "#create-a-task-scope", "dfnText": "create a task scope", "refSections": [{"refs": [{"id": "ref-for-create-a-task-scope"}], "title": "7.3. Script execution"}, {"refs": [{"id": "ref-for-create-a-task-scope\u2460"}], "title": "7.4. Task queueing"}, {"refs": [{"id": "ref-for-create-a-task-scope\u2461"}], "title": "7.5. Timers"}, {"refs": [{"id": "ref-for-create-a-task-scope\u2462"}], "title": "7.6. Callbacks"}, {"refs": [{"id": "ref-for-create-a-task-scope\u2463"}, {"id": "ref-for-create-a-task-scope\u2464"}], "title": "7.8. MessagePorts"}, {"refs": [{"id": "ref-for-create-a-task-scope\u2465"}], "title": "7.9. Same-document navigations"}], "external": false};
-window.dfnpanelData['tear-down-a-task-scope'] = {"dfnID": "tear-down-a-task-scope", "url": "#tear-down-a-task-scope", "dfnText": "tear down a task scope", "refSections": [{"refs": [{"id": "ref-for-tear-down-a-task-scope"}], "title": "7.3. Script execution"}, {"refs": [{"id": "ref-for-tear-down-a-task-scope\u2460"}], "title": "7.4. Task queueing"}, {"refs": [{"id": "ref-for-tear-down-a-task-scope\u2461"}], "title": "7.6. Callbacks"}, {"refs": [{"id": "ref-for-tear-down-a-task-scope\u2462"}, {"id": "ref-for-tear-down-a-task-scope\u2463"}], "title": "7.8. MessagePorts"}, {"refs": [{"id": "ref-for-tear-down-a-task-scope\u2464"}], "title": "7.9. Same-document navigations"}], "external": false};
+window.dfnpanelData['create-a-task-scope'] = {"dfnID": "create-a-task-scope", "url": "#create-a-task-scope", "dfnText": "create a task scope", "refSections": [{"refs": [{"id": "ref-for-create-a-task-scope"}], "title": "7.3. Script execution"}, {"refs": [{"id": "ref-for-create-a-task-scope\u2460"}], "title": "7.4. Task queueing"}, {"refs": [{"id": "ref-for-create-a-task-scope\u2461"}], "title": "7.5. Timers"}, {"refs": [{"id": "ref-for-create-a-task-scope\u2462"}, {"id": "ref-for-create-a-task-scope\u2463"}], "title": "7.6. Callbacks"}, {"refs": [{"id": "ref-for-create-a-task-scope\u2464"}], "title": "7.7.2. HostCallJobCallback"}, {"refs": [{"id": "ref-for-create-a-task-scope\u2465"}, {"id": "ref-for-create-a-task-scope\u2466"}], "title": "7.8. MessagePorts"}, {"refs": [{"id": "ref-for-create-a-task-scope\u2467"}], "title": "7.9. Same-document navigations"}], "external": false};
+window.dfnpanelData['tear-down-a-task-scope'] = {"dfnID": "tear-down-a-task-scope", "url": "#tear-down-a-task-scope", "dfnText": "tear down a task scope", "refSections": [{"refs": [{"id": "ref-for-tear-down-a-task-scope"}], "title": "7.3. Script execution"}, {"refs": [{"id": "ref-for-tear-down-a-task-scope\u2460"}], "title": "7.4. Task queueing"}, {"refs": [{"id": "ref-for-tear-down-a-task-scope\u2461"}, {"id": "ref-for-tear-down-a-task-scope\u2462"}, {"id": "ref-for-tear-down-a-task-scope\u2463"}], "title": "7.6. Callbacks"}, {"refs": [{"id": "ref-for-tear-down-a-task-scope\u2464"}], "title": "7.7.2. HostCallJobCallback"}, {"refs": [{"id": "ref-for-tear-down-a-task-scope\u2465"}, {"id": "ref-for-tear-down-a-task-scope\u2466"}], "title": "7.8. MessagePorts"}, {"refs": [{"id": "ref-for-tear-down-a-task-scope\u2467"}], "title": "7.9. Same-document navigations"}], "external": false};
 window.dfnpanelData['check-ancestor-for-task'] = {"dfnID": "check-ancestor-for-task", "url": "#check-ancestor-for-task", "dfnText": "check ancestor for task", "refSections": [{"refs": [{"id": "ref-for-check-ancestor-for-task"}, {"id": "ref-for-check-ancestor-for-task\u2460"}], "title": "4.1. Document"}], "external": false};
-window.dfnpanelData['get-current-task'] = {"dfnID": "get-current-task", "url": "#get-current-task", "dfnText": "get current task", "refSections": [{"refs": [{"id": "ref-for-get-current-task"}], "title": "6.2. Is ancestor"}, {"refs": [{"id": "ref-for-get-current-task\u2460"}], "title": "6.3. Is ancestor in set"}, {"refs": [{"id": "ref-for-get-current-task\u2461"}], "title": "6.3.2. Get current task ID"}, {"refs": [{"id": "ref-for-get-current-task\u2462"}], "title": "7.3. Script execution"}, {"refs": [{"id": "ref-for-get-current-task\u2463"}], "title": "7.4. Task queueing"}, {"refs": [{"id": "ref-for-get-current-task\u2464"}], "title": "7.5. Timers"}, {"refs": [{"id": "ref-for-get-current-task\u2465"}], "title": "7.7. HostMakeJobCallback"}, {"refs": [{"id": "ref-for-get-current-task\u2466"}], "title": "7.8. MessagePorts"}, {"refs": [{"id": "ref-for-get-current-task\u2467"}, {"id": "ref-for-get-current-task\u2468"}, {"id": "ref-for-get-current-task\u2460\u24ea"}], "title": "7.9. Same-document navigations"}, {"refs": [{"id": "ref-for-get-current-task\u2460\u2460"}], "title": "7.10. View transitions"}], "external": false};
+window.dfnpanelData['get-current-task'] = {"dfnID": "get-current-task", "url": "#get-current-task", "dfnText": "get current task", "refSections": [{"refs": [{"id": "ref-for-get-current-task"}], "title": "6.2. Is ancestor"}, {"refs": [{"id": "ref-for-get-current-task\u2460"}], "title": "6.3. Is ancestor in set"}, {"refs": [{"id": "ref-for-get-current-task\u2461"}], "title": "6.3.2. Get current task ID"}, {"refs": [{"id": "ref-for-get-current-task\u2462"}], "title": "7.3. Script execution"}, {"refs": [{"id": "ref-for-get-current-task\u2463"}], "title": "7.4. Task queueing"}, {"refs": [{"id": "ref-for-get-current-task\u2464"}], "title": "7.5. Timers"}, {"refs": [{"id": "ref-for-get-current-task\u2465"}], "title": "7.7.1. HostMakeJobCallback ##{#sec-hostmakejobcallback}"}, {"refs": [{"id": "ref-for-get-current-task\u2466"}], "title": "7.8. MessagePorts"}, {"refs": [{"id": "ref-for-get-current-task\u2467"}, {"id": "ref-for-get-current-task\u2468"}, {"id": "ref-for-get-current-task\u2460\u24ea"}], "title": "7.9. Same-document navigations"}, {"refs": [{"id": "ref-for-get-current-task\u2460\u2460"}], "title": "7.10. View transitions"}], "external": false};
 window.dfnpanelData['get-current-task-id'] = {"dfnID": "get-current-task-id", "url": "#get-current-task-id", "dfnText": "get current task id", "refSections": [{"refs": [{"id": "ref-for-get-current-task-id"}, {"id": "ref-for-get-current-task-id\u2460"}, {"id": "ref-for-get-current-task-id\u2461"}], "title": "4.1. Document"}], "external": false};
 window.dfnpanelData['task-task-attribution-id'] = {"dfnID": "task-task-attribution-id", "url": "#task-task-attribution-id", "dfnText": "task attribution ID", "refSections": [{"refs": [{"id": "ref-for-task-task-attribution-id"}], "title": "4.1. Document"}, {"refs": [{"id": "ref-for-task-task-attribution-id\u2460"}], "title": "6.1. Task scope"}, {"refs": [{"id": "ref-for-task-task-attribution-id\u2461"}, {"id": "ref-for-task-task-attribution-id\u2462"}], "title": "6.2. Is ancestor"}, {"refs": [{"id": "ref-for-task-task-attribution-id\u2463"}, {"id": "ref-for-task-task-attribution-id\u2464"}], "title": "6.3. Is ancestor in set"}, {"refs": [{"id": "ref-for-task-task-attribution-id\u2465"}], "title": "6.3.2. Get current task ID"}], "external": false};
 window.dfnpanelData['task-parent-task'] = {"dfnID": "task-parent-task", "url": "#task-parent-task", "dfnText": "parent task", "refSections": [{"refs": [{"id": "ref-for-task-parent-task"}], "title": "6.1. Task scope"}, {"refs": [{"id": "ref-for-task-parent-task\u2460"}], "title": "6.2. Is ancestor"}, {"refs": [{"id": "ref-for-task-parent-task\u2461"}], "title": "6.3. Is ancestor in set"}, {"refs": [{"id": "ref-for-task-parent-task\u2462"}], "title": "7.4. Task queueing"}], "external": false};
 window.dfnpanelData['task-scope-stack'] = {"dfnID": "task-scope-stack", "url": "#task-scope-stack", "dfnText": "task scope stack", "refSections": [{"refs": [{"id": "ref-for-task-scope-stack"}, {"id": "ref-for-task-scope-stack\u2460"}], "title": "6.1. Task scope"}, {"refs": [{"id": "ref-for-task-scope-stack\u2461"}], "title": "6.3.1. Get current task"}], "external": false};
 window.dfnpanelData['script-parent-task'] = {"dfnID": "script-parent-task", "url": "#script-parent-task", "dfnText": "parent task", "refSections": [{"refs": [{"id": "ref-for-script-parent-task"}, {"id": "ref-for-script-parent-task\u2460"}], "title": "7.3. Script execution"}], "external": false};
+window.dfnpanelData['callback-function-parent-task'] = {"dfnID": "callback-function-parent-task", "url": "#callback-function-parent-task", "dfnText": "parent task", "refSections": [{"refs": [{"id": "ref-for-callback-function-parent-task"}], "title": "7.5. Timers"}, {"refs": [{"id": "ref-for-callback-function-parent-task\u2460"}, {"id": "ref-for-callback-function-parent-task\u2461"}], "title": "7.6. Callbacks"}, {"refs": [{"id": "ref-for-callback-function-parent-task\u2462"}], "title": "7.7.2. HostCallJobCallback"}, {"refs": [{"id": "ref-for-callback-function-parent-task\u2463"}], "title": "7.10. View transitions"}], "external": false};
 window.dfnpanelData['navigation-task'] = {"dfnID": "navigation-task", "url": "#navigation-task", "dfnText": "navigation task", "refSections": [{"refs": [{"id": "ref-for-navigation-task"}, {"id": "ref-for-navigation-task\u2460"}], "title": "7.9. Same-document navigations"}], "external": false};
 </script>
 <script>/* Boilerplate: script-dom-helper */
