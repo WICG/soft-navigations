@@ -28,6 +28,7 @@ urlPrefix: https://html.spec.whatwg.org/C; spec: HTML;
     type: dfn; url: #tn-append-session-history-synchronous-navigation-steps; text: append session history synchronous navigation steps;
     type: dfn; url: #prepare-the-script-element; text: prepare the script element;
     type: dfn; url: #navigate-fragid; text: navigate to a fragment;
+    type: dfn; url: #hostcalljobcallback;text: hostcalljobcallback;
 urlPrefix: https://dom.spec.whatwg.org/; spec: DOM;
     type: dfn; url: #concept-event-dispatch; text: event dispatch;
     type: dfn; url: #concept-node-insert; text: node insert;
@@ -225,8 +226,11 @@ To <dfn export>get current task id</dfn>, run the following steps:
   1. Let |task| be the result of [=getting current task=].
   1. Return |task|'s [=task attribution ID=].
 
-TaskAttribution HTML integration {#sec-task-attribution-integration}
+TaskAttribution integration {#sec-task-attribution-integration}
 ================================
+
+Note: Most of this integration is with the HTML spec, although some of it is with WebIDL and CSS ViewTransitions.
+The desired end state would be for these integrations to be embedded in the relevant specifications.
 
 ## Task additions  ## {#sec-task}
 
@@ -263,52 +267,68 @@ Add these steps after step 3, "Let task be a new task":
 Add a terminating step:
   1. [=Tear down a task scope=]
 
-TODO: Do we need this both when queueing a task and when calling a callback?
-
 ## Timers ##{#sec-timers}
 In [=timer initialisation steps=], before step 8, add the following steps:
   1. Let |parent task| be the result of [=getting current task=].
-  1. If |handler| is a Function, set |handler|'s parent task to |parent task|.
+  1. If |handler| is a Function, set |handler|'s [=callback function/parent task=] to |parent task|.
   1. Otherwise, [=create a task scope=] with |parent task|..
 
-TODO: How do we properly set the parent task on the callback function??
-
-TODO: need a teardown here for the second case??
+TODO: need a teardown here for the second case
 
 ## Callbacks ##{#sec-callbacks}
-In [=prepare to run a callback=], add the following steps::
-  1. Let |task| be <var ignore>callback</var>'s parent task
+
+A [=callback function=] has a <dfn for="callback function">parent task</dfn>, a [=/task=], initially unset.
+
+In [=invoke|invoke a callback function=], add the following steps after step 7:
+  1. Let |task| be <var ignore>callback</var>'s [=callback function/parent task=].
   1. [=create a task scope=] with |task| if set, and with nothing otherwise.
 
-ISSUE: "prepare to run a callback" is too generic here. It'd be better to call this from more specific places inside the JS hooks and from invoke.
+Add a terminating step:
+  1. [=Tear down a task scope=]
 
-TODO: I don't actually have a callback here! Need to pipe it
+In [=call a user object's operation=], add the following steps after step 7:
+  1. Let |task| be <var ignore>value</var>'s [=callback function/parent task=].
+  1. [=create a task scope=] with |task| if set, and with nothing otherwise.
 
-TODO: Figure out if we need to do something in particular with the FinalizationRegsitry.
+Add a terminating step before returning:
+  1. [=Tear down a task scope=]
 
-TODO: need a teardown here.
+ISSUE: May be this should be called in "prepare to run a callback"/"clean up after running a callback", but we'd need to pipe in the callback for that.
 
-TODO: Need to define registration semantics for everything that doesn't need anything more specific.
-
-<p class=note>
-The above is called from both promise continuations and from "regular" script callbacks.
-That does not match Chromium where Blink is not notified when promise continuations are run inside of V8.
-This is subtly different than what's implemented in Chromium, as there the continuation task overrides
-the task stack, where here it pushes a new child task of itself onto that stack.
-At the same time, there shouldn't be any functional differences between the two.
-</p>
-
+ISSUE: May be we need to define registration semantics for everything that doesn't need anything more specific.
 
 In [=clean up after running a callback=], add the following step:
   1. [=Tear down a task scope=].
 
-## HostMakeJobCallback ##{#sec-hostmakejobcallback}
+## Continuations  ##{#sec-continuations}
+
+### HostMakeJobCallback ##{#sec-hostmakejobcallback}
 In [=HostMakeJobCallback=], add the following steps:
   1. Let |task| be the result of [=getting current task=].
-  1. Let <var ignore>callable</var>.[task] be |task|.
+  1. Let <var ignore>callable</var>'s [=callback function/parent task|  be |task|.
 
-Note: This is needed to ensure the current task is registered on the promise resolvers when they are created.
+Note: This is needed to ensure the current task is registered on the promise continuations when they are created.
 
+TODO: Figure out if we need to do something in particular with the FinalizationRegsitry.
+
+
+### HostCallJobCallback ###{#sec-hostcalljobcallback}
+
+In [=HostCallJobCallback=], add initial steps:
+  1. Let |task| be <var ignore>callback</var>'s [=callback function/parent task=].
+  1. [=create a task scope=] with |task| if set, and with nothing otherwise.
+
+Add a terminating step:
+  1. [=Tear down a task scope=]
+
+<p class=note>
+The above is called when promise continuations are run.
+That does not match Chromium where Blink is not notified when promise continuations are run inside
+of V8, and hence is subtly different than what's implemented in Chromium.
+In Chromium the the continuation task overrides the task stack, where here it pushes a new child
+task of itself onto that stack.  At the same time, there shouldn't be any functional differences
+between the two.
+</p>
 ## MessagePorts ## {#sec-messageport}
 
 <p class=note>
@@ -344,8 +364,9 @@ In [=update document for history step application=], before firing the popstate 
 TODO: more formally define the above.
 
 ## View transitions ## {#sec-view-transitions}
+
 In [=startViewTransition()=] add the following initial steps:
-  1. Set updateCallback's parent task to the result of [=getting current task=].
+  1. Set updateCallback's [=callback function/parent task=] to the result of [=getting current task=].
 
 Security & privacy considerations {#priv-sec}
 ===============================================
