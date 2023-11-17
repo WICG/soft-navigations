@@ -26,6 +26,7 @@ urlPrefix: https://html.spec.whatwg.org/C; spec: HTML;
     type: dfn; url: #apply-the-history-step; text: apply the history step;
     type: dfn; url: #tn-append-session-history-traversal-steps; text: append session history traversal steps;
     type: dfn; url: #tn-append-session-history-synchronous-navigation-steps; text: append session history synchronous navigation steps;
+    type: dfn; url: #prepare-the-script-element; text: prepare the script element;
     type: dfn; url: #navigate-fragid; text: navigate to a fragment;
 urlPrefix: https://dom.spec.whatwg.org/; spec: DOM;
     type: dfn; url: #concept-event-dispatch; text: event dispatch;
@@ -40,6 +41,7 @@ urlPrefix: https://www.w3.org/TR/paint-timing/
     type: dfn; url: #previously-reported-paints; text: previously reported paints;
 </pre>
 <pre class=link-defaults>
+spec:html; type:dfn; text:script;
 </pre>
 
 Introduction {#sec-intro}
@@ -184,7 +186,7 @@ A [=task scope=] has a <dfn for="task scope">task</dfn>, a [=/task=].
 To <dfn>create a task scope</dfn>, given an optional |parent task|, a [=/task=], do the following:
   1. Let |task| be a new [=/task=].
   1. Set |task|'s [=task attribution ID=] to an [=implementation-defined=] unique value.
-  1. If |parent task| is provided, set |task|'s [=parent task=] to |parent task|.
+  1. If |parent task| is provided, set |task|'s [=task/parent task=] to |parent task|.
   1. Let |scope| be a new [=task scope=].
   1. Set |scope|'s [=task scope/task=] to |task|.
   1. Push |scope| to the [=relevant agent=]'s [=agent/event loop=]'s [=task scope stack=].
@@ -200,7 +202,7 @@ To <dfn export>check ancestor for task</dfn>, given |ancestor id|, a [=task attr
     1. Let |id| be|task|'s [=task attribution ID=].
     1. If |id| is unset, return false.
     1. If |id| equals |ancestor id|, return true.
-    1. Set |task| to |task|'s [=parent task=].
+    1. Set |task| to |task|'s [=task/parent task=].
 
 ## Is ancestor in set ## {#sec-is-ancestor-in-set}
 
@@ -210,7 +212,7 @@ To <dfn export>check ancestor set for task</dfn>, given |ancestor id set|, a [=t
     1. Let |id| be |task|'s [=task attribution ID=] if |task| is set, or be unset otherwise.
     1. If |id| is unset, return false.
     1. If |ancestor id set| [=contains=] |id|, return true.
-    1. Set |task| to |task|'s [=parent task=].
+    1. Set |task| to |task|'s [=task/parent task=].
 
 ### Get current task ### {#sec-current-task}
 To <dfn export>get current task</dfn>, run the following steps:
@@ -237,21 +239,25 @@ A [=/task=] has a <dfn for="task">parent task</dfn>, a [=/task=], initially unse
 Each [=/event loop=] has a <dfn>task scope stack</dfn>, a [=stack=] of <a>task scopes</a>.
 
 ## Script execution ##{#sec-script}
+
+A [=script=] element has a <dfn for="script">parent task</dfn> [=/task=], initially unset.
+
+In [=prepare the script element=], add an initial step:
+ 1. Set <var ignore>el</var>'s [=script/parent task=] to the result of running [=get current task=].
+
+Note: The parent task ensures that task creation through the injection of scripts can be properly attributed.
+
 In [=Execute the script element=], add initial steps:
-  1. [=Create a task scope=].
+  1. [=Create a task scope=] <var ignore>el</var>'s [=script/parent task=].
 
 Also, add a terminating step:
   1. [=Tear down a task scope=]
-
-TODO: Handle parent scope passing for executing scripts.
-
-TODO: investigate "prepare to run a script"
 
 ## Task queueing ##{#sec-task-queueing}
 In [=queue a task=]:
 
 Add these steps after step 3, "Let task be a new task":
-  1. Set |task|'s [=parent task=] to the result of [=getting current task ID=].
+  1. Set |task|'s [=task/parent task=] to the result of [=getting current task=].
   1. [=Create a task scope=] with |task|.
 
 Add a terminating step:
