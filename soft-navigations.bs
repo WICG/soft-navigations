@@ -43,6 +43,7 @@ urlPrefix: https://www.w3.org/TR/paint-timing/
 </pre>
 <pre class=link-defaults>
 spec:html; type:dfn; text:script;
+spec:infra; type:dfn; text:peek;
 </pre>
 
 Introduction {#sec-intro}
@@ -96,7 +97,9 @@ To <dfn>check soft navigation</dfn>, with a [=Document=] |doc|, run the followin
  1. If |doc|'s [=soft navigation same document commit=] is false or |doc|'s [=soft navigation contentful paint=] is false, return.
  1. Let |global| be |doc|'s [=relevant global object=].
  1. Let |entry| be the result of calling [=create a soft navigation entry=] with |global|, |url|, and |start time|.
- 1. Call [=emit soft navigation entry=] with |global| and |entry|.
+ 1. Call [=emit soft navigation entry=] with |global|, |entry|, |url| and |start time|.
+
+TODO: Where are we getting the URL and start time from?????
 
 ## Soft navigation entry ## {#sec-entry}
 To <dfn>create a soft navigation entry</dfn>, with a [=/global object=] |global|, a [=string=] |url|, a {{DOMHighResTimeStamp}} |start time|, run the following steps:
