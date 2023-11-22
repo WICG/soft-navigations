@@ -46,10 +46,10 @@ SoftNavigationEntry : PerformanceEntry {
 ```
 
 The inheritance from `PerformanceEntry` means that the entry will have `startTime`, `name`, `entryType` and `duration`:
-* `startTime` would be defined as the time in which the user's interaction was received. See [discussion](https://bugs.chromium.org/p/chromium/issues/detail?id=1369680).
-* `name` would be the URL of the history entry representing the soft navigation.
-* `entryType` would be "soft-navigation".
-* `duration` - it's not currently clear what a useful `duration` value would be that enables the entry to fire early enough. See [issue #4](https://github.com/yoavweiss/soft-navigations/issues/4).
+* `startTime` is defined as the time in which the user's interaction event processing started. See [issue #14](https://github.com/WICG/soft-navigations/issues/14) for related discussion.
+* `name` is the URL of the history entry representing the soft navigation.
+* `entryType` is "soft-navigation".
+* `duration` is the time difference between the point in which a soft navigation is detected and the `startTime`.
 
 ## Examples
 
