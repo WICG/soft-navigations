@@ -6,7 +6,7 @@
   <link href="https://www.w3.org/StyleSheets/TR/2021/cg-draft" rel="stylesheet">
   <meta content="Bikeshed version b06c00b8e, updated Tue Jul 11 13:41:16 2023 -0700" name="generator">
   <link href="https://wicg.github.io/soft-navigations/" rel="canonical">
-  <meta content="589054d3d03f9397270fc0cb01d4c4f1234672d3" name="document-revision">
+  <meta content="813ad263bec83ed6c051e51021144988012c2969" name="document-revision">
 <style>/* Boilerplate: style-autolinks */
 .css.css, .property.property, .descriptor.descriptor {
     color: var(--a-normal-text);
@@ -647,7 +647,7 @@ c-[il] { color: #000000 } /* Literal.Number.Integer.Long */
   <div class="head">
    <p data-fill-with="logo"><a class="logo" href="https://www.w3.org/"> <img alt="W3C" height="48" src="https://www.w3.org/StyleSheets/TR/2021/logos/W3C" width="72"> </a> </p>
    <h1 class="p-name no-ref" id="title">Soft Navigations</h1>
-   <p id="w3c-state"><a href="https://www.w3.org/standards/types#CG-DRAFT">Draft Community Group Report</a>, <time class="dt-updated" datetime="2023-11-17">17 November 2023</time></p>
+   <p id="w3c-state"><a href="https://www.w3.org/standards/types#CG-DRAFT">Draft Community Group Report</a>, <time class="dt-updated" datetime="2023-11-22">22 November 2023</time></p>
    <div data-fill-with="spec-metadata">
     <dl>
      <dt>This version:
@@ -695,6 +695,9 @@ A human-readable <a href="http://www.w3.org/community/about/agreements/cla-deed/
      <a href="#sec-algos"><span class="secno">3</span> <span class="content">Algorithms</span></a>
      <ol class="toc">
       <li><a href="#sec-entry"><span class="secno">3.1</span> <span class="content">Soft navigation entry</span></a>
+      <li><a href="#sec-interaction"><span class="secno">3.2</span> <span class="content">Interaction</span></a>
+      <li><a href="#sec-same-document-commit"><span class="secno">3.3</span> <span class="content">Same document commit</span></a>
+      <li><a href="#sec-contentful-paint"><span class="secno">3.4</span> <span class="content">Contentful paint</span></a>
      </ol>
     <li>
      <a href="#sec-html"><span class="secno">4</span> <span class="content">HTML integration</span></a>
@@ -790,18 +793,23 @@ Being able to keep track of which task initiated which can be valuable in multip
       <p>There exists a DOM modification operation whose task is a descendent of the same user interaction task.</p>
     </ul>
    </div>
-   <p>To <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport id="check-soft-navigation">check soft navigation</dfn>, with a <a data-link-type="dfn" href="https://dom.spec.whatwg.org/#concept-document" id="ref-for-concept-document">Document</a> <var>doc</var>, run the following steps:</p>
+   <p>To <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport id="check-soft-navigation">check soft navigation</dfn>, with a <a data-link-type="dfn" href="https://dom.spec.whatwg.org/#concept-document" id="ref-for-concept-document">Document</a> <var>document</var>, run the following steps:</p>
    <ol>
     <li data-md>
-     <p>If <var>doc</var>’s <a data-link-type="dfn" href="#document-soft-navigation-same-document-commit" id="ref-for-document-soft-navigation-same-document-commit">soft navigation same document commit</a> is false or <var>doc</var>’s <a data-link-type="dfn" href="#document-soft-navigation-contentful-paint" id="ref-for-document-soft-navigation-contentful-paint">soft navigation contentful paint</a> is false, return.</p>
+     <p>Let <var>interaction data</var> be the result of calling <a data-link-type="dfn" href="#get-current-interaction-data" id="ref-for-get-current-interaction-data">get current interaction data</a> with <var>document</var>.</p>
     <li data-md>
-     <p>Let <var>global</var> be <var>doc</var>’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-relevant-global" id="ref-for-concept-relevant-global">relevant global object</a>.</p>
+     <p>If <var>interaction data</var>’s <a data-link-type="dfn" href="#interaction-data-same-document-commit" id="ref-for-interaction-data-same-document-commit">same document commit</a> is false or <var>interaction data</var>’s <a data-link-type="dfn" href="#interaction-data-contentful-paint" id="ref-for-interaction-data-contentful-paint">contentful paint</a> is false, return.</p>
+    <li data-md>
+     <p>Let <var>global</var> be <var>document</var>’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-relevant-global" id="ref-for-concept-relevant-global">relevant global object</a>.</p>
+    <li data-md>
+     <p>Let <var>url</var> be <var>interaction data</var>’s [=interaction data/url].</p>
+    <li data-md>
+     <p>Let <var>start time</var> be <var>interaction data</var>’s [=interaction data/start time].</p>
     <li data-md>
      <p>Let <var>entry</var> be the result of calling <a data-link-type="dfn" href="#create-a-soft-navigation-entry" id="ref-for-create-a-soft-navigation-entry">create a soft navigation entry</a> with <var>global</var>, <var>url</var>, and <var>start time</var>.</p>
     <li data-md>
      <p>Call <a data-link-type="dfn" href="#emit-soft-navigation-entry" id="ref-for-emit-soft-navigation-entry">emit soft navigation entry</a> with <var>global</var>, <var>entry</var>, <var>url</var> and <var>start time</var>.</p>
    </ol>
-   <p>TODO: Where are we getting the URL and start time from?????</p>
    <h3 class="heading settled" data-level="3.1" id="sec-entry"><span class="secno">3.1. </span><span class="content">Soft navigation entry</span><a class="self-link" href="#sec-entry"></a></h3>
     To <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport id="create-a-soft-navigation-entry">create a soft navigation entry</dfn>, with a <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#global-object" id="ref-for-global-object">global object</a> <var>global</var>, a <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#string" id="ref-for-string">string</a> <var>url</var>, a <code class="idl"><a data-link-type="idl" href="https://w3c.github.io/hr-time/#dom-domhighrestimestamp" id="ref-for-dom-domhighrestimestamp">DOMHighResTimeStamp</a></code> <var>start time</var>, run the following steps: 
    <ol>
@@ -836,44 +844,113 @@ Being able to keep track of which task initiated which can be valuable in multip
     <li data-md>
      <p>Set <var>doc</var>’s <a data-link-type="dfn" href="https://www.w3.org/TR/paint-timing/#previously-reported-paints" id="ref-for-previously-reported-paints">previously reported paints</a> to the empty <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#ordered-set" id="ref-for-ordered-set">set</a>.</p>
     <li data-md>
-     <p>Set <var>doc</var>’s <a data-link-type="dfn" href="#document-soft-navigation-same-document-commit" id="ref-for-document-soft-navigation-same-document-commit①">soft navigation same document commit</a> and <a data-link-type="dfn" href="#document-soft-navigation-contentful-paint" id="ref-for-document-soft-navigation-contentful-paint①">soft navigation contentful paint</a> to false.</p>
+     <p>Set <var>doc</var>’s <a data-link-type="dfn" href="#document-interaction-task-id-to-interaction-data" id="ref-for-document-interaction-task-id-to-interaction-data">interaction task id to interaction data</a> to an empty <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#ordered-map" id="ref-for-ordered-map">map</a>.</p>
+    <li data-md>
+     <p>Set <var>doc</var>’s <a data-link-type="dfn" href="#document-task-id-to-interaction-task-id" id="ref-for-document-task-id-to-interaction-task-id">task id to interaction task id</a> to an empty <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#ordered-map" id="ref-for-ordered-map①">map</a>.</p>
+    <li data-md>
+     <p>Set <var>doc</var>’s <a data-link-type="dfn" href="#document-last-interaction-task-id" id="ref-for-document-last-interaction-task-id">last interaction task id</a> to an empty <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#ordered-map" id="ref-for-ordered-map②">map</a>.</p>
+   </ol>
+   <h3 class="heading settled" data-level="3.2" id="sec-interaction"><span class="secno">3.2. </span><span class="content">Interaction</span><a class="self-link" href="#sec-interaction"></a></h3>
+   <p><dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport id="interaction-data">Interaction data</dfn> is a <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#struct" id="ref-for-struct">struct</a> used to maintain the data required to detect a soft navigation from a single interaction.
+It has the following <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#struct-item" id="ref-for-struct-item">items</a>:</p>
+   <ul>
+    <li data-md>
+     <p><dfn class="dfn-paneled" data-dfn-for="interaction data" data-dfn-type="dfn" data-noexport id="interaction-data-url">url</dfn>, initially unset - Represents the soft navigation’s URL.</p>
+    <li data-md>
+     <p><dfn class="dfn-paneled" data-dfn-for="interaction data" data-dfn-type="dfn" data-noexport id="interaction-data-start-time">start time</dfn>, initially unset - Represents the user interaction event processing start time..</p>
+    <li data-md>
+     <p><dfn class="dfn-paneled" data-dfn-for="interaction data" data-dfn-type="dfn" data-noexport id="interaction-data-same-document-commit">same document commit</dfn> flag, initially unset - Indicates if a same-document commit happened as a result of the interaction.</p>
+    <li data-md>
+     <p><dfn class="dfn-paneled" data-dfn-for="interaction data" data-dfn-type="dfn" data-noexport id="interaction-data-contentful-paint">contentful paint</dfn> flag, initially unset  - Indicates that a contentful paint happened as a result of an element added by the interaction.</p>
+   </ul>
+   <p>To <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport id="get-current-interaction-data">get current interaction data</dfn>, given a <a data-link-type="dfn" href="https://dom.spec.whatwg.org/#concept-document" id="ref-for-concept-document①">Document</a> <var>document</var>, run the following steps:</p>
+   <ol>
+    <li data-md>
+     <p>Let <var>task id</var> be the result of calling <a data-link-type="dfn" href="#get-current-task-id" id="ref-for-get-current-task-id">get current task ID</a>.</p>
+    <li data-md>
+     <p>Let <var>interaction id</var> be <var>document</var>’s <a data-link-type="dfn" href="#document-task-id-to-interaction-task-id" id="ref-for-document-task-id-to-interaction-task-id①">task id to interaction task id</a>[<var>task id</var>] if it <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#map-exists" id="ref-for-map-exists">exists</a>, or <var>task id</var> otherwise.</p>
+    <li data-md>
+     <p>Assert that <var>document</var>’s <a data-link-type="dfn" href="#document-interaction-task-id-to-interaction-data" id="ref-for-document-interaction-task-id-to-interaction-data①">interaction task id to interaction data</a>[<var>interaction id</var>] <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#map-exists" id="ref-for-map-exists①">exists</a>.</p>
+    <li data-md>
+     <p>Return <var>document</var>’s <a data-link-type="dfn" href="#document-interaction-task-id-to-interaction-data" id="ref-for-document-interaction-task-id-to-interaction-data②">interaction task id to interaction data</a>[<var>interaction id</var>].</p>
+   </ol>
+   <p>To <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport id="handle-user-interaction">handle user interaction</dfn>, given a <a data-link-type="dfn" href="https://dom.spec.whatwg.org/#concept-document" id="ref-for-concept-document②">Document</a> <var>document</var> and a <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#string" id="ref-for-string①">string</a> <var>event type</var>, run the following steps:</p>
+   <ol>
+    <li data-md>
+     <p>Let <var>task</var> be the result of calling <a data-link-type="dfn" href="#get-current-task-id" id="ref-for-get-current-task-id①">get current task ID</a>.</p>
+    <li data-md>
+     <p>[=set/Append] <var>task</var> to <var>document</var>’s <a data-link-type="dfn" href="#document-potential-soft-navigation-task-ids" id="ref-for-document-potential-soft-navigation-task-ids">potential soft navigation task ids</a>.</p>
+    <li data-md>
+     <p>Let <var>is new interaction</var> be true if <var>event type</var> <a data-link-type="dfn" href="https://dom.spec.whatwg.org/#concept-node-equals" id="ref-for-concept-node-equals">equals</a> "click" or "keydown", and false otherwise.</p>
+    <li data-md>
+     <p>If <var>is new interaction</var> is false:</p>
+    <li data-md>
+     <p><a data-link-type="dfn" href="https://infra.spec.whatwg.org/#map-set" id="ref-for-map-set">Set</a> <var>document</var>’s <a data-link-type="dfn" href="#document-task-id-to-interaction-task-id" id="ref-for-document-task-id-to-interaction-task-id②">task id to interaction task id</a>[<var>task</var>] to <var>document</var>’s <a data-link-type="dfn" href="#document-last-interaction-task-id" id="ref-for-document-last-interaction-task-id①">last interaction task id</a>.</p>
+    <li data-md>
+     <p>Return.</p>
+    <li data-md>
+     <p>Let <var>interaction data</var> be a new <a data-link-type="dfn" href="#interaction-data" id="ref-for-interaction-data">interaction data</a>.</p>
+    <li data-md>
+     <p>Set <var>interaction data</var>’s <a data-link-type="dfn" href="#interaction-data-start-time" id="ref-for-interaction-data-start-time">start time</a> to the <a data-link-type="dfn" href="https://w3c.github.io/hr-time/#dfn-current-high-resolution-time" id="ref-for-dfn-current-high-resolution-time①">current high resolution time</a> given <var>document</var>’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-relevant-global" id="ref-for-concept-relevant-global①">relevant global object</a>.</p>
+    <li data-md>
+     <p><a data-link-type="dfn" href="https://infra.spec.whatwg.org/#map-set" id="ref-for-map-set①">Set</a> <var>document</var>’s <a data-link-type="dfn" href="#document-interaction-task-id-to-interaction-data" id="ref-for-document-interaction-task-id-to-interaction-data③">interaction task id to interaction data</a>[<var>task</var>] to <var>interaction data</var>.</p>
+   </ol>
+   <h3 class="heading settled" data-level="3.3" id="sec-same-document-commit"><span class="secno">3.3. </span><span class="content">Same document commit</span><a class="self-link" href="#sec-same-document-commit"></a></h3>
+   <p>To <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport id="check-soft-navigation-same-document-commit">check soft navigation same document commit</dfn>, with <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#string" id="ref-for-string②">string</a> <var>url</var>, run the following steps:</p>
+   <ol>
+    <li data-md>
+     <p>Let <var>interaction data</var> be the result of calling <a data-link-type="dfn" href="#get-current-interaction-data" id="ref-for-get-current-interaction-data①">get current interaction data</a> with <var>document</var>.</p>
+    <li data-md>
+     <p>Let <var>is soft navigation same document commit</var> be the result of <a data-link-type="dfn" href="#check-ancestor-set-for-task" id="ref-for-check-ancestor-set-for-task">Check ancestor set for task</a> given <var>document</var>’s <a data-link-type="dfn" href="#document-potential-soft-navigation-task-ids" id="ref-for-document-potential-soft-navigation-task-ids①">potential soft navigation task ids</a>.</p>
+    <li data-md>
+     <p><a data-link-type="dfn" href="https://infra.spec.whatwg.org/#map-set" id="ref-for-map-set②">Set</a> <var>interaction data</var>’s <a data-link-type="dfn" href="#interaction-data-same-document-commit" id="ref-for-interaction-data-same-document-commit①">same document commit</a> to <var>is soft navigation same document commit</var>.</p>
+    <li data-md>
+     <p>if <var>is soft navigation same document commit</var> is true, <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#map-set" id="ref-for-map-set③">set</a> <var>interaction data</var>’s <a data-link-type="dfn" href="#interaction-data-url" id="ref-for-interaction-data-url">url</a> to <var>url</var>.</p>
+    <li data-md>
+     <p>Call <a data-link-type="dfn" href="#check-soft-navigation" id="ref-for-check-soft-navigation">check soft navigation</a> with <var>document</var>.</p>
+   </ol>
+   <h3 class="heading settled" data-level="3.4" id="sec-contentful-paint"><span class="secno">3.4. </span><span class="content">Contentful paint</span><a class="self-link" href="#sec-contentful-paint"></a></h3>
+   <p>To <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport id="check-soft-navigation-contentful-paint">check soft navigation contentful paint</dfn>, with <a data-link-type="dfn" href="https://dom.spec.whatwg.org/#concept-element" id="ref-for-concept-element">Element</a> <var>element</var> and <a data-link-type="dfn" href="https://dom.spec.whatwg.org/#concept-document" id="ref-for-concept-document③">Document</a> <var>document</var>, run the following steps:</p>
+   <ol>
+    <li data-md>
+     <p>Let <var>interaction data</var> be the result of calling <a data-link-type="dfn" href="#get-current-interaction-data" id="ref-for-get-current-interaction-data②">get current interaction data</a> with <var>document</var>.</p>
+    <li data-md>
+     <p>If <var>element</var>’s <a data-link-type="dfn" href="#node-modified-by-soft-navigation" id="ref-for-node-modified-by-soft-navigation">modified by soft navigation</a> is true, set <var>interaction data</var>’s <a data-link-type="dfn" href="#interaction-data-contentful-paint" id="ref-for-interaction-data-contentful-paint①">contentful paint</a> to true.</p>
+    <li data-md>
+     <p>Call <a data-link-type="dfn" href="#check-soft-navigation" id="ref-for-check-soft-navigation①">check soft navigation</a> with <var>document</var>.</p>
    </ol>
    <h2 class="heading settled" data-level="4" id="sec-html"><span class="secno">4. </span><span class="content">HTML integration</span><a class="self-link" href="#sec-html"></a></h2>
    <h3 class="heading settled" data-level="4.1" id="sec-html-document"><span class="secno">4.1. </span><span class="content">Document</span><a class="self-link" href="#sec-html-document"></a></h3>
-   <p>Each <a data-link-type="dfn" href="https://dom.spec.whatwg.org/#concept-document" id="ref-for-concept-document①">document</a> has a <dfn class="dfn-paneled" data-dfn-for="document" data-dfn-type="dfn" data-noexport id="document-potential-soft-navigation-task-id">potential soft navigation task id</dfn>, a <a data-link-type="dfn" href="#task-task-attribution-id" id="ref-for-task-task-attribution-id">task attribution ID</a>.</p>
-   <p>Each <a data-link-type="dfn" href="https://dom.spec.whatwg.org/#concept-document" id="ref-for-concept-document②">document</a> has a <dfn class="dfn-paneled" data-dfn-for="document" data-dfn-type="dfn" data-noexport id="document-soft-navigation-same-document-commit">soft navigation same document commit</dfn> flag, initially unset.</p>
-   <p>Each <a data-link-type="dfn" href="https://dom.spec.whatwg.org/#concept-document" id="ref-for-concept-document③">document</a> has a <dfn class="dfn-paneled" data-dfn-for="document" data-dfn-type="dfn" data-noexport id="document-soft-navigation-contentful-paint">soft navigation contentful paint</dfn> flag, initially unset.</p>
+   <p>Each <a data-link-type="dfn" href="https://dom.spec.whatwg.org/#concept-document" id="ref-for-concept-document④">document</a> has a <dfn class="dfn-paneled" data-dfn-for="document" data-dfn-type="dfn" data-noexport id="document-potential-soft-navigation-task-ids">potential soft navigation task ids</dfn>, a <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#ordered-set" id="ref-for-ordered-set①">set</a> of <a data-link-type="dfn" href="#task-task-attribution-id" id="ref-for-task-task-attribution-id">task attribution id</a>s.
+Each <a data-link-type="dfn" href="https://dom.spec.whatwg.org/#concept-document" id="ref-for-concept-document⑤">document</a> has a <dfn class="dfn-paneled" data-dfn-for="document" data-dfn-type="dfn" data-noexport id="document-interaction-task-id-to-interaction-data">interaction task id to interaction data</dfn>, a <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#ordered-map" id="ref-for-ordered-map③">map</a>, initially empty.
+Each <a data-link-type="dfn" href="https://dom.spec.whatwg.org/#concept-document" id="ref-for-concept-document⑥">document</a> has a <dfn class="dfn-paneled" data-dfn-for="document" data-dfn-type="dfn" data-noexport id="document-task-id-to-interaction-task-id">task id to interaction task id</dfn>, a <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#ordered-map" id="ref-for-ordered-map④">map</a>, initially empty.
+Each <a data-link-type="dfn" href="https://dom.spec.whatwg.org/#concept-document" id="ref-for-concept-document⑦">document</a> has a <dfn class="dfn-paneled" data-dfn-for="document" data-dfn-type="dfn" data-noexport id="document-last-interaction-task-id">last interaction task id</dfn>, a <a data-link-type="dfn" href="#task-task-attribution-id" id="ref-for-task-task-attribution-id①">task attribution id</a>.</p>
    <p>Each <a data-link-type="dfn" href="https://dom.spec.whatwg.org/#boundary-point-node" id="ref-for-boundary-point-node">node</a> has a <dfn class="dfn-paneled" data-dfn-for="node" data-dfn-type="dfn" data-noexport id="node-modified-by-soft-navigation">modified by soft navigation</dfn> flag, initially unset.</p>
    <p>In <a data-link-type="dfn" href="https://html.spec.whatwg.org/C#update-document-for-history-step-application" id="ref-for-update-document-for-history-step-application">update document for history step application</a>, add the following steps before 5.5.1 (if <code class="highlight">documentsEntryChanged</code> is true and if <code class="highlight">documentIsNew</code> is false):</p>
    <ol>
     <li data-md>
-     <p>Let <a data-link-type="dfn" href="https://dom.spec.whatwg.org/#concept-document" id="ref-for-concept-document④">document</a>’s <a data-link-type="dfn" href="#document-soft-navigation-same-document-commit" id="ref-for-document-soft-navigation-same-document-commit②">soft navigation same document commit</a> be the result of <a data-link-type="dfn" href="#check-ancestor-for-task" id="ref-for-check-ancestor-for-task">Check ancestor for task</a> with the document’s soft navigation ID and the result of calling <a data-link-type="dfn" href="#get-current-task-id" id="ref-for-get-current-task-id">get current task ID</a>.</p>
-    <li data-md>
-     <p>Call <a data-link-type="dfn" href="#check-soft-navigation" id="ref-for-check-soft-navigation">check soft navigation</a>.</p>
+     <p>Call <a data-link-type="dfn" href="#check-soft-navigation-same-document-commit" id="ref-for-check-soft-navigation-same-document-commit">check soft navigation same document commit</a> with <var>entry</var>’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/C#she-url" id="ref-for-she-url">url</a>.</p>
    </ol>
    <p>At <a data-link-type="dfn" href="https://dom.spec.whatwg.org/#concept-event-dispatch" id="ref-for-concept-event-dispatch">event dispatch</a>, after step 5.4 ("Let <code class="highlight">isActivationEvent</code> be true..."), add the following step:</p>
    <ol>
     <li data-md>
      <p>If <var>isActivationEvent</var> is true, and <var>event</var>’s <a data-link-type="dfn" href="https://dom.spec.whatwg.org/#dom-event-istrusted" id="ref-for-dom-event-istrusted">isTrusted</a> is true,
-and <var>target</var>’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/nav-history-apis.html#concept-document-window" id="ref-for-concept-document-window①">associated Document</a> is a <a data-link-type="dfn" href="https://html.spec.whatwg.org/C#top-level-traversable" id="ref-for-top-level-traversable">top-level traversable</a>, let <var>target</var>’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/nav-history-apis.html#concept-document-window" id="ref-for-concept-document-window②">associated Document</a>'s <a data-link-type="dfn" href="#document-potential-soft-navigation-task-id" id="ref-for-document-potential-soft-navigation-task-id">potential soft navigation task id</a> be the result of calling <a data-link-type="dfn" href="#get-current-task-id" id="ref-for-get-current-task-id①">get current task ID</a>.</p>
+and <var>target</var>’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/nav-history-apis.html#concept-document-window" id="ref-for-concept-document-window①">associated Document</a> is a <a data-link-type="dfn" href="https://html.spec.whatwg.org/C#top-level-traversable" id="ref-for-top-level-traversable">top-level traversable</a>, call <a data-link-type="dfn" href="#handle-user-interaction" id="ref-for-handle-user-interaction">handle user interaction</a> with <var>target</var>’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/nav-history-apis.html#concept-document-window" id="ref-for-concept-document-window②">associated Document</a> and <var>event</var>’s type.</p>
    </ol>
    <p>At <a data-link-type="dfn" href="https://dom.spec.whatwg.org/#concept-node-insert" id="ref-for-concept-node-insert">node insert</a>, add these initial steps:</p>
    <ol>
     <li data-md>
      <p>Let <var>doc</var> be <var>parent</var>’s <a data-link-type="dfn" href="https://dom.spec.whatwg.org/#concept-node-document" id="ref-for-concept-node-document">node document</a>.</p>
     <li data-md>
-     <p>Let <var>is soft navigation modification</var> be the result of running <a data-link-type="dfn" href="#check-ancestor-for-task" id="ref-for-check-ancestor-for-task①">Check ancestor for task</a> with the <var>doc</var>’s <a data-link-type="dfn" href="#document-potential-soft-navigation-task-id" id="ref-for-document-potential-soft-navigation-task-id①">potential soft navigation task id</a> and the result of calling <a data-link-type="dfn" href="#get-current-task-id" id="ref-for-get-current-task-id②">get current task ID</a>.</p>
+     <p>Let <var>is soft navigation modification</var> be the result of running <a data-link-type="dfn" href="#check-ancestor-for-task" id="ref-for-check-ancestor-for-task">Check ancestor for task</a> with the <var>doc</var>’s <a data-link-type="dfn" href="#document-potential-soft-navigation-task-ids" id="ref-for-document-potential-soft-navigation-task-ids②">potential soft navigation task id</a> and the result of calling <a data-link-type="dfn" href="#get-current-task-id" id="ref-for-get-current-task-id②">get current task ID</a>.</p>
     <li data-md>
-     <p>Set <var>node</var>’s <a data-link-type="dfn" href="#node-modified-by-soft-navigation" id="ref-for-node-modified-by-soft-navigation">modified by soft navigation</a> to <var>is soft navigation modification</var>.</p>
+     <p>Set <var>node</var>’s <a data-link-type="dfn" href="#node-modified-by-soft-navigation" id="ref-for-node-modified-by-soft-navigation①">modified by soft navigation</a> to <var>is soft navigation modification</var>.</p>
    </ol>
-   <p>TODO: multiple interactions require us to keep the task ID here (on the document), not just a boolean.</p>
    <h2 class="heading settled" data-level="5" id="sec-lcp-integration"><span class="secno">5. </span><span class="content">LCP integration</span><a class="self-link" href="#sec-lcp-integration"></a></h2>
     In <a data-link-type="dfn" href="https://w3c.github.io/largest-contentful-paint/#potentially-add-a-largestcontentfulpaint-entry" id="ref-for-potentially-add-a-largestcontentfulpaint-entry">potentially add a LargestContentfulPaint entry</a>, add the following initial steps: 
    <ol>
     <li data-md>
-     <p>If <var>element</var>’s <a data-link-type="dfn" href="#node-modified-by-soft-navigation" id="ref-for-node-modified-by-soft-navigation①">modified by soft navigation</a> is true, set <var>doc</var>’s <a data-link-type="dfn" href="#document-soft-navigation-contentful-paint" id="ref-for-document-soft-navigation-contentful-paint②">soft navigation contentful paint</a> to true.</p>
-    <li data-md>
-     <p>Call <a data-link-type="dfn" href="#check-soft-navigation" id="ref-for-check-soft-navigation①">check soft navigation</a>.</p>
+     <p>Call <a data-link-type="dfn" href="#check-soft-navigation-contentful-paint" id="ref-for-check-soft-navigation-contentful-paint">check soft navigation contentful paint</a> with <var>element</var> and <var>document</var>.</p>
    </ol>
    <h2 class="heading settled" data-level="6" id="sec-task-attribution-algorithms"><span class="secno">6. </span><span class="content">Task Attibution Algorithms</span><a class="self-link" href="#sec-task-attribution-algorithms"></a></h2>
    <p class="note" role="note"> The task attribution algorithms and their integration with HTML are likely to end up integrated into HTML directly.
@@ -896,7 +973,7 @@ Integration with other specifications is likely to end up in these specification
     <li data-md>
      <p>Let <var>task</var> be a new <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-task" id="ref-for-concept-task②">task</a>.</p>
     <li data-md>
-     <p>Set <var>task</var>’s <a data-link-type="dfn" href="#task-task-attribution-id" id="ref-for-task-task-attribution-id①">task attribution ID</a> to an <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#implementation-defined" id="ref-for-implementation-defined">implementation-defined</a> unique value.</p>
+     <p>Set <var>task</var>’s <a data-link-type="dfn" href="#task-task-attribution-id" id="ref-for-task-task-attribution-id②">task attribution ID</a> to an <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#implementation-defined" id="ref-for-implementation-defined">implementation-defined</a> unique value.</p>
     <li data-md>
      <p>If <var>parent task</var> is provided, set <var>task</var>’s <a data-link-type="dfn" href="#task-parent-task" id="ref-for-task-parent-task">parent task</a> to <var>parent task</var>.</p>
     <li data-md>
@@ -912,7 +989,7 @@ Integration with other specifications is likely to end up in these specification
      <p>Pop <var>scope</var> from the <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#relevant-agent" id="ref-for-relevant-agent①">relevant agent</a>'s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-agent-event-loop" id="ref-for-concept-agent-event-loop①">event loop</a>'s <a data-link-type="dfn" href="#task-scope-stack" id="ref-for-task-scope-stack①">task scope stack</a></p>
    </ol>
    <h3 class="heading settled" data-level="6.2" id="sec-is-ancestor"><span class="secno">6.2. </span><span class="content">Is ancestor</span><a class="self-link" href="#sec-is-ancestor"></a></h3>
-    To <dfn class="dfn-paneled" data-dfn-type="dfn" data-export id="check-ancestor-for-task">check ancestor for task</dfn>, given <var>ancestor id</var>, a <a data-link-type="dfn" href="#task-task-attribution-id" id="ref-for-task-task-attribution-id②">task attribution ID</a>, run the following: 
+    To <dfn class="dfn-paneled" data-dfn-type="dfn" data-export id="check-ancestor-for-task">check ancestor for task</dfn>, given <var>ancestor id</var>, a <a data-link-type="dfn" href="#task-task-attribution-id" id="ref-for-task-task-attribution-id③">task attribution ID</a>, run the following: 
    <ol>
     <li data-md>
      <p>Let <var>task</var> be the result of <a data-link-type="dfn" href="#get-current-task" id="ref-for-get-current-task">get current task</a>.</p>
@@ -920,7 +997,7 @@ Integration with other specifications is likely to end up in these specification
      <p>While true:</p>
      <ol>
       <li data-md>
-       <p>Let <var>id</var> be<var>task</var>’s <a data-link-type="dfn" href="#task-task-attribution-id" id="ref-for-task-task-attribution-id③">task attribution ID</a>.</p>
+       <p>Let <var>id</var> be<var>task</var>’s <a data-link-type="dfn" href="#task-task-attribution-id" id="ref-for-task-task-attribution-id④">task attribution ID</a>.</p>
       <li data-md>
        <p>If <var>id</var> is unset, return false.</p>
       <li data-md>
@@ -930,7 +1007,7 @@ Integration with other specifications is likely to end up in these specification
      </ol>
    </ol>
    <h3 class="heading settled" data-level="6.3" id="sec-is-ancestor-in-set"><span class="secno">6.3. </span><span class="content">Is ancestor in set</span><a class="self-link" href="#sec-is-ancestor-in-set"></a></h3>
-   <p>To <dfn data-dfn-type="dfn" data-export id="check-ancestor-set-for-task">check ancestor set for task<a class="self-link" href="#check-ancestor-set-for-task"></a></dfn>, given <var>ancestor id set</var>, a <a data-link-type="dfn" href="#task-task-attribution-id" id="ref-for-task-task-attribution-id④">task attribution ID</a> <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#ordered-set" id="ref-for-ordered-set①">set</a>, run the following:</p>
+   <p>To <dfn class="dfn-paneled" data-dfn-type="dfn" data-export id="check-ancestor-set-for-task">check ancestor set for task</dfn>, given <var>ancestor id set</var>, a <a data-link-type="dfn" href="#task-task-attribution-id" id="ref-for-task-task-attribution-id⑤">task attribution ID</a> <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#ordered-set" id="ref-for-ordered-set②">set</a>, run the following:</p>
    <ol>
     <li data-md>
      <p>Let <var>task</var> be the result of <a data-link-type="dfn" href="#get-current-task" id="ref-for-get-current-task①">get current task</a>.</p>
@@ -938,7 +1015,7 @@ Integration with other specifications is likely to end up in these specification
      <p>While true:</p>
      <ol>
       <li data-md>
-       <p>Let <var>id</var> be <var>task</var>’s <a data-link-type="dfn" href="#task-task-attribution-id" id="ref-for-task-task-attribution-id⑤">task attribution ID</a> if <var>task</var> is set, or be unset otherwise.</p>
+       <p>Let <var>id</var> be <var>task</var>’s <a data-link-type="dfn" href="#task-task-attribution-id" id="ref-for-task-task-attribution-id⑥">task attribution ID</a> if <var>task</var> is set, or be unset otherwise.</p>
       <li data-md>
        <p>If <var>id</var> is unset, return false.</p>
       <li data-md>
@@ -963,7 +1040,7 @@ Integration with other specifications is likely to end up in these specification
     <li data-md>
      <p>Let <var>task</var> be the result of <a data-link-type="dfn" href="#get-current-task" id="ref-for-get-current-task②">getting current task</a>.</p>
     <li data-md>
-     <p>Return <var>task</var>’s <a data-link-type="dfn" href="#task-task-attribution-id" id="ref-for-task-task-attribution-id⑥">task attribution ID</a>.</p>
+     <p>Return <var>task</var>’s <a data-link-type="dfn" href="#task-task-attribution-id" id="ref-for-task-task-attribution-id⑦">task attribution ID</a>.</p>
    </ol>
    <h2 class="heading settled" data-level="7" id="sec-task-attribution-integration"><span class="secno">7. </span><span class="content">TaskAttribution integration</span><a class="self-link" href="#sec-task-attribution-integration"></a></h2>
    <p class="note" role="note"><span class="marker">Note:</span> Most of this integration is with the HTML spec, although some of it is with WebIDL and CSS ViewTransitions.
@@ -1130,11 +1207,19 @@ individually examined and have those implications outlined.</p>
    <li><a href="#check-ancestor-for-task">check ancestor for task</a><span>, in § 6.2</span>
    <li><a href="#check-ancestor-set-for-task">check ancestor set for task</a><span>, in § 6.3</span>
    <li><a href="#check-soft-navigation">check soft navigation</a><span>, in § 3</span>
+   <li><a href="#check-soft-navigation-contentful-paint">check soft navigation contentful paint</a><span>, in § 3.4</span>
+   <li><a href="#check-soft-navigation-same-document-commit">check soft navigation same document commit</a><span>, in § 3.3</span>
+   <li><a href="#interaction-data-contentful-paint">contentful paint</a><span>, in § 3.2</span>
    <li><a href="#create-a-soft-navigation-entry">create a soft navigation entry</a><span>, in § 3.1</span>
    <li><a href="#create-a-task-scope">create a task scope</a><span>, in § 6.1</span>
    <li><a href="#emit-soft-navigation-entry">emit soft navigation entry</a><span>, in § 3.1</span>
+   <li><a href="#get-current-interaction-data">get current interaction data</a><span>, in § 3.2</span>
    <li><a href="#get-current-task">get current task</a><span>, in § 6.3.1</span>
    <li><a href="#get-current-task-id">get current task id</a><span>, in § 6.3.2</span>
+   <li><a href="#handle-user-interaction">handle user interaction</a><span>, in § 3.2</span>
+   <li><a href="#interaction-data">Interaction data</a><span>, in § 3.2</span>
+   <li><a href="#document-interaction-task-id-to-interaction-data">interaction task id to interaction data</a><span>, in § 4.1</span>
+   <li><a href="#document-last-interaction-task-id">last interaction task id</a><span>, in § 4.1</span>
    <li><a href="#node-modified-by-soft-navigation">modified by soft navigation</a><span>, in § 4.1</span>
    <li><a href="#navigation-task">navigation task</a><span>, in § 7.9</span>
    <li>
@@ -1144,15 +1229,17 @@ individually examined and have those implications outlined.</p>
      <li><a href="#script-parent-task">dfn for script</a><span>, in § 7.3</span>
      <li><a href="#task-parent-task">dfn for task</a><span>, in § 7.1</span>
     </ul>
-   <li><a href="#document-potential-soft-navigation-task-id">potential soft navigation task id</a><span>, in § 4.1</span>
-   <li><a href="#document-soft-navigation-contentful-paint">soft navigation contentful paint</a><span>, in § 4.1</span>
+   <li><a href="#document-potential-soft-navigation-task-ids">potential soft navigation task ids</a><span>, in § 4.1</span>
+   <li><a href="#interaction-data-same-document-commit">same document commit</a><span>, in § 3.2</span>
    <li><a href="#softnavigationentry">SoftNavigationEntry</a><span>, in § 2</span>
-   <li><a href="#document-soft-navigation-same-document-commit">soft navigation same document commit</a><span>, in § 4.1</span>
+   <li><a href="#interaction-data-start-time">start time</a><span>, in § 3.2</span>
    <li><a href="#task-scope-task">task</a><span>, in § 6.1</span>
    <li><a href="#task-task-attribution-id">task attribution ID</a><span>, in § 7.1</span>
+   <li><a href="#document-task-id-to-interaction-task-id">task id to interaction task id</a><span>, in § 4.1</span>
    <li><a href="#concept-task-scope">task scope</a><span>, in § 6.1</span>
    <li><a href="#task-scope-stack">task scope stack</a><span>, in § 7.2</span>
    <li><a href="#tear-down-a-task-scope">tear down a task scope</a><span>, in § 6.1</span>
+   <li><a href="#interaction-data-url">url</a><span>, in § 3.2</span>
   </ul>
   <h3 class="no-num no-ref heading settled" id="index-defined-elsewhere"><span class="content">Terms defined by reference</span><a class="self-link" href="#index-defined-elsewhere"></a></h3>
   <ul class="index">
@@ -1168,6 +1255,8 @@ individually examined and have those implications outlined.</p>
     <a data-link-type="biblio">[DOM]</a> defines the following terms:
     <ul>
      <li><span class="dfn-paneled" id="a973e0fe">document</span>
+     <li><span class="dfn-paneled" id="27d9b7ea">element</span>
+     <li><span class="dfn-paneled" id="e9486b7f">equals</span>
      <li><span class="dfn-paneled" id="4523ab1a">event dispatch</span>
      <li><span class="dfn-paneled" id="b87df86e">istrusted</span>
      <li><span class="dfn-paneled" id="d462b34f">node</span>
@@ -1208,6 +1297,7 @@ individually examined and have those implications outlined.</p>
      <li><span class="dfn-paneled" id="d8049b98">relevant agent</span>
      <li><span class="dfn-paneled" id="e99bd18e">relevant global object</span>
      <li><span class="dfn-paneled" id="dd6462cb">script</span>
+     <li><span class="dfn-paneled" id="770d6174">session history entry url</span>
      <li><span class="dfn-paneled" id="e270bd2a">task</span>
      <li><span class="dfn-paneled" id="32301e7b">timer initialisation steps</span>
      <li><span class="dfn-paneled" id="5fd199e1">top-level traversable</span>
@@ -1217,11 +1307,16 @@ individually examined and have those implications outlined.</p>
    <li>
     <a data-link-type="biblio">[INFRA]</a> defines the following terms:
     <ul>
+     <li><span class="dfn-paneled" id="1243a891">exist</span>
      <li><span class="dfn-paneled" id="860300d4">implementation-defined</span>
+     <li><span class="dfn-paneled" id="c88f3887">item</span>
+     <li><span class="dfn-paneled" id="3fca5a9e">map</span>
      <li><span class="dfn-paneled" id="a5ad1660">peek</span>
      <li><span class="dfn-paneled" id="15e48c39">set</span>
+     <li><span class="dfn-paneled" id="0e6b2056">set <small>(for map)</small></span>
      <li><span class="dfn-paneled" id="ceacaa1c">stack</span>
      <li><span class="dfn-paneled" id="0698d556">string</span>
+     <li><span class="dfn-paneled" id="984221ca">struct</span>
     </ul>
    <li>
     <a data-link-type="biblio">[LARGEST-CONTENTFUL-PAINT]</a> defines the following terms:
@@ -1591,7 +1686,9 @@ window.dfnpanelData['f0a4a2c5'] = {"dfnID": "f0a4a2c5", "url": "https://w3c.gith
 window.dfnpanelData['ea3a4c2f'] = {"dfnID": "ea3a4c2f", "url": "https://w3c.github.io/largest-contentful-paint/#has-dispatched-scroll-event", "dfnText": "has dispatched scroll event", "refSections": [{"refs": [{"id": "ref-for-has-dispatched-scroll-event"}], "title": "3.1. Soft navigation entry"}], "external": true};
 window.dfnpanelData['976def1b'] = {"dfnID": "976def1b", "url": "https://www.w3.org/TR/paint-timing/#previously-reported-paints", "dfnText": "previously reported paints", "refSections": [{"refs": [{"id": "ref-for-previously-reported-paints"}], "title": "3.1. Soft navigation entry"}], "external": true};
 window.dfnpanelData['bb2c4ef9'] = {"dfnID": "bb2c4ef9", "url": "https://www.w3.org/TR/css-view-transitions-1/#dom-document-startviewtransition", "dfnText": "startviewtransition()", "refSections": [{"refs": [{"id": "ref-for-dom-document-startviewtransition"}], "title": "7.10. View transitions"}], "external": true};
-window.dfnpanelData['a973e0fe'] = {"dfnID": "a973e0fe", "url": "https://dom.spec.whatwg.org/#concept-document", "dfnText": "document", "refSections": [{"refs": [{"id": "ref-for-concept-document"}], "title": "3. Algorithms"}, {"refs": [{"id": "ref-for-concept-document\u2460"}, {"id": "ref-for-concept-document\u2461"}, {"id": "ref-for-concept-document\u2462"}, {"id": "ref-for-concept-document\u2463"}], "title": "4.1. Document"}], "external": true};
+window.dfnpanelData['a973e0fe'] = {"dfnID": "a973e0fe", "url": "https://dom.spec.whatwg.org/#concept-document", "dfnText": "document", "refSections": [{"refs": [{"id": "ref-for-concept-document"}], "title": "3. Algorithms"}, {"refs": [{"id": "ref-for-concept-document\u2460"}, {"id": "ref-for-concept-document\u2461"}], "title": "3.2. Interaction"}, {"refs": [{"id": "ref-for-concept-document\u2462"}], "title": "3.4. Contentful paint"}, {"refs": [{"id": "ref-for-concept-document\u2463"}, {"id": "ref-for-concept-document\u2464"}, {"id": "ref-for-concept-document\u2465"}, {"id": "ref-for-concept-document\u2466"}], "title": "4.1. Document"}], "external": true};
+window.dfnpanelData['27d9b7ea'] = {"dfnID": "27d9b7ea", "url": "https://dom.spec.whatwg.org/#concept-element", "dfnText": "element", "refSections": [{"refs": [{"id": "ref-for-concept-element"}], "title": "3.4. Contentful paint"}], "external": true};
+window.dfnpanelData['e9486b7f'] = {"dfnID": "e9486b7f", "url": "https://dom.spec.whatwg.org/#concept-node-equals", "dfnText": "equals", "refSections": [{"refs": [{"id": "ref-for-concept-node-equals"}], "title": "3.2. Interaction"}], "external": true};
 window.dfnpanelData['4523ab1a'] = {"dfnID": "4523ab1a", "url": "https://dom.spec.whatwg.org/#concept-event-dispatch", "dfnText": "event dispatch", "refSections": [{"refs": [{"id": "ref-for-concept-event-dispatch"}], "title": "4.1. Document"}], "external": true};
 window.dfnpanelData['b87df86e'] = {"dfnID": "b87df86e", "url": "https://dom.spec.whatwg.org/#dom-event-istrusted", "dfnText": "istrusted", "refSections": [{"refs": [{"id": "ref-for-dom-event-istrusted"}], "title": "4.1. Document"}], "external": true};
 window.dfnpanelData['d462b34f'] = {"dfnID": "d462b34f", "url": "https://dom.spec.whatwg.org/#boundary-point-node", "dfnText": "node", "refSections": [{"refs": [{"id": "ref-for-boundary-point-node"}], "title": "4.1. Document"}], "external": true};
@@ -1599,7 +1696,7 @@ window.dfnpanelData['5216e1a0'] = {"dfnID": "5216e1a0", "url": "https://dom.spec
 window.dfnpanelData['59bfea49'] = {"dfnID": "59bfea49", "url": "https://dom.spec.whatwg.org/#concept-node-insert", "dfnText": "node insert", "refSections": [{"refs": [{"id": "ref-for-concept-node-insert"}], "title": "4.1. Document"}], "external": true};
 window.dfnpanelData['d5434eef'] = {"dfnID": "d5434eef", "url": "https://fetch.spec.whatwg.org/#header-list-contains", "dfnText": "contains", "refSections": [{"refs": [{"id": "ref-for-header-list-contains"}], "title": "6.3. Is ancestor in set"}], "external": true};
 window.dfnpanelData['0e9f636b'] = {"dfnID": "0e9f636b", "url": "https://w3c.github.io/hr-time/#dom-domhighrestimestamp", "dfnText": "DOMHighResTimeStamp", "refSections": [{"refs": [{"id": "ref-for-dom-domhighrestimestamp"}], "title": "3.1. Soft navigation entry"}], "external": true};
-window.dfnpanelData['7e7cc1d8'] = {"dfnID": "7e7cc1d8", "url": "https://w3c.github.io/hr-time/#dfn-current-high-resolution-time", "dfnText": "current high resolution time", "refSections": [{"refs": [{"id": "ref-for-dfn-current-high-resolution-time"}], "title": "3.1. Soft navigation entry"}], "external": true};
+window.dfnpanelData['7e7cc1d8'] = {"dfnID": "7e7cc1d8", "url": "https://w3c.github.io/hr-time/#dfn-current-high-resolution-time", "dfnText": "current high resolution time", "refSections": [{"refs": [{"id": "ref-for-dfn-current-high-resolution-time"}], "title": "3.1. Soft navigation entry"}, {"refs": [{"id": "ref-for-dfn-current-high-resolution-time\u2460"}], "title": "3.2. Interaction"}], "external": true};
 window.dfnpanelData['4b2c8c72'] = {"dfnID": "4b2c8c72", "url": "https://w3c.github.io/hr-time/#dfn-duration", "dfnText": "duration", "refSections": [{"refs": [{"id": "ref-for-dfn-duration"}], "title": "3.1. Soft navigation entry"}], "external": true};
 window.dfnpanelData['af257a63'] = {"dfnID": "af257a63", "url": "https://html.spec.whatwg.org/C#tn-append-session-history-synchronous-navigation-steps", "dfnText": "append session history synchronous navigation steps", "refSections": [{"refs": [{"id": "ref-for-tn-append-session-history-synchronous-navigation-steps"}], "title": "7.9. Same-document navigations"}], "external": true};
 window.dfnpanelData['e2ab0b9e'] = {"dfnID": "e2ab0b9e", "url": "https://html.spec.whatwg.org/C#tn-append-session-history-traversal-steps", "dfnText": "append session history traversal steps", "refSections": [{"refs": [{"id": "ref-for-tn-append-session-history-traversal-steps"}], "title": "7.9. Same-document navigations"}], "external": true};
@@ -1618,18 +1715,24 @@ window.dfnpanelData['5e31523c'] = {"dfnID": "5e31523c", "url": "https://html.spe
 window.dfnpanelData['9a517a7d'] = {"dfnID": "9a517a7d", "url": "https://html.spec.whatwg.org/multipage/webappapis.html#queue-a-task", "dfnText": "queue a task", "refSections": [{"refs": [{"id": "ref-for-queue-a-task"}], "title": "7.4. Task queueing"}], "external": true};
 window.dfnpanelData['b75a7d23'] = {"dfnID": "b75a7d23", "url": "https://html.spec.whatwg.org/multipage/webappapis.html#concept-global-object-realm", "dfnText": "realm", "refSections": [{"refs": [{"id": "ref-for-concept-global-object-realm"}], "title": "3.1. Soft navigation entry"}], "external": true};
 window.dfnpanelData['d8049b98'] = {"dfnID": "d8049b98", "url": "https://html.spec.whatwg.org/multipage/webappapis.html#relevant-agent", "dfnText": "relevant agent", "refSections": [{"refs": [{"id": "ref-for-relevant-agent"}, {"id": "ref-for-relevant-agent\u2460"}], "title": "6.1. Task scope"}, {"refs": [{"id": "ref-for-relevant-agent\u2461"}], "title": "6.3.1. Get current task"}], "external": true};
-window.dfnpanelData['e99bd18e'] = {"dfnID": "e99bd18e", "url": "https://html.spec.whatwg.org/multipage/webappapis.html#concept-relevant-global", "dfnText": "relevant global object", "refSections": [{"refs": [{"id": "ref-for-concept-relevant-global"}], "title": "3. Algorithms"}], "external": true};
+window.dfnpanelData['e99bd18e'] = {"dfnID": "e99bd18e", "url": "https://html.spec.whatwg.org/multipage/webappapis.html#concept-relevant-global", "dfnText": "relevant global object", "refSections": [{"refs": [{"id": "ref-for-concept-relevant-global"}], "title": "3. Algorithms"}, {"refs": [{"id": "ref-for-concept-relevant-global\u2460"}], "title": "3.2. Interaction"}], "external": true};
 window.dfnpanelData['dd6462cb'] = {"dfnID": "dd6462cb", "url": "https://html.spec.whatwg.org/multipage/webappapis.html#concept-script", "dfnText": "script", "refSections": [{"refs": [{"id": "ref-for-concept-script"}], "title": "7.3. Script execution"}], "external": true};
+window.dfnpanelData['770d6174'] = {"dfnID": "770d6174", "url": "https://html.spec.whatwg.org/C#she-url", "dfnText": "session history entry url", "refSections": [{"refs": [{"id": "ref-for-she-url"}], "title": "4.1. Document"}], "external": true};
 window.dfnpanelData['e270bd2a'] = {"dfnID": "e270bd2a", "url": "https://html.spec.whatwg.org/multipage/webappapis.html#concept-task", "dfnText": "task", "refSections": [{"refs": [{"id": "ref-for-concept-task"}, {"id": "ref-for-concept-task\u2460"}, {"id": "ref-for-concept-task\u2461"}], "title": "6.1. Task scope"}, {"refs": [{"id": "ref-for-concept-task\u2462"}, {"id": "ref-for-concept-task\u2463"}, {"id": "ref-for-concept-task\u2464"}], "title": "7.1. Task additions"}, {"refs": [{"id": "ref-for-concept-task\u2465"}], "title": "7.3. Script execution"}, {"refs": [{"id": "ref-for-concept-task\u2466"}], "title": "7.6. Callbacks"}, {"refs": [{"id": "ref-for-concept-task\u2467"}], "title": "7.9. Same-document navigations"}], "external": true};
 window.dfnpanelData['32301e7b'] = {"dfnID": "32301e7b", "url": "https://html.spec.whatwg.org/C#timer-initialisation-steps", "dfnText": "timer initialisation steps", "refSections": [{"refs": [{"id": "ref-for-timer-initialisation-steps"}], "title": "7.5. Timers"}], "external": true};
 window.dfnpanelData['5fd199e1'] = {"dfnID": "5fd199e1", "url": "https://html.spec.whatwg.org/C#top-level-traversable", "dfnText": "top-level traversable", "refSections": [{"refs": [{"id": "ref-for-top-level-traversable"}], "title": "4.1. Document"}], "external": true};
 window.dfnpanelData['d0c1b934'] = {"dfnID": "d0c1b934", "url": "https://html.spec.whatwg.org/multipage/document-sequences.html#traversable-navigable", "dfnText": "traversable navigable", "refSections": [{"refs": [{"id": "ref-for-traversable-navigable"}], "title": "7.9. Same-document navigations"}], "external": true};
 window.dfnpanelData['d0c5bc48'] = {"dfnID": "d0c5bc48", "url": "https://html.spec.whatwg.org/C#update-document-for-history-step-application", "dfnText": "update document for history step application", "refSections": [{"refs": [{"id": "ref-for-update-document-for-history-step-application"}], "title": "4.1. Document"}, {"refs": [{"id": "ref-for-update-document-for-history-step-application\u2460"}, {"id": "ref-for-update-document-for-history-step-application\u2461"}], "title": "7.9. Same-document navigations"}], "external": true};
+window.dfnpanelData['1243a891'] = {"dfnID": "1243a891", "url": "https://infra.spec.whatwg.org/#map-exists", "dfnText": "exist", "refSections": [{"refs": [{"id": "ref-for-map-exists"}, {"id": "ref-for-map-exists\u2460"}], "title": "3.2. Interaction"}], "external": true};
 window.dfnpanelData['860300d4'] = {"dfnID": "860300d4", "url": "https://infra.spec.whatwg.org/#implementation-defined", "dfnText": "implementation-defined", "refSections": [{"refs": [{"id": "ref-for-implementation-defined"}], "title": "6.1. Task scope"}, {"refs": [{"id": "ref-for-implementation-defined\u2460"}], "title": "7.1. Task additions"}], "external": true};
+window.dfnpanelData['c88f3887'] = {"dfnID": "c88f3887", "url": "https://infra.spec.whatwg.org/#struct-item", "dfnText": "item", "refSections": [{"refs": [{"id": "ref-for-struct-item"}], "title": "3.2. Interaction"}], "external": true};
+window.dfnpanelData['3fca5a9e'] = {"dfnID": "3fca5a9e", "url": "https://infra.spec.whatwg.org/#ordered-map", "dfnText": "map", "refSections": [{"refs": [{"id": "ref-for-ordered-map"}, {"id": "ref-for-ordered-map\u2460"}, {"id": "ref-for-ordered-map\u2461"}], "title": "3.1. Soft navigation entry"}, {"refs": [{"id": "ref-for-ordered-map\u2462"}, {"id": "ref-for-ordered-map\u2463"}], "title": "4.1. Document"}], "external": true};
 window.dfnpanelData['a5ad1660'] = {"dfnID": "a5ad1660", "url": "https://infra.spec.whatwg.org/#stack-peek", "dfnText": "peek", "refSections": [{"refs": [{"id": "ref-for-stack-peek"}], "title": "6.3.1. Get current task"}], "external": true};
-window.dfnpanelData['15e48c39'] = {"dfnID": "15e48c39", "url": "https://infra.spec.whatwg.org/#ordered-set", "dfnText": "set", "refSections": [{"refs": [{"id": "ref-for-ordered-set"}], "title": "3.1. Soft navigation entry"}, {"refs": [{"id": "ref-for-ordered-set\u2460"}], "title": "6.3. Is ancestor in set"}], "external": true};
+window.dfnpanelData['15e48c39'] = {"dfnID": "15e48c39", "url": "https://infra.spec.whatwg.org/#ordered-set", "dfnText": "set", "refSections": [{"refs": [{"id": "ref-for-ordered-set"}], "title": "3.1. Soft navigation entry"}, {"refs": [{"id": "ref-for-ordered-set\u2460"}], "title": "4.1. Document"}, {"refs": [{"id": "ref-for-ordered-set\u2461"}], "title": "6.3. Is ancestor in set"}], "external": true};
+window.dfnpanelData['0e6b2056'] = {"dfnID": "0e6b2056", "url": "https://infra.spec.whatwg.org/#map-set", "dfnText": "set (for map)", "refSections": [{"refs": [{"id": "ref-for-map-set"}, {"id": "ref-for-map-set\u2460"}], "title": "3.2. Interaction"}, {"refs": [{"id": "ref-for-map-set\u2461"}, {"id": "ref-for-map-set\u2462"}], "title": "3.3. Same document commit"}], "external": true};
 window.dfnpanelData['ceacaa1c'] = {"dfnID": "ceacaa1c", "url": "https://infra.spec.whatwg.org/#stack", "dfnText": "stack", "refSections": [{"refs": [{"id": "ref-for-stack"}], "title": "7.2. Event Loop additions"}], "external": true};
-window.dfnpanelData['0698d556'] = {"dfnID": "0698d556", "url": "https://infra.spec.whatwg.org/#string", "dfnText": "string", "refSections": [{"refs": [{"id": "ref-for-string"}], "title": "3.1. Soft navigation entry"}], "external": true};
+window.dfnpanelData['0698d556'] = {"dfnID": "0698d556", "url": "https://infra.spec.whatwg.org/#string", "dfnText": "string", "refSections": [{"refs": [{"id": "ref-for-string"}], "title": "3.1. Soft navigation entry"}, {"refs": [{"id": "ref-for-string\u2460"}], "title": "3.2. Interaction"}, {"refs": [{"id": "ref-for-string\u2461"}], "title": "3.3. Same document commit"}], "external": true};
+window.dfnpanelData['984221ca'] = {"dfnID": "984221ca", "url": "https://infra.spec.whatwg.org/#struct", "dfnText": "struct", "refSections": [{"refs": [{"id": "ref-for-struct"}], "title": "3.2. Interaction"}], "external": true};
 window.dfnpanelData['984cff1a'] = {"dfnID": "984cff1a", "url": "https://w3c.github.io/largest-contentful-paint/#potentially-add-a-largestcontentfulpaint-entry", "dfnText": "potentially add a largestcontentfulpaint entry", "refSections": [{"refs": [{"id": "ref-for-potentially-add-a-largestcontentfulpaint-entry"}], "title": "5. LCP integration"}], "external": true};
 window.dfnpanelData['a7f8f241'] = {"dfnID": "a7f8f241", "url": "https://w3c.github.io/performance-timeline/#dom-performanceentry", "dfnText": "PerformanceEntry", "refSections": [{"refs": [{"id": "ref-for-dom-performanceentry"}], "title": "2. The SoftNavigationEntry interface"}], "external": true};
 window.dfnpanelData['fabd3046'] = {"dfnID": "fabd3046", "url": "https://w3c.github.io/performance-timeline/#dom-performanceentry-duration", "dfnText": "duration", "refSections": [{"refs": [{"id": "ref-for-dom-performanceentry-duration"}], "title": "3.1. Soft navigation entry"}], "external": true};
@@ -1643,21 +1746,32 @@ window.dfnpanelData['feb93a86'] = {"dfnID": "feb93a86", "url": "https://webidl.s
 window.dfnpanelData['3ab7bf79'] = {"dfnID": "3ab7bf79", "url": "https://webidl.spec.whatwg.org/#dfn-callback-function", "dfnText": "callback function", "refSections": [{"refs": [{"id": "ref-for-dfn-callback-function"}], "title": "7.6. Callbacks"}], "external": true};
 window.dfnpanelData['10ce5f6f'] = {"dfnID": "10ce5f6f", "url": "https://webidl.spec.whatwg.org/#invoke-a-callback-function", "dfnText": "invoke", "refSections": [{"refs": [{"id": "ref-for-invoke-a-callback-function"}], "title": "7.6. Callbacks"}], "external": true};
 window.dfnpanelData['softnavigationentry'] = {"dfnID": "softnavigationentry", "url": "#softnavigationentry", "dfnText": "SoftNavigationEntry", "refSections": [{"refs": [{"id": "ref-for-softnavigationentry"}, {"id": "ref-for-softnavigationentry\u2460"}], "title": "3.1. Soft navigation entry"}], "external": false};
-window.dfnpanelData['check-soft-navigation'] = {"dfnID": "check-soft-navigation", "url": "#check-soft-navigation", "dfnText": "check soft navigation", "refSections": [{"refs": [{"id": "ref-for-check-soft-navigation"}], "title": "4.1. Document"}, {"refs": [{"id": "ref-for-check-soft-navigation\u2460"}], "title": "5. LCP integration"}], "external": false};
+window.dfnpanelData['check-soft-navigation'] = {"dfnID": "check-soft-navigation", "url": "#check-soft-navigation", "dfnText": "check soft navigation", "refSections": [{"refs": [{"id": "ref-for-check-soft-navigation"}], "title": "3.3. Same document commit"}, {"refs": [{"id": "ref-for-check-soft-navigation\u2460"}], "title": "3.4. Contentful paint"}], "external": false};
 window.dfnpanelData['create-a-soft-navigation-entry'] = {"dfnID": "create-a-soft-navigation-entry", "url": "#create-a-soft-navigation-entry", "dfnText": "create a soft navigation entry", "refSections": [{"refs": [{"id": "ref-for-create-a-soft-navigation-entry"}], "title": "3. Algorithms"}], "external": false};
 window.dfnpanelData['emit-soft-navigation-entry'] = {"dfnID": "emit-soft-navigation-entry", "url": "#emit-soft-navigation-entry", "dfnText": "emit soft navigation entry", "refSections": [{"refs": [{"id": "ref-for-emit-soft-navigation-entry"}], "title": "3. Algorithms"}], "external": false};
-window.dfnpanelData['document-potential-soft-navigation-task-id'] = {"dfnID": "document-potential-soft-navigation-task-id", "url": "#document-potential-soft-navigation-task-id", "dfnText": "potential soft navigation task id", "refSections": [{"refs": [{"id": "ref-for-document-potential-soft-navigation-task-id"}, {"id": "ref-for-document-potential-soft-navigation-task-id\u2460"}], "title": "4.1. Document"}], "external": false};
-window.dfnpanelData['document-soft-navigation-same-document-commit'] = {"dfnID": "document-soft-navigation-same-document-commit", "url": "#document-soft-navigation-same-document-commit", "dfnText": "soft navigation same document commit", "refSections": [{"refs": [{"id": "ref-for-document-soft-navigation-same-document-commit"}], "title": "3. Algorithms"}, {"refs": [{"id": "ref-for-document-soft-navigation-same-document-commit\u2460"}], "title": "3.1. Soft navigation entry"}, {"refs": [{"id": "ref-for-document-soft-navigation-same-document-commit\u2461"}], "title": "4.1. Document"}], "external": false};
-window.dfnpanelData['document-soft-navigation-contentful-paint'] = {"dfnID": "document-soft-navigation-contentful-paint", "url": "#document-soft-navigation-contentful-paint", "dfnText": "soft navigation contentful paint", "refSections": [{"refs": [{"id": "ref-for-document-soft-navigation-contentful-paint"}], "title": "3. Algorithms"}, {"refs": [{"id": "ref-for-document-soft-navigation-contentful-paint\u2460"}], "title": "3.1. Soft navigation entry"}, {"refs": [{"id": "ref-for-document-soft-navigation-contentful-paint\u2461"}], "title": "5. LCP integration"}], "external": false};
-window.dfnpanelData['node-modified-by-soft-navigation'] = {"dfnID": "node-modified-by-soft-navigation", "url": "#node-modified-by-soft-navigation", "dfnText": "modified by soft navigation", "refSections": [{"refs": [{"id": "ref-for-node-modified-by-soft-navigation"}], "title": "4.1. Document"}, {"refs": [{"id": "ref-for-node-modified-by-soft-navigation\u2460"}], "title": "5. LCP integration"}], "external": false};
+window.dfnpanelData['interaction-data'] = {"dfnID": "interaction-data", "url": "#interaction-data", "dfnText": "Interaction data", "refSections": [{"refs": [{"id": "ref-for-interaction-data"}], "title": "3.2. Interaction"}], "external": false};
+window.dfnpanelData['interaction-data-url'] = {"dfnID": "interaction-data-url", "url": "#interaction-data-url", "dfnText": "url", "refSections": [{"refs": [{"id": "ref-for-interaction-data-url"}], "title": "3.3. Same document commit"}], "external": false};
+window.dfnpanelData['interaction-data-start-time'] = {"dfnID": "interaction-data-start-time", "url": "#interaction-data-start-time", "dfnText": "start time", "refSections": [{"refs": [{"id": "ref-for-interaction-data-start-time"}], "title": "3.2. Interaction"}], "external": false};
+window.dfnpanelData['interaction-data-same-document-commit'] = {"dfnID": "interaction-data-same-document-commit", "url": "#interaction-data-same-document-commit", "dfnText": "same document commit", "refSections": [{"refs": [{"id": "ref-for-interaction-data-same-document-commit"}], "title": "3. Algorithms"}, {"refs": [{"id": "ref-for-interaction-data-same-document-commit\u2460"}], "title": "3.3. Same document commit"}], "external": false};
+window.dfnpanelData['interaction-data-contentful-paint'] = {"dfnID": "interaction-data-contentful-paint", "url": "#interaction-data-contentful-paint", "dfnText": "contentful paint", "refSections": [{"refs": [{"id": "ref-for-interaction-data-contentful-paint"}], "title": "3. Algorithms"}, {"refs": [{"id": "ref-for-interaction-data-contentful-paint\u2460"}], "title": "3.4. Contentful paint"}], "external": false};
+window.dfnpanelData['get-current-interaction-data'] = {"dfnID": "get-current-interaction-data", "url": "#get-current-interaction-data", "dfnText": "get current interaction data", "refSections": [{"refs": [{"id": "ref-for-get-current-interaction-data"}], "title": "3. Algorithms"}, {"refs": [{"id": "ref-for-get-current-interaction-data\u2460"}], "title": "3.3. Same document commit"}, {"refs": [{"id": "ref-for-get-current-interaction-data\u2461"}], "title": "3.4. Contentful paint"}], "external": false};
+window.dfnpanelData['handle-user-interaction'] = {"dfnID": "handle-user-interaction", "url": "#handle-user-interaction", "dfnText": "handle user interaction", "refSections": [{"refs": [{"id": "ref-for-handle-user-interaction"}], "title": "4.1. Document"}], "external": false};
+window.dfnpanelData['check-soft-navigation-same-document-commit'] = {"dfnID": "check-soft-navigation-same-document-commit", "url": "#check-soft-navigation-same-document-commit", "dfnText": "check soft navigation same document commit", "refSections": [{"refs": [{"id": "ref-for-check-soft-navigation-same-document-commit"}], "title": "4.1. Document"}], "external": false};
+window.dfnpanelData['check-soft-navigation-contentful-paint'] = {"dfnID": "check-soft-navigation-contentful-paint", "url": "#check-soft-navigation-contentful-paint", "dfnText": "check soft navigation contentful paint", "refSections": [{"refs": [{"id": "ref-for-check-soft-navigation-contentful-paint"}], "title": "5. LCP integration"}], "external": false};
+window.dfnpanelData['document-potential-soft-navigation-task-ids'] = {"dfnID": "document-potential-soft-navigation-task-ids", "url": "#document-potential-soft-navigation-task-ids", "dfnText": "potential soft navigation task ids", "refSections": [{"refs": [{"id": "ref-for-document-potential-soft-navigation-task-ids"}], "title": "3.2. Interaction"}, {"refs": [{"id": "ref-for-document-potential-soft-navigation-task-ids\u2460"}], "title": "3.3. Same document commit"}, {"refs": [{"id": "ref-for-document-potential-soft-navigation-task-ids\u2461"}], "title": "4.1. Document"}], "external": false};
+window.dfnpanelData['document-interaction-task-id-to-interaction-data'] = {"dfnID": "document-interaction-task-id-to-interaction-data", "url": "#document-interaction-task-id-to-interaction-data", "dfnText": "interaction task id to interaction data", "refSections": [{"refs": [{"id": "ref-for-document-interaction-task-id-to-interaction-data"}], "title": "3.1. Soft navigation entry"}, {"refs": [{"id": "ref-for-document-interaction-task-id-to-interaction-data\u2460"}, {"id": "ref-for-document-interaction-task-id-to-interaction-data\u2461"}, {"id": "ref-for-document-interaction-task-id-to-interaction-data\u2462"}], "title": "3.2. Interaction"}], "external": false};
+window.dfnpanelData['document-task-id-to-interaction-task-id'] = {"dfnID": "document-task-id-to-interaction-task-id", "url": "#document-task-id-to-interaction-task-id", "dfnText": "task id to interaction task id", "refSections": [{"refs": [{"id": "ref-for-document-task-id-to-interaction-task-id"}], "title": "3.1. Soft navigation entry"}, {"refs": [{"id": "ref-for-document-task-id-to-interaction-task-id\u2460"}, {"id": "ref-for-document-task-id-to-interaction-task-id\u2461"}], "title": "3.2. Interaction"}], "external": false};
+window.dfnpanelData['document-last-interaction-task-id'] = {"dfnID": "document-last-interaction-task-id", "url": "#document-last-interaction-task-id", "dfnText": "last interaction task id", "refSections": [{"refs": [{"id": "ref-for-document-last-interaction-task-id"}], "title": "3.1. Soft navigation entry"}, {"refs": [{"id": "ref-for-document-last-interaction-task-id\u2460"}], "title": "3.2. Interaction"}], "external": false};
+window.dfnpanelData['node-modified-by-soft-navigation'] = {"dfnID": "node-modified-by-soft-navigation", "url": "#node-modified-by-soft-navigation", "dfnText": "modified by soft navigation", "refSections": [{"refs": [{"id": "ref-for-node-modified-by-soft-navigation"}], "title": "3.4. Contentful paint"}, {"refs": [{"id": "ref-for-node-modified-by-soft-navigation\u2460"}], "title": "4.1. Document"}], "external": false};
 window.dfnpanelData['concept-task-scope'] = {"dfnID": "concept-task-scope", "url": "#concept-task-scope", "dfnText": "task scope", "refSections": [{"refs": [{"id": "ref-for-concept-task-scope"}, {"id": "ref-for-concept-task-scope\u2460"}], "title": "6.1. Task scope"}, {"refs": [{"id": "ref-for-concept-task-scope\u2461"}], "title": "7.2. Event Loop additions"}], "external": false};
 window.dfnpanelData['task-scope-task'] = {"dfnID": "task-scope-task", "url": "#task-scope-task", "dfnText": "task", "refSections": [{"refs": [{"id": "ref-for-task-scope-task"}], "title": "6.1. Task scope"}, {"refs": [{"id": "ref-for-task-scope-task\u2460"}], "title": "6.3.1. Get current task"}], "external": false};
 window.dfnpanelData['create-a-task-scope'] = {"dfnID": "create-a-task-scope", "url": "#create-a-task-scope", "dfnText": "create a task scope", "refSections": [{"refs": [{"id": "ref-for-create-a-task-scope"}], "title": "7.3. Script execution"}, {"refs": [{"id": "ref-for-create-a-task-scope\u2460"}], "title": "7.4. Task queueing"}, {"refs": [{"id": "ref-for-create-a-task-scope\u2461"}], "title": "7.5. Timers"}, {"refs": [{"id": "ref-for-create-a-task-scope\u2462"}, {"id": "ref-for-create-a-task-scope\u2463"}], "title": "7.6. Callbacks"}, {"refs": [{"id": "ref-for-create-a-task-scope\u2464"}], "title": "7.7.2. HostCallJobCallback"}, {"refs": [{"id": "ref-for-create-a-task-scope\u2465"}, {"id": "ref-for-create-a-task-scope\u2466"}], "title": "7.8. MessagePorts"}, {"refs": [{"id": "ref-for-create-a-task-scope\u2467"}], "title": "7.9. Same-document navigations"}], "external": false};
 window.dfnpanelData['tear-down-a-task-scope'] = {"dfnID": "tear-down-a-task-scope", "url": "#tear-down-a-task-scope", "dfnText": "tear down a task scope", "refSections": [{"refs": [{"id": "ref-for-tear-down-a-task-scope"}], "title": "7.3. Script execution"}, {"refs": [{"id": "ref-for-tear-down-a-task-scope\u2460"}], "title": "7.4. Task queueing"}, {"refs": [{"id": "ref-for-tear-down-a-task-scope\u2461"}, {"id": "ref-for-tear-down-a-task-scope\u2462"}, {"id": "ref-for-tear-down-a-task-scope\u2463"}], "title": "7.6. Callbacks"}, {"refs": [{"id": "ref-for-tear-down-a-task-scope\u2464"}], "title": "7.7.2. HostCallJobCallback"}, {"refs": [{"id": "ref-for-tear-down-a-task-scope\u2465"}, {"id": "ref-for-tear-down-a-task-scope\u2466"}], "title": "7.8. MessagePorts"}, {"refs": [{"id": "ref-for-tear-down-a-task-scope\u2467"}], "title": "7.9. Same-document navigations"}], "external": false};
-window.dfnpanelData['check-ancestor-for-task'] = {"dfnID": "check-ancestor-for-task", "url": "#check-ancestor-for-task", "dfnText": "check ancestor for task", "refSections": [{"refs": [{"id": "ref-for-check-ancestor-for-task"}, {"id": "ref-for-check-ancestor-for-task\u2460"}], "title": "4.1. Document"}], "external": false};
+window.dfnpanelData['check-ancestor-for-task'] = {"dfnID": "check-ancestor-for-task", "url": "#check-ancestor-for-task", "dfnText": "check ancestor for task", "refSections": [{"refs": [{"id": "ref-for-check-ancestor-for-task"}], "title": "4.1. Document"}], "external": false};
+window.dfnpanelData['check-ancestor-set-for-task'] = {"dfnID": "check-ancestor-set-for-task", "url": "#check-ancestor-set-for-task", "dfnText": "check ancestor set for task", "refSections": [{"refs": [{"id": "ref-for-check-ancestor-set-for-task"}], "title": "3.3. Same document commit"}], "external": false};
 window.dfnpanelData['get-current-task'] = {"dfnID": "get-current-task", "url": "#get-current-task", "dfnText": "get current task", "refSections": [{"refs": [{"id": "ref-for-get-current-task"}], "title": "6.2. Is ancestor"}, {"refs": [{"id": "ref-for-get-current-task\u2460"}], "title": "6.3. Is ancestor in set"}, {"refs": [{"id": "ref-for-get-current-task\u2461"}], "title": "6.3.2. Get current task ID"}, {"refs": [{"id": "ref-for-get-current-task\u2462"}], "title": "7.3. Script execution"}, {"refs": [{"id": "ref-for-get-current-task\u2463"}], "title": "7.4. Task queueing"}, {"refs": [{"id": "ref-for-get-current-task\u2464"}], "title": "7.5. Timers"}, {"refs": [{"id": "ref-for-get-current-task\u2465"}], "title": "7.7.1. HostMakeJobCallback ##{#sec-hostmakejobcallback}"}, {"refs": [{"id": "ref-for-get-current-task\u2466"}], "title": "7.8. MessagePorts"}, {"refs": [{"id": "ref-for-get-current-task\u2467"}, {"id": "ref-for-get-current-task\u2468"}, {"id": "ref-for-get-current-task\u2460\u24ea"}], "title": "7.9. Same-document navigations"}, {"refs": [{"id": "ref-for-get-current-task\u2460\u2460"}], "title": "7.10. View transitions"}], "external": false};
-window.dfnpanelData['get-current-task-id'] = {"dfnID": "get-current-task-id", "url": "#get-current-task-id", "dfnText": "get current task id", "refSections": [{"refs": [{"id": "ref-for-get-current-task-id"}, {"id": "ref-for-get-current-task-id\u2460"}, {"id": "ref-for-get-current-task-id\u2461"}], "title": "4.1. Document"}], "external": false};
-window.dfnpanelData['task-task-attribution-id'] = {"dfnID": "task-task-attribution-id", "url": "#task-task-attribution-id", "dfnText": "task attribution ID", "refSections": [{"refs": [{"id": "ref-for-task-task-attribution-id"}], "title": "4.1. Document"}, {"refs": [{"id": "ref-for-task-task-attribution-id\u2460"}], "title": "6.1. Task scope"}, {"refs": [{"id": "ref-for-task-task-attribution-id\u2461"}, {"id": "ref-for-task-task-attribution-id\u2462"}], "title": "6.2. Is ancestor"}, {"refs": [{"id": "ref-for-task-task-attribution-id\u2463"}, {"id": "ref-for-task-task-attribution-id\u2464"}], "title": "6.3. Is ancestor in set"}, {"refs": [{"id": "ref-for-task-task-attribution-id\u2465"}], "title": "6.3.2. Get current task ID"}], "external": false};
+window.dfnpanelData['get-current-task-id'] = {"dfnID": "get-current-task-id", "url": "#get-current-task-id", "dfnText": "get current task id", "refSections": [{"refs": [{"id": "ref-for-get-current-task-id"}, {"id": "ref-for-get-current-task-id\u2460"}], "title": "3.2. Interaction"}, {"refs": [{"id": "ref-for-get-current-task-id\u2461"}], "title": "4.1. Document"}], "external": false};
+window.dfnpanelData['task-task-attribution-id'] = {"dfnID": "task-task-attribution-id", "url": "#task-task-attribution-id", "dfnText": "task attribution ID", "refSections": [{"refs": [{"id": "ref-for-task-task-attribution-id"}, {"id": "ref-for-task-task-attribution-id\u2460"}], "title": "4.1. Document"}, {"refs": [{"id": "ref-for-task-task-attribution-id\u2461"}], "title": "6.1. Task scope"}, {"refs": [{"id": "ref-for-task-task-attribution-id\u2462"}, {"id": "ref-for-task-task-attribution-id\u2463"}], "title": "6.2. Is ancestor"}, {"refs": [{"id": "ref-for-task-task-attribution-id\u2464"}, {"id": "ref-for-task-task-attribution-id\u2465"}], "title": "6.3. Is ancestor in set"}, {"refs": [{"id": "ref-for-task-task-attribution-id\u2466"}], "title": "6.3.2. Get current task ID"}], "external": false};
 window.dfnpanelData['task-parent-task'] = {"dfnID": "task-parent-task", "url": "#task-parent-task", "dfnText": "parent task", "refSections": [{"refs": [{"id": "ref-for-task-parent-task"}], "title": "6.1. Task scope"}, {"refs": [{"id": "ref-for-task-parent-task\u2460"}], "title": "6.2. Is ancestor"}, {"refs": [{"id": "ref-for-task-parent-task\u2461"}], "title": "6.3. Is ancestor in set"}, {"refs": [{"id": "ref-for-task-parent-task\u2462"}], "title": "7.4. Task queueing"}], "external": false};
 window.dfnpanelData['task-scope-stack'] = {"dfnID": "task-scope-stack", "url": "#task-scope-stack", "dfnText": "task scope stack", "refSections": [{"refs": [{"id": "ref-for-task-scope-stack"}, {"id": "ref-for-task-scope-stack\u2460"}], "title": "6.1. Task scope"}, {"refs": [{"id": "ref-for-task-scope-stack\u2461"}], "title": "6.3.1. Get current task"}], "external": false};
 window.dfnpanelData['script-parent-task'] = {"dfnID": "script-parent-task", "url": "#script-parent-task", "dfnText": "parent task", "refSections": [{"refs": [{"id": "ref-for-script-parent-task"}, {"id": "ref-for-script-parent-task\u2460"}], "title": "7.3. Script execution"}], "external": false};
