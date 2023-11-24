@@ -46,7 +46,7 @@ SoftNavigationEntry : PerformanceEntry {
 ```
 
 The inheritance from `PerformanceEntry` means that the entry will have `startTime`, `name`, `entryType` and `duration`:
-* `startTime` is defined as the time in which the user's interaction event processing started. See [issue #14](https://github.com/WICG/soft-navigations/issues/14) for related discussion.
+* `startTime` is defined as the time in which the user's interaction event processing ended, or the time in which the "navigate" event processing ended, whichever's first.
 * `name` is the URL of the history entry representing the soft navigation.
 * `entryType` is "soft-navigation".
 * `duration` is the time difference between the point in which a soft navigation is detected and the `startTime`.
