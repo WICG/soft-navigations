@@ -6,7 +6,7 @@
   <link href="https://www.w3.org/StyleSheets/TR/2021/cg-draft" rel="stylesheet">
   <meta content="Bikeshed version b06c00b8e, updated Tue Jul 11 13:41:16 2023 -0700" name="generator">
   <link href="https://wicg.github.io/soft-navigations/" rel="canonical">
-  <meta content="1d31d4d5ef50915f8c851869b6cd85ee48dcf2bb" name="document-revision">
+  <meta content="92052da0449f3eb92dd776f5a75d2e264ffb6f34" name="document-revision">
 <style>/* Boilerplate: style-autolinks */
 .css.css, .property.property, .descriptor.descriptor {
     color: var(--a-normal-text);
@@ -647,7 +647,7 @@ c-[il] { color: #000000 } /* Literal.Number.Integer.Long */
   <div class="head">
    <p data-fill-with="logo"><a class="logo" href="https://www.w3.org/"> <img alt="W3C" height="48" src="https://www.w3.org/StyleSheets/TR/2021/logos/W3C" width="72"> </a> </p>
    <h1 class="p-name no-ref" id="title">Soft Navigations</h1>
-   <p id="w3c-state"><a href="https://www.w3.org/standards/types#CG-DRAFT">Draft Community Group Report</a>, <time class="dt-updated" datetime="2023-11-24">24 November 2023</time></p>
+   <p id="w3c-state"><a href="https://www.w3.org/standards/types#CG-DRAFT">Draft Community Group Report</a>, <time class="dt-updated" datetime="2023-11-27">27 November 2023</time></p>
    <div data-fill-with="spec-metadata">
     <dl>
      <dt>This version:
@@ -769,7 +769,7 @@ This specification also outlines a mechanism that would enable user agents to de
 Being able to keep track of which task initiated which can be valuable in multiple cases:</p>
     <ul>
      <li data-md>
-      <p>Enable user agents to create heuristics that rely on causal link between one operation (e.g. a user initiated click event) and another (e,g. a DOM modification).</p>
+      <p>Enable user agents to create heuristics that rely on causal link between one operation (e.g. a user initiated click event) and another (e,g. a DOM node append).</p>
      <li data-md>
       <p>Enable user agents to make prioritization (of tasks as well as resource loading) "inheritable", and e.g. ensure that low-priority scripts cannot queue high-priority tasks.</p>
      <li data-md>
@@ -790,7 +790,7 @@ Being able to keep track of which task initiated which can be valuable in multip
      <li data-md>
       <p>Its navigating task is a descendent of a user interaction task.</p>
      <li data-md>
-      <p>There exists a DOM modification operation whose task is a descendent of the same user interaction task.</p>
+      <p>There exists a DOM node append operation whose task is a descendent of the same user interaction task.</p>
     </ul>
    </div>
    <p>To <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport id="check-soft-navigation">check soft navigation</dfn>, with a <a data-link-type="dfn" href="https://dom.spec.whatwg.org/#concept-document" id="ref-for-concept-document">Document</a> <var>document</var>, run the following steps:</p>
@@ -924,7 +924,7 @@ It has the following <a data-link-type="dfn" href="https://infra.spec.whatwg.org
     <li data-md>
      <p>Let <var>interaction data</var> be the result of calling <a data-link-type="dfn" href="#get-current-interaction-data" id="ref-for-get-current-interaction-data②">get current interaction data</a> with <var>document</var>.</p>
     <li data-md>
-     <p>If <var>element</var>’s <a data-link-type="dfn" href="#node-modified-by-soft-navigation" id="ref-for-node-modified-by-soft-navigation">modified by soft navigation</a> is true, set <var>interaction data</var>’s <a data-link-type="dfn" href="#interaction-data-contentful-paint" id="ref-for-interaction-data-contentful-paint①">contentful paint</a> to true.</p>
+     <p>If <var>element</var>’s <a data-link-type="dfn" href="#node-appended-by-soft-navigation" id="ref-for-node-appended-by-soft-navigation">appended by soft navigation</a> is true, set <var>interaction data</var>’s <a data-link-type="dfn" href="#interaction-data-contentful-paint" id="ref-for-interaction-data-contentful-paint①">contentful paint</a> to true.</p>
     <li data-md>
      <p>Call <a data-link-type="dfn" href="#check-soft-navigation" id="ref-for-check-soft-navigation①">check soft navigation</a> with <var>document</var>.</p>
    </ol>
@@ -934,7 +934,7 @@ It has the following <a data-link-type="dfn" href="https://infra.spec.whatwg.org
    <p>Each <a data-link-type="dfn" href="https://dom.spec.whatwg.org/#concept-document" id="ref-for-concept-document⑥">document</a> has a <dfn class="dfn-paneled" data-dfn-for="document" data-dfn-type="dfn" data-noexport id="document-interaction-task-id-to-interaction-data">interaction task id to interaction data</dfn>, a <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#ordered-map" id="ref-for-ordered-map③">map</a>, initially empty.</p>
    <p>Each <a data-link-type="dfn" href="https://dom.spec.whatwg.org/#concept-document" id="ref-for-concept-document⑦">document</a> has a <dfn class="dfn-paneled" data-dfn-for="document" data-dfn-type="dfn" data-noexport id="document-task-id-to-interaction-task-id">task id to interaction task id</dfn>, a <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#ordered-map" id="ref-for-ordered-map④">map</a>, initially empty.</p>
    <p>Each <a data-link-type="dfn" href="https://dom.spec.whatwg.org/#concept-document" id="ref-for-concept-document⑧">document</a> has a <dfn class="dfn-paneled" data-dfn-for="document" data-dfn-type="dfn" data-noexport id="document-last-interaction-task-id">last interaction task id</dfn>, a <a data-link-type="dfn" href="#task-task-attribution-id" id="ref-for-task-task-attribution-id①">task attribution id</a>.</p>
-   <p>Each <a data-link-type="dfn" href="https://dom.spec.whatwg.org/#boundary-point-node" id="ref-for-boundary-point-node">node</a> has a <dfn class="dfn-paneled" data-dfn-for="node" data-dfn-type="dfn" data-noexport id="node-modified-by-soft-navigation">modified by soft navigation</dfn> flag, initially unset.</p>
+   <p>Each <a data-link-type="dfn" href="https://dom.spec.whatwg.org/#boundary-point-node" id="ref-for-boundary-point-node">node</a> has a <dfn class="dfn-paneled" data-dfn-for="node" data-dfn-type="dfn" data-noexport id="node-appended-by-soft-navigation">appended by soft navigation</dfn> flag, initially unset.</p>
    <p>In <a data-link-type="dfn" href="https://html.spec.whatwg.org/C#update-document-for-history-step-application" id="ref-for-update-document-for-history-step-application">update document for history step application</a>, before 5.5.1 (if <code class="highlight">documentsEntryChanged</code> is true and if <code class="highlight">documentIsNew</code> is false),
 call <a data-link-type="dfn" href="#check-soft-navigation-same-document-commit" id="ref-for-check-soft-navigation-same-document-commit">check soft navigation same document commit</a> with <var>entry</var>’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/C#she-url" id="ref-for-she-url">url</a>.</p>
    <p>At <a data-link-type="dfn" href="https://dom.spec.whatwg.org/#concept-event-dispatch" id="ref-for-concept-event-dispatch">event dispatch</a>, after step 5.4 ("Let <code class="highlight">isActivationEvent</code> be true..."), add the following steps:</p>
@@ -957,9 +957,9 @@ and <var>target</var>’s <a data-link-type="dfn" href="https://html.spec.whatwg
     <li data-md>
      <p>Let <var>doc</var> be <var>parent</var>’s <a data-link-type="dfn" href="https://dom.spec.whatwg.org/#concept-node-document" id="ref-for-concept-node-document">node document</a>.</p>
     <li data-md>
-     <p>Let <var>is soft navigation modification</var> be the result of running <a data-link-type="dfn" href="#check-ancestor-for-task" id="ref-for-check-ancestor-for-task">Check ancestor for task</a> with the <var>doc</var>’s <a data-link-type="dfn" href="#document-potential-soft-navigation-task-ids" id="ref-for-document-potential-soft-navigation-task-ids②">potential soft navigation task id</a> and the result of calling <a data-link-type="dfn" href="#get-current-task-id" id="ref-for-get-current-task-id②">get current task ID</a>.</p>
+     <p>Let <var>is soft navigation append</var> be the result of running <a data-link-type="dfn" href="#check-ancestor-for-task" id="ref-for-check-ancestor-for-task">Check ancestor for task</a> with the <var>doc</var>’s <a data-link-type="dfn" href="#document-potential-soft-navigation-task-ids" id="ref-for-document-potential-soft-navigation-task-ids②">potential soft navigation task id</a> and the result of calling <a data-link-type="dfn" href="#get-current-task-id" id="ref-for-get-current-task-id②">get current task ID</a>.</p>
     <li data-md>
-     <p>Set <var>node</var>’s <a data-link-type="dfn" href="#node-modified-by-soft-navigation" id="ref-for-node-modified-by-soft-navigation①">modified by soft navigation</a> to <var>is soft navigation modification</var>.</p>
+     <p>Set <var>node</var>’s <a data-link-type="dfn" href="#node-appended-by-soft-navigation" id="ref-for-node-appended-by-soft-navigation①">appended by soft navigation</a> to <var>is soft navigation append</var>.</p>
    </ol>
    <h2 class="heading settled" data-level="5" id="sec-lcp-integration"><span class="secno">5. </span><span class="content">LCP integration</span><a class="self-link" href="#sec-lcp-integration"></a></h2>
     In <a data-link-type="dfn" href="https://w3c.github.io/largest-contentful-paint/#potentially-add-a-largestcontentfulpaint-entry" id="ref-for-potentially-add-a-largestcontentfulpaint-entry">potentially add a LargestContentfulPaint entry</a>, add the following initial step: 
@@ -1219,6 +1219,7 @@ individually examined and have those implications outlined.</p>
   <h2 class="no-num no-ref heading settled" id="index"><span class="content">Index</span><a class="self-link" href="#index"></a></h2>
   <h3 class="no-num no-ref heading settled" id="index-defined-here"><span class="content">Terms defined by this specification</span><a class="self-link" href="#index-defined-here"></a></h3>
   <ul class="index">
+   <li><a href="#node-appended-by-soft-navigation">appended by soft navigation</a><span>, in § 4.1</span>
    <li><a href="#check-ancestor-for-task">check ancestor for task</a><span>, in § 6.2</span>
    <li><a href="#check-ancestor-set-for-task">check ancestor set for task</a><span>, in § 6.3</span>
    <li><a href="#check-soft-navigation">check soft navigation</a><span>, in § 3</span>
@@ -1235,7 +1236,6 @@ individually examined and have those implications outlined.</p>
    <li><a href="#interaction-data">Interaction data</a><span>, in § 3.2</span>
    <li><a href="#document-interaction-task-id-to-interaction-data">interaction task id to interaction data</a><span>, in § 4.1</span>
    <li><a href="#document-last-interaction-task-id">last interaction task id</a><span>, in § 4.1</span>
-   <li><a href="#node-modified-by-soft-navigation">modified by soft navigation</a><span>, in § 4.1</span>
    <li><a href="#navigation-task">navigation task</a><span>, in § 7.9</span>
    <li>
     parent task
@@ -1781,7 +1781,7 @@ window.dfnpanelData['document-potential-soft-navigation-task-ids'] = {"dfnID": "
 window.dfnpanelData['document-interaction-task-id-to-interaction-data'] = {"dfnID": "document-interaction-task-id-to-interaction-data", "url": "#document-interaction-task-id-to-interaction-data", "dfnText": "interaction task id to interaction data", "refSections": [{"refs": [{"id": "ref-for-document-interaction-task-id-to-interaction-data"}], "title": "3.1. Soft navigation entry"}, {"refs": [{"id": "ref-for-document-interaction-task-id-to-interaction-data\u2460"}, {"id": "ref-for-document-interaction-task-id-to-interaction-data\u2461"}, {"id": "ref-for-document-interaction-task-id-to-interaction-data\u2462"}, {"id": "ref-for-document-interaction-task-id-to-interaction-data\u2463"}], "title": "3.2. Interaction"}], "external": false};
 window.dfnpanelData['document-task-id-to-interaction-task-id'] = {"dfnID": "document-task-id-to-interaction-task-id", "url": "#document-task-id-to-interaction-task-id", "dfnText": "task id to interaction task id", "refSections": [{"refs": [{"id": "ref-for-document-task-id-to-interaction-task-id"}], "title": "3.1. Soft navigation entry"}, {"refs": [{"id": "ref-for-document-task-id-to-interaction-task-id\u2460"}, {"id": "ref-for-document-task-id-to-interaction-task-id\u2461"}], "title": "3.2. Interaction"}], "external": false};
 window.dfnpanelData['document-last-interaction-task-id'] = {"dfnID": "document-last-interaction-task-id", "url": "#document-last-interaction-task-id", "dfnText": "last interaction task id", "refSections": [{"refs": [{"id": "ref-for-document-last-interaction-task-id"}], "title": "3.1. Soft navigation entry"}, {"refs": [{"id": "ref-for-document-last-interaction-task-id\u2460"}], "title": "3.2. Interaction"}], "external": false};
-window.dfnpanelData['node-modified-by-soft-navigation'] = {"dfnID": "node-modified-by-soft-navigation", "url": "#node-modified-by-soft-navigation", "dfnText": "modified by soft navigation", "refSections": [{"refs": [{"id": "ref-for-node-modified-by-soft-navigation"}], "title": "3.4. Contentful paint"}, {"refs": [{"id": "ref-for-node-modified-by-soft-navigation\u2460"}], "title": "4.1. Document"}], "external": false};
+window.dfnpanelData['node-appended-by-soft-navigation'] = {"dfnID": "node-appended-by-soft-navigation", "url": "#node-appended-by-soft-navigation", "dfnText": "appended by soft navigation", "refSections": [{"refs": [{"id": "ref-for-node-appended-by-soft-navigation"}], "title": "3.4. Contentful paint"}, {"refs": [{"id": "ref-for-node-appended-by-soft-navigation\u2460"}], "title": "4.1. Document"}], "external": false};
 window.dfnpanelData['concept-task-scope'] = {"dfnID": "concept-task-scope", "url": "#concept-task-scope", "dfnText": "task scope", "refSections": [{"refs": [{"id": "ref-for-concept-task-scope"}, {"id": "ref-for-concept-task-scope\u2460"}], "title": "6.1. Task scope"}, {"refs": [{"id": "ref-for-concept-task-scope\u2461"}], "title": "7.2. Event Loop additions"}], "external": false};
 window.dfnpanelData['task-scope-task'] = {"dfnID": "task-scope-task", "url": "#task-scope-task", "dfnText": "task", "refSections": [{"refs": [{"id": "ref-for-task-scope-task"}], "title": "6.1. Task scope"}, {"refs": [{"id": "ref-for-task-scope-task\u2460"}], "title": "6.3.1. Get current task"}], "external": false};
 window.dfnpanelData['create-a-task-scope'] = {"dfnID": "create-a-task-scope", "url": "#create-a-task-scope", "dfnText": "create a task scope", "refSections": [{"refs": [{"id": "ref-for-create-a-task-scope"}], "title": "7.3. Script execution"}, {"refs": [{"id": "ref-for-create-a-task-scope\u2460"}], "title": "7.4. Task queueing"}, {"refs": [{"id": "ref-for-create-a-task-scope\u2461"}], "title": "7.5. Timers"}, {"refs": [{"id": "ref-for-create-a-task-scope\u2462"}, {"id": "ref-for-create-a-task-scope\u2463"}], "title": "7.6. Callbacks"}, {"refs": [{"id": "ref-for-create-a-task-scope\u2464"}], "title": "7.7.2. HostCallJobCallback"}, {"refs": [{"id": "ref-for-create-a-task-scope\u2465"}, {"id": "ref-for-create-a-task-scope\u2466"}], "title": "7.8. MessagePorts"}, {"refs": [{"id": "ref-for-create-a-task-scope\u2467"}], "title": "7.9. Same-document navigations"}], "external": false};
