@@ -145,9 +145,13 @@ To <dfn>get current interaction data</dfn>, given a [=Document=] |document|, run
  1. Return |document|'s [=interaction task id to interaction data=][|interaction id|].
 
 To <dfn>handle event callback</dfn>, given a [=Document=] |document| and a [=string=] |event type|, run the following steps:
+ 1. Let |is click| be true if |event type| [=equals=] "click", and false otherwise.
+ 1. Let |is keyboard| be true if |event type| [=equals=] "keydown", "keyup" or "keypress", and false otherwise.
+ 1. Let |is navigation| be true if |event type| [=equals=] "navigate", and false otherwise.
+ 1. If neither |is click|, |is keyboard| nor |is navigation| is true, return.
  1. Let |task| be the result of calling [=get current task ID=].
  1. [=set/Append=] |task| to |document|'s [=potential soft navigation task ids=].
- 1. Let |is new interaction| be true if |event type| [=equals=] "click" or "keydown", and false otherwise.
+ 1. Let |is new interaction| be true if |is click| is true or if |event type| [=equals=] "keydown", and false otherwise.
  1. If |is new interaction| is false:
     1. [=map/Set=] |document|'s [=task id to interaction task id=][|task|] to |document|'s [=last interaction task id=].
     1. Return null.
@@ -190,19 +194,28 @@ Each [=document=] has a <dfn for=document>task id to interaction task id</dfn>, 
 
 Each [=document=] has a <dfn for=document>last interaction task id</dfn>, a [=task attribution id=].
 
-Each [=node=] has a <dfn for=node>appended by soft navigation</dfn> flag, initially unset.
+
+History {#sec-html-history}
+----------
 
 In [=update document for history step application=], before 5.5.1 (if `documentsEntryChanged` is true and if `documentIsNew` is false),
 call [=check soft navigation same document commit=] with <var ignore>entry</var>'s [=session history entry url|url=].
 
+Event dispatch {#sec-html-events}
+----------
+
 At [=event dispatch=], after step 5.4 ("Let `isActivationEvent` be true..."), add the following steps:
- 1. If <var ignore>isActivationEvent</var> is true, and |event|'s [=isTrusted=] is true,
-    and |target|'s [=associated Document=] is a [=top-level traversable=]:
+ 1. If |event|'s [=isTrusted=] is true, and |target|'s [=associated Document=] is a [=top-level traversable=]:
     1. Let |interaction data| be the result of calling [=handle event callback=] with |target|'s [=associated Document=] and |event|'s type.
 
 At [=event dispatch=], before step 6 (after callback invocation), add the following step:
  1. Call [=terminate event callback handling=] with |document| and |interaction data|.
 
+
+Node {#sec-html-node}
+----------
+
+Each [=node=] has a <dfn for=node>appended by soft navigation</dfn> flag, initially unset.
 
 At [=node insert=], add these initial steps:
  1. Let |doc| be <var ignore>parent</var>'s [=node document=].
