@@ -24,12 +24,12 @@ From a user's perspective, while they don't necessarily care about the architect
 
 ## Heuristics
 
-* The user initiated a soft navigation, by clicking on a DOM element, or using an unfocused "keydown" event.
-* That operation resulted in an event handler firing (either a “click” event or a “navigate” event)
+* The user initiates a soft navigation, by clicking on a link or a DOM element, or pressing a key.
+* That operation results in an event handler firing (a “click”, “navigate”, "keydown", "keyup" , or "keypress" event).
 * We then follow the tasks triggered by the event handler:
-  - If it’s a “navigate” event, those tasks are part of the Promise passed to traverseTo()
-  - If it’s a “click” or a "keydown" event, those tasks are spawned by the event handler itself
-* In case of a “click”  or a "keydown" event, the handler triggered tasks that included History.pushState() or History.replaceState() calls, or a change to the document’s location
+  - If it’s a “navigate” event, those tasks are part of the Promise passed to `traverseTo()`.
+  - If it’s a “click” or a keyboard event, those tasks are spawned by the event handler itself.
+* In case of a “click”  or a keyboard event, the handler triggered tasks that included `history.pushState()` or `history.replaceState()` calls, or a change to the document’s location.
 * The tasks appends DOM elements, which result in contentful paints.
 * The next paint after the user's interaction that contains a contentful element will be considered the soft navigation’s FCP.
 * The next largest contentful element paint after the user's interaction will be considered a soft navigation LCP candidate.
