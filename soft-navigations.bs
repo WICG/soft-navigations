@@ -38,6 +38,7 @@ urlPrefix: https://www.w3.org/TR/css-view-transitions-1/
     type: dfn; url: #dom-document-startviewtransition; text: startViewTransition();
 urlPrefix: https://w3c.github.io/largest-contentful-paint/
     type: dfn; url: #has-dispatched-scroll-event; text: has dispatched scroll event;
+urlPrefix: https://w3c.github.io/event-timing/
     type: dfn; url: #has-dispatched-input-event; text: has dispatched input event;
 urlPrefix: https://www.w3.org/TR/paint-timing/
     type: dfn; url: #previously-reported-paints; text: previously reported paints;
