@@ -25,7 +25,7 @@ urlPrefix: https://html.spec.whatwg.org/C; spec: HTML;
     type: dfn; url: #message-port-post-message-steps; text: message port post message steps;
     type: dfn; url: #apply-the-history-step; text: apply the history step;
     type: dfn; url: #tn-append-session-history-traversal-steps; text: append session history traversal steps;
-    type: dfn; url: #tn-append-session-history-synchronous-navigation-steps; text: append session history synchronous navigation steps;
+    type: dfn; url: #tn-append-session-history-sync-nav-steps; text: append session history synchronous navigation steps;
     type: dfn; url: #prepare-the-script-element; text: prepare the script element;
     type: dfn; url: #navigate-fragid; text: navigate to a fragment;
     type: dfn; url: #hostcalljobcallback;text: hostcalljobcallback;
