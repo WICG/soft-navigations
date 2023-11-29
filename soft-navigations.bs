@@ -144,9 +144,11 @@ To <dfn>get current interaction data</dfn>, given a [=Document=] |document|, run
  1. Assert that |document|'s [=interaction task id to interaction data=][|interaction id|] [=map/exists=].
  1. Return |document|'s [=interaction task id to interaction data=][|interaction id|].
 
-To <dfn>handle event callback</dfn>, given a [=Document=] |document| and a [=string=] |event type|, run the following steps:
+To <dfn>handle event callback</dfn>, given an {{EventTarget}} |target| and a [=string=] |event type|, run the following steps:
+ 1. Let |document| be |target|'s [=associated Document=].
+ 1. If |document| is not a [=top-level traversable=], return.
  1. Let |is click| be true if |event type| [=equals=] "click", and false otherwise.
- 1. Let |is keyboard| be true if |event type| [=equals=] "keydown", "keyup" or "keypress", and false otherwise.
+ 1. Let |is keyboard| be true if |target| is an {{HTMLBodyElement} and |event type| [=equals=] "keydown", "keyup" or "keypress", and false otherwise.
  1. Let |is navigation| be true if |event type| [=equals=] "navigate", and false otherwise.
  1. If neither |is click|, |is keyboard| nor |is navigation| is true, return.
  1. Let |task| be the result of calling [=get current task ID=].
@@ -206,7 +208,7 @@ Event dispatch {#sec-html-events}
 
 At [=event dispatch=], after step 5.4 ("Let `isActivationEvent` be true..."), add the following steps:
  1. If |event|'s [=isTrusted=] is true, and |target|'s [=associated Document=] is a [=top-level traversable=]:
-    1. Let |interaction data| be the result of calling [=handle event callback=] with |target|'s [=associated Document=] and |event|'s type.
+    1. Let |interaction data| be the result of calling [=handle event callback=] with |target| and |event|'s type.
 
 At [=event dispatch=], before step 6 (after callback invocation), add the following step:
  1. Call [=terminate event callback handling=] with |document| and |interaction data|.

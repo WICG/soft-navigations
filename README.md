@@ -24,7 +24,7 @@ From a user's perspective, while they don't necessarily care about the architect
 
 ## Heuristics
 
-* The user initiates a soft navigation, by clicking on a link or a DOM element, or pressing a key.
+* The user initiates a soft navigation, by clicking on a link or a DOM element, or pressing a key without focus.
 * That operation results in an event handler firing (a “click”, “navigate”, "keydown", "keyup" , or "keypress" event).
 * We then follow the tasks triggered by the event handler:
   - If it’s a “navigate” event, those tasks are part of the Promise passed to `traverseTo()`.
