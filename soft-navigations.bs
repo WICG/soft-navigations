@@ -207,7 +207,7 @@ Event dispatch {#sec-html-events}
 ----------
 
 At [=event dispatch=], after step 5.4 ("Let `isActivationEvent` be true..."), add the following steps:
- 1. If |event|'s [=isTrusted=] is true, and |target|'s [=associated Document=] is a [=top-level traversable=]:
+ 1. If |event|'s [=isTrusted=] is true:
     1. Let |interaction data| be the result of calling [=handle event callback=] with |target| and |event|'s type.
 
 At [=event dispatch=], before step 6 (after callback invocation), add the following step:
