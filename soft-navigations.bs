@@ -104,6 +104,7 @@ To <dfn>check soft navigation</dfn>, with a [=Document=] |document|, run the fol
  1. Let |start time| be |interaction data|'s [=interaction data/start time=].
  1. Let |entry| be the result of calling [=create a soft navigation entry=] with |global|, |url|, and |start time|.
  1. Call [=emit soft navigation entry=] with |global|, |entry|, |url| and |start time|.
+ 1. Set |interaction data|'s [=interaction data/emitted=] to true.
 
 
 ## Soft navigation entry ## {#sec-entry}
@@ -137,7 +138,8 @@ It has the following [=struct/items=]:
  * <dfn for="interaction data">url</dfn>, initially unset - Represents the soft navigation's URL.
  * <dfn for="interaction data">start time</dfn>, initially unset - Represents the user interaction event processing start time..
  * <dfn for="interaction data">same document commit</dfn> flag, initially unset - Indicates if a same-document commit happened as a result of the interaction.
- * <dfn for="interaction data">contentful paint</dfn> flag, initially unset  - Indicates that a contentful paint happened as a result of an element added by the interaction.
+ * <dfn for="interaction data">contentful paint</dfn> flag, initially false  - Indicates that a contentful paint happened as a result of an element added by the interaction.
+ * <dfn for="interaction data">emitted</dfn> flag, initially false  - Indicates that a soft navigation entry was emitted by the interaction.
 
 To <dfn>get current interaction data</dfn>, given a [=Document=] |document|, run the following steps:
  1. Let |task id| be the result of calling [=get current task ID=].
@@ -181,7 +183,9 @@ To <dfn>check soft navigation same document commit</dfn>, with [=string=] |url|,
 To <dfn>check soft navigation contentful paint</dfn>, with [=/Element=] |element| and [=Document=] |document|, run the following steps:
  1. Let |interaction data| be the result of calling [=get current interaction data=] with |document|.
  1. If |element|'s [=node/appended by soft navigation=] is true, set |interaction data|'s [=contentful paint=] to true.
+    Otherwise, if |interaction data|'s [=interaction data/emitted=] is false, return false.
  1. Call [=check soft navigation=] with |document|.
+ 1. Return true.
 
 HTML integration {#sec-html}
 =================
@@ -229,7 +233,7 @@ At [=node insert=], add these initial steps:
 LCP integration {#sec-lcp-integration}
 ==========================
 In [=potentially add a LargestContentfulPaint entry=], add the following initial step:
- 1. Call [=check soft navigation contentful paint=] with <var ignore>element</var> and <var ignore>document</var>.
+ 1. If the result of calling [=check soft navigation contentful paint=] with <var ignore>element</var> and <var ignore>document</var> is false, return.
 
 Task Attibution Algorithms {#sec-task-attribution-algorithms}
 =========================
