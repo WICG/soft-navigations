@@ -6,7 +6,7 @@
   <link href="https://www.w3.org/StyleSheets/TR/2021/cg-draft" rel="stylesheet">
   <meta content="Bikeshed version b06c00b8e, updated Tue Jul 11 13:41:16 2023 -0700" name="generator">
   <link href="https://wicg.github.io/soft-navigations/" rel="canonical">
-  <meta content="bffab830a4659ec8381e8154f2b2b66dcb0433e1" name="document-revision">
+  <meta content="96becae20000cd4cc0e6da7c8ae0520fab7c24dd" name="document-revision">
 <style>/* Boilerplate: style-autolinks */
 .css.css, .property.property, .descriptor.descriptor {
     color: var(--a-normal-text);
@@ -647,7 +647,7 @@ c-[il] { color: #000000 } /* Literal.Number.Integer.Long */
   <div class="head">
    <p data-fill-with="logo"><a class="logo" href="https://www.w3.org/"> <img alt="W3C" height="48" src="https://www.w3.org/StyleSheets/TR/2021/logos/W3C" width="72"> </a> </p>
    <h1 class="p-name no-ref" id="title">Soft Navigations</h1>
-   <p id="w3c-state"><a href="https://www.w3.org/standards/types#CG-DRAFT">Draft Community Group Report</a>, <time class="dt-updated" datetime="2023-11-29">29 November 2023</time></p>
+   <p id="w3c-state"><a href="https://www.w3.org/standards/types#CG-DRAFT">Draft Community Group Report</a>, <time class="dt-updated" datetime="2023-12-07">7 December 2023</time></p>
    <div data-fill-with="spec-metadata">
     <dl>
      <dt>This version:
@@ -812,6 +812,8 @@ Being able to keep track of which task initiated which can be valuable in multip
      <p>Let <var>entry</var> be the result of calling <a data-link-type="dfn" href="#create-a-soft-navigation-entry" id="ref-for-create-a-soft-navigation-entry">create a soft navigation entry</a> with <var>global</var>, <var>url</var>, and <var>start time</var>.</p>
     <li data-md>
      <p>Call <a data-link-type="dfn" href="#emit-soft-navigation-entry" id="ref-for-emit-soft-navigation-entry">emit soft navigation entry</a> with <var>global</var>, <var>entry</var>, <var>url</var> and <var>start time</var>.</p>
+    <li data-md>
+     <p>Set <var>interaction data</var>’s <a data-link-type="dfn" href="#interaction-data-emitted" id="ref-for-interaction-data-emitted">emitted</a> to true.</p>
    </ol>
    <h3 class="heading settled" data-level="3.1" id="sec-entry"><span class="secno">3.1. </span><span class="content">Soft navigation entry</span><a class="self-link" href="#sec-entry"></a></h3>
     To <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport id="create-a-soft-navigation-entry">create a soft navigation entry</dfn>, with a <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#global-object" id="ref-for-global-object">global object</a> <var>global</var>, a <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#string" id="ref-for-string">string</a> <var>url</var>, a <code class="idl"><a data-link-type="idl" href="https://w3c.github.io/hr-time/#dom-domhighrestimestamp" id="ref-for-dom-domhighrestimestamp">DOMHighResTimeStamp</a></code> <var>start time</var>, run the following steps: 
@@ -864,7 +866,9 @@ It has the following <a data-link-type="dfn" href="https://infra.spec.whatwg.org
     <li data-md>
      <p><dfn class="dfn-paneled" data-dfn-for="interaction data" data-dfn-type="dfn" data-noexport id="interaction-data-same-document-commit">same document commit</dfn> flag, initially unset - Indicates if a same-document commit happened as a result of the interaction.</p>
     <li data-md>
-     <p><dfn class="dfn-paneled" data-dfn-for="interaction data" data-dfn-type="dfn" data-noexport id="interaction-data-contentful-paint">contentful paint</dfn> flag, initially unset  - Indicates that a contentful paint happened as a result of an element added by the interaction.</p>
+     <p><dfn class="dfn-paneled" data-dfn-for="interaction data" data-dfn-type="dfn" data-noexport id="interaction-data-contentful-paint">contentful paint</dfn> flag, initially false  - Indicates that a contentful paint happened as a result of an element added by the interaction.</p>
+    <li data-md>
+     <p><dfn class="dfn-paneled" data-dfn-for="interaction data" data-dfn-type="dfn" data-noexport id="interaction-data-emitted">emitted</dfn> flag, initially false  - Indicates that a soft navigation entry was emitted by the interaction.</p>
    </ul>
    <p>To <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport id="get-current-interaction-data">get current interaction data</dfn>, given a <a data-link-type="dfn" href="https://dom.spec.whatwg.org/#concept-document" id="ref-for-concept-document①">Document</a> <var>document</var>, run the following steps:</p>
    <ol>
@@ -1246,6 +1250,7 @@ individually examined and have those implications outlined.</p>
    <li><a href="#create-a-soft-navigation-entry">create a soft navigation entry</a><span>, in § 3.1</span>
    <li><a href="#create-a-task-scope">create a task scope</a><span>, in § 6.1</span>
    <li><a href="#emit-soft-navigation-entry">emit soft navigation entry</a><span>, in § 3.1</span>
+   <li><a href="#interaction-data-emitted">emitted</a><span>, in § 3.2</span>
    <li><a href="#get-current-interaction-data">get current interaction data</a><span>, in § 3.2</span>
    <li><a href="#get-current-task">get current task</a><span>, in § 6.3.1</span>
    <li><a href="#get-current-task-id">get current task id</a><span>, in § 6.3.2</span>
@@ -1791,6 +1796,7 @@ window.dfnpanelData['interaction-data-url'] = {"dfnID": "interaction-data-url", 
 window.dfnpanelData['interaction-data-start-time'] = {"dfnID": "interaction-data-start-time", "url": "#interaction-data-start-time", "dfnText": "start time", "refSections": [{"refs": [{"id": "ref-for-interaction-data-start-time"}], "title": "3. Algorithms"}, {"refs": [{"id": "ref-for-interaction-data-start-time\u2460"}], "title": "3.2. Interaction"}], "external": false};
 window.dfnpanelData['interaction-data-same-document-commit'] = {"dfnID": "interaction-data-same-document-commit", "url": "#interaction-data-same-document-commit", "dfnText": "same document commit", "refSections": [{"refs": [{"id": "ref-for-interaction-data-same-document-commit"}], "title": "3. Algorithms"}, {"refs": [{"id": "ref-for-interaction-data-same-document-commit\u2460"}], "title": "3.3. Same document commit"}], "external": false};
 window.dfnpanelData['interaction-data-contentful-paint'] = {"dfnID": "interaction-data-contentful-paint", "url": "#interaction-data-contentful-paint", "dfnText": "contentful paint", "refSections": [{"refs": [{"id": "ref-for-interaction-data-contentful-paint"}], "title": "3. Algorithms"}, {"refs": [{"id": "ref-for-interaction-data-contentful-paint\u2460"}], "title": "3.4. Contentful paint"}], "external": false};
+window.dfnpanelData['interaction-data-emitted'] = {"dfnID": "interaction-data-emitted", "url": "#interaction-data-emitted", "dfnText": "emitted", "refSections": [{"refs": [{"id": "ref-for-interaction-data-emitted"}], "title": "3. Algorithms"}], "external": false};
 window.dfnpanelData['get-current-interaction-data'] = {"dfnID": "get-current-interaction-data", "url": "#get-current-interaction-data", "dfnText": "get current interaction data", "refSections": [{"refs": [{"id": "ref-for-get-current-interaction-data"}], "title": "3. Algorithms"}, {"refs": [{"id": "ref-for-get-current-interaction-data\u2460"}], "title": "3.3. Same document commit"}, {"refs": [{"id": "ref-for-get-current-interaction-data\u2461"}], "title": "3.4. Contentful paint"}], "external": false};
 window.dfnpanelData['handle-event-callback'] = {"dfnID": "handle-event-callback", "url": "#handle-event-callback", "dfnText": "handle event callback", "refSections": [{"refs": [{"id": "ref-for-handle-event-callback"}], "title": "4.3. Event dispatch"}], "external": false};
 window.dfnpanelData['terminate-event-callback-handling'] = {"dfnID": "terminate-event-callback-handling", "url": "#terminate-event-callback-handling", "dfnText": "terminate event callback handling", "refSections": [{"refs": [{"id": "ref-for-terminate-event-callback-handling"}], "title": "4.3. Event dispatch"}], "external": false};
