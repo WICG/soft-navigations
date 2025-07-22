@@ -246,11 +246,12 @@ And remember, if you find bugs, https://crbug.com is the best way to get them fi
 
 # FAQs
 
-## Should this rely on the [Navigation API](https://html.spec.whatwg.org/multipage/nav-history-apis.html#navigation-api)?
+## Should this rely on the Navigation API)?
 
-If this effort were to require that websites use the Navigation API, that would mean that it can only cover future web apps, or require web apps to completely rewrite their routing libraries in order to take advantage of Soft Navigation measurement.
+The [Navigation API](https://html.spec.whatwg.org/multipage/nav-history-apis.html#navigation-api) consolidates the many methods to initiate or observe same document history navigations. It also provides a mechanism to `intercept()` semantic navigations (such as `<a href>` clicks or `<form action>` submits) and provide custom behaviours.
+
+However, if this effort were to _require_ that websites opt to use this new `intercept()` feature in order to receive Soft Navigation measurement, that would mean that it would only cover future web apps, or require web apps to completely rewrite their routing libraries.
+
 That would go against the goal of being able to measure such navigations at scale.
 
-On top of that, the Navigation API does not make any distinction between "real" navigations and interactions, so even if we were to rely on the Navigation API, extra heuristics would still be needed.
-
-With that said, this effort works great with the Navigation API, as well as with the older history API.
+On top of that, the Navigation API does not make any distinction between "real" navigations and interactions. So although the Navigation API does provide useful mechanisms and simplications for observing same document history changes, extra heuristics are still needed.
