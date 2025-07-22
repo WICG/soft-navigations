@@ -23,7 +23,7 @@ From a user's perspective, while they don't necessarily care about the architect
 - Enable such measurement at scale - allowing the team that owns the measurement to be decoupled from the team that owns the app's logic.
 - Not rely on developers annotating soft navigations themselves.
 
-## Heuristics
+## Processing Model
 
 1. A User _initiates_ a soft navigation via an Interaction with the page.
 
@@ -34,33 +34,29 @@ From a user's perspective, while they don't necessarily care about the architect
 
    - For example: `“click”`, `“navigate”`, `"keydown"` events, etc.
 
-1. We establish an Interaction "Context", wrapping those event handlers, and which _persists across the scheduling of new tasks_.
+1. We establish an Interaction "Context", wrapping those event handlers, and which also _persists across the scheduling of new tasks_.
 
    - For example: `setTimeout()` or `fetch()` calls, `await` keyword, etc.
    - See related proposal for explicit `AsyncContext` API.
 
-1. We observe specific effects which modify the document's location or DOM structure.
+1. We observe certain direct modifications to the document structure.
 
    - For example, via `history.pushState()`.
-   - For example, by adding new child elements, or updating specific attributes of existing elements (`<img src="...">`).
+   - For example, via `element.appendChild()`, or changes to attributes i.e. `<img src="...">`.
 
-1. When such effects happen, if the actively running Task has an active Interaction "Context", we can _attibute_ the cause of the effect to it.
+1. When such effects happen, if the actively running Task was scheduled with an active Interaction "Context", we can _attribute effects_ to that context.
 
-   - Each Context observes the set of effects it caused, looking to meet specific necessary criteria.
+   - Thus, each Context is assigned the set of effects it caused. The "Soft navigation heuristics" is really just a small set of necessary effects that a single Context must have.
 
-1. We _attribute_ the page updates with the related contentful paints that follow and report then to the performance timeline.
+1. We also _attribute contentful paints_ for the parts of the dom that were directly modified with the context, and report them to the performance timeline.
 
-   - Interaction attributable paints are reporting via a new `PerformanceEntry` called `InteractionContentfulPaint` (ICP).
-   - These are observed for any new Element paint that belongs to a Container (aka Component) that was modified by the Interaction.
-   - See related proposal for explicit `ContainerTiming` API.
-   - Note: `InteractionContentfulPaint` currently reports only new largest element paint candidates, similar to LCP, but it might also report all updated area, like `ContainerTiming`.
+   - `InteractionContentfulPaint` entries are reported, for any Element that was directly modified, or was _part of a Container_ that was directly modified by the Interaction.
 
-1. When all criteria are met: A real user Interaction leads to a document location change and a substantial contentful paint update that is directly attributable to that interaction: that is a Soft Navigation.
+1. When all criteria are met-- A real user Interaction leads to a document location change and a substantial contentful paint update-- that becomes a Soft Navigation.
 
-   - This will be reported via a new `PerformanceEntry` called `SoftNavigationEntry`.
-   - Among other metadata, it will include a recomended new timeOrigin (via `startTime`), and provide a new `navigationId` value, which can be used to help group and measure other `PerformanceEntry` on the performance timeline.
-   - The `SoftNavigation` entry also acts as the FCP measure for the navigation.
-   - ICP entries act as LCP candidates for the navigation.
+   - `SoftNavigation` entries are reported.
+
+###
 
 ### [Task attribution](https://bit.ly/task-attribution)
 
@@ -68,19 +64,35 @@ The above heuristics rely on the ability to keep track of tasks and their proven
 
 ## Proposed API shape
 
+### PerformanceEntry
+
+```
+PerformanceEntry {
+    readonly attribute unsigned long long navigationId;
+}
+```
+
+- Extend `PerformanceEntry` to add `navigationId`.
+  - This is a pseudorandom number which increments with each new interaction. It is exposed to many different entry types and helps group (or slice) the single performance timeline by navigations.
+
 ### SoftNavigationEntry
 
 ```
 SoftNavigationEntry : PerformanceEntry {
 }
+
+SoftNavigationEntry includes PaintTimingMixin;
 ```
 
 The inheritance from `PerformanceEntry` means that the entry will have `startTime`, `name`, `entryType` and `duration`:
 
-- `startTime` is defined as the time in which the user's interaction event processing ended, or the time in which the "navigate" event processing ended, whichever's first.
+- `startTime` is a recomended new timeOrigin for this navigation. It is the earlier value of:
+  - the user's interaction event's `processingEnd`, or
+  - the URL was explicitly changed.
 - `name` is the URL of the history entry representing the soft navigation.
-- `entryType` is "soft-navigation".
+- `entryType` is `"soft-navigation"`.
 - `duration` is the time difference between the point in which a soft navigation is detected and the `startTime`.
+- `SoftNavigationEntry` also includes `PaintTimingMixin` which exposed `paintTime` and `presentationTime` and which represent the First Contentful Paint (FCP) for this navigation.
 
 ### InteractionContentfulPaint
 
@@ -95,7 +107,23 @@ InteractionContentfulPaint : PerformanceEntry {
 }
 ```
 
-Note: This currently mirrors the shape of `LargestContenfulPaint` and matches the same semantics. This will likely change.
+- The `InteractionContentfulPaint` entries report any new Element paint that _belongs to a Container_ that was modified by the Interaction.
+  - See related proposal for explicit `ContainerTiming` API.
+- `InteractionContentfulPaint` (ICP) entries act as `LargestContenfulPaint` (LCP) candidates for the navigation.
+  - Note: this entry currently perfectly mirrors the shape of `LargestContenfulPaint`, but might change to extend it.
+  - For example: `InteractionContentfulPaint` currently reports only new largest element paint candidates, like LCP, but it might change to also report each updated paint area via `size`, like `PerformanceContainerTiming`.
+
+### Required spec changes
+
+- We need to add a `PerformanceObserverInit` option named `"includeSoftNavigationObservations"`.
+  - This flag is used to mark that `PerformanceEntry` should be reported with NavigationId.
+  - This is required for `InteractionContentfulPaint` entries.
+
+```
+dictionary PerformanceObserverInit {
+  boolean includeSoftNavigationObservations;
+};
+```
 
 ## Examples
 
@@ -165,12 +193,6 @@ for (icpEntry of icp_entries) {
 }
 ```
 
-## Required spec changes
-
-- We need to add `PerformanceObserverInit` option named "includeSoftNavigationObservations", that will indicate that post-soft-navigation ICP entries should be observed.
-
-Note: With the new ICP entry replacing LCP, this may change.
-
 ## Privacy and security considerations
 
 This API exposes a few novel paint timestamps that are not available today, after a soft navigation is detected: the first paint, the first contentful paint and the largest contentful paint.
@@ -226,7 +248,7 @@ And remember, if you find bugs, https://crbug.com is the best way to get them fi
 
 ## Should this rely on the [Navigation API](https://html.spec.whatwg.org/multipage/nav-history-apis.html#navigation-api)?
 
-If this effort were to rely on the Navigation API, that would mean that it can only cover future web apps, or require web apps to completely rewrite their routing libraries in order to take advantage of Soft Navigation measurement.
+If this effort were to require that websites use the Navigation API, that would mean that it can only cover future web apps, or require web apps to completely rewrite their routing libraries in order to take advantage of Soft Navigation measurement.
 That would go against the goal of being able to measure such navigations at scale.
 
 On top of that, the Navigation API does not make any distinction between "real" navigations and interactions, so even if we were to rely on the Navigation API, extra heuristics would still be needed.
