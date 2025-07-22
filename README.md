@@ -70,27 +70,16 @@ The above heuristics rely on the ability to keep track of tasks and their proven
 
 ## Proposed API shape
 
-### PerformanceEntry
+### `SoftNavigationEntry`
 
 ```
-PerformanceEntry {
-    readonly attribute unsigned long long navigationId;
-}
-```
-
-- Extend `PerformanceEntry` to add `navigationId`.
-  - This is a pseudorandom number which increments with each new interaction. It is exposed to many different entry types and helps group (or slice) the single performance timeline by navigations.
-
-### SoftNavigationEntry
-
-```
-SoftNavigationEntry : PerformanceEntry {
+interface SoftNavigationEntry : PerformanceEntry {
 }
 
 SoftNavigationEntry includes PaintTimingMixin;
 ```
 
-The inheritance from `PerformanceEntry` means that the entry will have `startTime`, `name`, `entryType` and `duration`:
+Note: The inheritance from `PerformanceEntry` means that the entry will have `startTime`, `name`, `entryType`, `duration`, and `navigationId`.
 
 - `startTime` is a recomended new timeOrigin for this navigation. It is the earlier value of:
   - the user's interaction event's `processingEnd`, or
@@ -98,12 +87,13 @@ The inheritance from `PerformanceEntry` means that the entry will have `startTim
 - `name` is the URL of the history entry representing the soft navigation.
 - `entryType` is `"soft-navigation"`.
 - `duration` is the time difference between the point in which a soft navigation is detected and the `startTime`.
+- `navigationId` is a new pseudo-random number identifying this navigation.
 - `SoftNavigationEntry` also includes `PaintTimingMixin` which exposed `paintTime` and `presentationTime` and which represent the First Contentful Paint (FCP) for this navigation.
 
-### InteractionContentfulPaint
+### `InteractionContentfulPaint`
 
 ```
-InteractionContentfulPaint : PerformanceEntry {
+interface InteractionContentfulPaint : PerformanceEntry {
     readonly attribute DOMHighResTimeStamp renderTime;
     readonly attribute DOMHighResTimeStamp loadTime;
     readonly attribute unsigned long long size;
@@ -119,17 +109,31 @@ InteractionContentfulPaint : PerformanceEntry {
   - Note: this entry currently perfectly mirrors the shape of `LargestContenfulPaint`, but might change to extend it.
   - For example: `InteractionContentfulPaint` currently reports only new largest element paint candidates, like LCP, but it might change to also report each updated paint area via `size`, like `PerformanceContainerTiming`.
 
-### Required spec changes
+## Required spec changes
 
-- We need to add a `PerformanceObserverInit` option named `"includeSoftNavigationObservations"`.
-  - This flag is used to mark that `PerformanceEntry` should be reported with NavigationId.
-  - This is required for `InteractionContentfulPaint` entries.
+### `PerformanceEntry`
+
+```
+interface PerformanceEntry {
+    readonly attribute unsigned long long navigationId;
+}
+```
+
+- Extend `PerformanceEntry` to add `navigationId`.
+  - This is a pseudorandom number which increments with each new navigation.
+  - It is exposed to many different entry types and helps group (or slice) the single performance timeline by navigations.
+
+### `PerformanceObserverInit` options
 
 ```
 dictionary PerformanceObserverInit {
   boolean includeSoftNavigationObservations;
 };
 ```
+
+- We need to add a `PerformanceObserverInit` option named `"includeSoftNavigationObservations"`.
+  - This flag is used to mark that `PerformanceEntry` should be reported with a `navigationId`.
+  - This is required for `InteractionContentfulPaint` entries.
 
 ## Examples
 
@@ -154,18 +158,7 @@ To list all the existing (buffered) entries so far, you can use `getEntriesByTyp
 const soft_navs = performance.getEntriesByType("soft-navigation");
 ```
 
-That would give them a list of past and future soft navigations they can send to their server for processing.
-
-They would be able to also get soft navigations as they come (similar to other performance entries):
-
-```javascript
-const soft_navs = [];
-new PerformanceObserver((list) => soft_navs.push(...list.getEntries())).observe(
-  { type: "soft-navigation" }
-);
-```
-
-Or to include past soft navigations:
+Or, combine both to create a list of all Soft Navigations over time:
 
 ```javascript
 const soft_navs = [];
@@ -176,27 +169,23 @@ new PerformanceObserver((list) => soft_navs.push(...list.getEntries())).observe(
 
 ### Correlating performance entries with a soft navigation
 
-For that developers would need to collect `soft_navs` into an array as above.
-Then they can, for each entry (which can be LCP, FCP, or any other entry type), find its corresponding duration as following:
+For each `PerformanceEntry` (which can be FCP, LCP, INP, CLS, ICP, etc), find its corresponding soft navigation, and report a duration relative to that navigation `timeOrigin`. For example:
 
 ```javascript
-const icp_entries = [];
 new PerformanceObserver((list) =>
-  icp_entries.push(...list.getEntries())
+  for (icpEntry of ist.getEntries()) {
+    // Find the soft navigaton entry matching on `navigationId`:
+    const navEntry = soft_navs.filter(
+      (navEntry) => navEntry.navigationId == icpEntry.navigationId
+    )[0];
+
+    const lcp_candidate_duration = icpEntry.startTime - navEntry.startTime;
+    // ...
+  }
 ).observe({
   type: "interaction-contentful-paint",
   includeSoftNavigationObservations: true,
 });
-
-for (icpEntry of icp_entries) {
-  // Find the soft navigaton entry matching on `navigationId`:
-  const navEntry = soft_navs.filter(
-    (navEntry) => navEntry.navigationId == icpEntry.navigationId
-  )[0];
-
-  const lcp_candidate_duration = icpEntry.startTime - navEntry.startTime;
-  // ...
-}
 ```
 
 ## Privacy and security considerations
