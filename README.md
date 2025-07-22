@@ -2,7 +2,13 @@
 
 ## Overview
 
-“Soft navigations” are JS-driven same-document navigations that are using the history API or the new Navigation API, triggered by a user gesture and modifies the DOM, modifying the previous content, as well as the URL displayed to the user.
+“Soft navigations” are user-initiated but JS-driven same-document navigations.
+
+The Soft Navigation API considers a "soft navigation" when the following occurs:
+
+- A user-based interaction occurs (URL updates without a user interaction don't count)
+- … which results in a DOM modification and a paint
+- … and a URL update occurs, which changes the history state
 
 [PerformanceTimeline#168](https://github.com/w3c/performance-timeline/issues/168) outlines the desire to be able to better report performance metrics on soft navigation. Heuristics for detecting soft navigations can ensure that developers can measure their SPA’s performance metrics, and optimize them to benefit their users.
 
