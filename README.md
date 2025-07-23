@@ -164,28 +164,37 @@ For each `PerformanceEntry` (which can be FCP, LCP, INP, CLS, ICP, etc), find it
 
 ```javascript
 const soft_navs = [];
-new PerformanceObserver((list) => {
-  soft_navs.push(...list.getEntries());
-}).observe({
-  type: "soft-navigation",
-  buffered: true
-});
-
-new PerformanceObserver((list) => {
-  for (icpEntry of list.getEntries()) {
+const observer = new PerformanceObserver((list) => {
+  for (navEntry of list.getEntriesByType('soft-navigation')) {
+    soft_navs.push(navEntry);
+    // console.log("[SN]", navEntry);
+  }
+    
+  for (icpEntry of list.getEntriesByType('interaction-contentful-paint')) {
+    // console.log("[ICP]", icpEntry);
+      
     // Find the soft navigaton entry matching on `navigationId`:
     const navEntry = soft_navs.filter(
       (navEntry) => navEntry.navigationId == icpEntry.navigationId
     )[0];
 
+    console.assert(navEntry);
+      
     // Compute a duration value relative to the soft nav "timeOrigin"
     const relative_duration = icpEntry.startTime - navEntry.startTime;
 
     console.log("New Contentful Paint for Soft Navigation:", relative_duration);
   }
-}).observe({
+});
+observer.observe({
+  type: "soft-navigation",
+  includeSoftNavigationObservations: true,
+  buffered: true,
+});
+observer.observe({
   type: "interaction-contentful-paint",
   includeSoftNavigationObservations: true,
+  buffered: true,
 });
 ```
 
