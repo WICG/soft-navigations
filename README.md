@@ -158,31 +158,32 @@ To list all the existing (buffered) entries so far, you can use `getEntriesByTyp
 const soft_navs = performance.getEntriesByType("soft-navigation");
 ```
 
-Or, combine both to create a list of all Soft Navigations over time:
-
-```javascript
-const soft_navs = [];
-new PerformanceObserver((list) => soft_navs.push(...list.getEntries())).observe(
-  { type: "soft-navigation", buffered: true }
-);
-```
-
 ### Correlating performance entries with a soft navigation
 
 For each `PerformanceEntry` (which can be FCP, LCP, INP, CLS, ICP, etc), find its corresponding soft navigation, and report a duration relative to that navigation `timeOrigin`. For example:
 
 ```javascript
-new PerformanceObserver((list) =>
-  for (icpEntry of ist.getEntries()) {
+const soft_navs = [];
+new PerformanceObserver((list) => {
+  soft_navs.push(...list.getEntries());
+}).observe({
+  type: "soft-navigation",
+  buffered: true
+});
+
+new PerformanceObserver((list) => {
+  for (icpEntry of list.getEntries()) {
     // Find the soft navigaton entry matching on `navigationId`:
     const navEntry = soft_navs.filter(
       (navEntry) => navEntry.navigationId == icpEntry.navigationId
     )[0];
 
-    const lcp_candidate_duration = icpEntry.startTime - navEntry.startTime;
-    // ...
+    // Compute a duration value relative to the soft nav "timeOrigin"
+    const relative_duration = icpEntry.startTime - navEntry.startTime;
+
+    console.log("New Contentful Paint for Soft Navigation:", relative_duration);
   }
-).observe({
+}).observe({
   type: "interaction-contentful-paint",
   includeSoftNavigationObservations: true,
 });
