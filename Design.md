@@ -4,13 +4,78 @@ This design doc aims to define the desired functionality and operation of the So
 
 Some notes will be added to this draft design to document deviations from the current Chromium implementation.
 
+## Proposed API shape
+
+### `SoftNavigationEntry`
+
+```
+interface SoftNavigationEntry : PerformanceEntry {
+}
+
+SoftNavigationEntry includes PaintTimingMixin;
+```
+
+Note: The inheritance from `PerformanceEntry` means that the entry will have `startTime`, `name`, `entryType`, `duration`, and `navigationId`.
+
+- `startTime` is a recomended new timeOrigin for this navigation. It is the earlier value of:
+  - the user's interaction event's `processingEnd`, or
+  - the URL was explicitly changed.
+- `name` is the URL of the history entry representing the soft navigation.
+- `entryType` is `"soft-navigation"`.
+- `duration` is the time difference between the point in which a soft navigation is detected and the `startTime`.
+- `navigationId` is a new pseudo-random number identifying this navigation.
+- `SoftNavigationEntry` also includes `PaintTimingMixin` which exposed `paintTime` and `presentationTime` and which represent the First Contentful Paint (FCP) for this navigation.
+
+### `InteractionContentfulPaint`
+
+```
+interface InteractionContentfulPaint : PerformanceEntry {
+    readonly attribute DOMHighResTimeStamp renderTime;
+    readonly attribute DOMHighResTimeStamp loadTime;
+    readonly attribute unsigned long long size;
+    readonly attribute DOMString id;
+    readonly attribute DOMString url;
+    readonly attribute Element? element;
+}
+```
+
+- The `InteractionContentfulPaint` entries report any new Element paint that _belongs to a Container_ that was modified by the Interaction.
+  - See related proposal for explicit `ContainerTiming` API.
+- `InteractionContentfulPaint` (ICP) entries act as `LargestContenfulPaint` (LCP) candidates for the navigation.
+  - Note: this entry currently perfectly mirrors the shape of `LargestContenfulPaint`, but might change to extend it.
+  - For example: `InteractionContentfulPaint` currently reports only new largest element paint candidates, like LCP, but it might change to also report each updated paint area via `size`, like `PerformanceContainerTiming`.
+
+## Required spec changes
+
+### `PerformanceEntry`
+
+```
+interface PerformanceEntry {
+    readonly attribute unsigned long long navigationId;
+}
+```
+
+- Extend `PerformanceEntry` to add `navigationId`.
+  - This is a pseudorandom number which increments with each new navigation.
+  - It is exposed to many different entry types and helps group (or slice) the single performance timeline by navigations.
+
+### `PerformanceObserverInit` options
+
+```
+dictionary PerformanceObserverInit {
+  boolean includeSoftNavigationObservations;
+};
+```
+
+- We need to add a `PerformanceObserverInit` option named `"includeSoftNavigationObservations"`.
+  - This flag is used to mark that `PerformanceEntry` should be reported with a `navigationId`.
+  - This is required for `InteractionContentfulPaint` entries.
+
 ## NavigationId
 
 - Update document to have a current **navigationId value**.
-- Update PerformanceEntry to add **navigationId** attribute.
-- _Note: this was already added to specs, calling it out here._
 
-## InteractionContentfulPaint (ICP) Entry
+### Emitting InteractionContentfulPaint (ICP) Entry
 
 - Define an **InteractionContext** struct
   - **created timestamp**
@@ -18,7 +83,9 @@ Some notes will be added to this draft design to document deviations from the cu
   - **total size painted**
   - **largest paint candidate element timing**
   - _Note: Should slo add metadata describing / pointing back to the Interaction itself._
-- Hook into Event Timing [initialize event timing](https://www.w3.org/TR/event-timing/#initialize-event-timing) "processingStart":
+- Extend the Event Timing API to add support for more event types:
+  - `popstate` and `navigate`.
+- Hook into Event Timing API [initialize event timing](https://www.w3.org/TR/event-timing/#initialize-event-timing) "processingStart":
   - If this Event creates a new interaction (new interactionId), or may do so in the future:
     - _Create_ a new **InteractionContext**, and _Set_ its **created timestamp** to Now
     - _Save_ it into a map InteractionId→**InteractionContext**
@@ -59,7 +126,7 @@ Some notes will be added to this draft design to document deviations from the cu
 - Algo: _Get_ the **most recent modifier** for Node
   - If Node, or one of its container nodes, was modified by an **InteractionContext**, return that context.
 
-## SoftNavigation (SN) Entry
+## Emitting SoftNavigation (SN) Entry
 
 - Extend **InteractionContext** to add:
   - **most recent event processing end timestamp**
@@ -98,7 +165,7 @@ Some notes will be added to this draft design to document deviations from the cu
 - Algo: _Get_ **Required Threshold Paint Area**
   - return 2% of viewport size
 
-# Differences in Chromium
+# Differences in Chromium (as of m139, July 2025)
 
 - Currently, InteractionContext creation, and the InteractionContentfulPaint Entry, are tightly coupled to SoftNavigation Heuristics.
   - SoftNavigations should really just extend a generic InteractionContext tracking system, but is currently the manager of it.

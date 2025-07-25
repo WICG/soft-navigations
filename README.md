@@ -6,9 +6,11 @@
 
 The Soft Navigation API considers a "soft navigation" when the following occurs:
 
-- A user-based interaction occurs (URL updates without a user interaction don't count)
-- … which results in a DOM modification and a paint
-- … and a URL update occurs, which changes the history state
+- A user-initiated interaction occurs,
+- … which results in DOM modifications that lead to sufficiently contentful paints,
+- … and a URL update occurs, which changes the history state.
+
+(Notice: URL updates without a user interaction, or without content updates, aren't measured.)
 
 [PerformanceTimeline#168](https://github.com/w3c/performance-timeline/issues/168) outlines the desire to be able to better report performance metrics on soft navigation. Heuristics for detecting soft navigations can ensure that developers can measure their SPA’s performance metrics, and optimize them to benefit their users.
 
@@ -62,11 +64,13 @@ From a user's perspective, while they don't necessarily care about the architect
 
    - `SoftNavigation` entries are reported.
 
-###
-
-### [Task attribution](https://bit.ly/task-attribution)
+### Task Attribution
 
 The above heuristics rely on the ability to keep track of tasks and their provenance. We need to be able to tell that a certain task was posted by another, and be able to create a causality chain between DOM dirtying and URL modifications to the event handler that triggered the soft navigation.
+
+- TC39 [AsyncContext API proposal](https://github.com/tc39/proposal-async-context)
+- In Chromium: [Task Attribution v2 Design](https://docs.google.com/document/d/1hZ1FdFtHoPk7h9mwTPJSlF83T7YnTpmfa0CEQbPn8Ks/edit?usp=sharing)
+  - Historical: [Task Attribution v1 Design](https://bit.ly/task-attribution)
 
 ## Proposed API shape
 
@@ -165,21 +169,21 @@ For each `PerformanceEntry` (which can be FCP, LCP, INP, CLS, ICP, etc), find it
 ```javascript
 const soft_navs = [];
 const observer = new PerformanceObserver((list) => {
-  for (navEntry of list.getEntriesByType('soft-navigation')) {
+  for (navEntry of list.getEntriesByType("soft-navigation")) {
     soft_navs.push(navEntry);
     // console.log("[SN]", navEntry);
   }
-    
-  for (icpEntry of list.getEntriesByType('interaction-contentful-paint')) {
+
+  for (icpEntry of list.getEntriesByType("interaction-contentful-paint")) {
     // console.log("[ICP]", icpEntry);
-      
+
     // Find the soft navigaton entry matching on `navigationId`:
     const navEntry = soft_navs.filter(
       (navEntry) => navEntry.navigationId == icpEntry.navigationId
     )[0];
 
     console.assert(navEntry);
-      
+
     // Compute a duration value relative to the soft nav "timeOrigin"
     const relative_duration = icpEntry.startTime - navEntry.startTime;
 
