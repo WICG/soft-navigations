@@ -1,4 +1,3 @@
-```markdown
 # Design Doc for Soft-navs v2
 
 This design doc aims to define the desired functionality and operation of the Soft Navigations performance timeline API, and serve as a template for a specification, rather than just detailing its exact current implementation in Chromium.
@@ -97,4 +96,7 @@ Some notes will be added to this draft design to document deviations from the cu
 - For example `pointerdown` and `pointerup` are Interactions (e.g. for INP) but not for ICP or SoftNavigation. Keyboard events are supported, but with a more limited capacity.
 - SoftNavigations also requires observing some events that are not measured by Event Timings (such as `popstate` or `navigate`).
 - There has been a recent feature request to expand the Event Timing concept of InteractionId to more events in general, and potentially we can unify around "uses same InteractionContext" for this also.
+
+```
+
 ```
