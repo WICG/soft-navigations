@@ -152,7 +152,7 @@ To <dfn>handle event callback</dfn>, given an {{EventTarget}} |target| and a [=s
  1. Let |document| be |target|'s [=associated Document=].
  1. If |document| is not a [=top-level traversable=], return.
  1. Let |is click| be true if |event type| [=equals=] "click", and false otherwise.
- 1. Let |is keyboard| be true if |target| is an {{HTMLBodyElement} and |event type| [=equals=] "keydown", "keyup" or "keypress", and false otherwise.
+ 1. Let |is keyboard| be true if |target| is an {{HTMLBodyElement}} and |event type| [=equals=] "keydown", "keyup" or "keypress", and false otherwise.
  1. Let |is navigation| be true if |event type| [=equals=] "navigate", and false otherwise.
  1. If neither |is click|, |is keyboard| nor |is navigation| is true, return.
  1. Let |task| be the result of calling [=get current task ID=].
@@ -381,7 +381,7 @@ In [=clean up after running a callback=], add the following step:
 ### HostMakeJobCallback ##{#sec-hostmakejobcallback}
 In [=HostMakeJobCallback=], add the following steps:
   1. Let |task| be the result of [=getting current task=].
-  1. Let <var ignore>callable</var>'s [=callback function/parent task|  be |task|.
+  1. Let <var ignore>callable</var>'s [=callback function/parent task=]  be |task|.
 
 Note: This is needed to ensure the current task is registered on the promise continuations when they are created.
 
