@@ -109,7 +109,7 @@ interface InteractionContentfulPaint : PerformanceEntry {
 
 - The `InteractionContentfulPaint` entries report any new Element paint that _belongs to a Container_ that was modified by the Interaction.
   - See related proposal for explicit `ContainerTiming` API.
-- `InteractionContentfulPaint` entries act as `LargestContenfulPaint` (LCP) candidates for the navigation.
+- `InteractionContentfulPaint` entries act as Largest Contentful Paint (LCP) candidates for the navigation.
   - Note: this entry currently perfectly mirrors the shape of `LargestContenfulPaint`, but might change to extend it.
   - For example: `InteractionContentfulPaint` currently reports only new largest element paint candidates, like LCP, but it might change to also report each updated paint area via `size`, like `PerformanceContainerTiming`.
 
