@@ -109,7 +109,7 @@ interface InteractionContentfulPaint : PerformanceEntry {
 
 - The `InteractionContentfulPaint` entries report any new Element paint that _belongs to a Container_ that was modified by the Interaction.
   - See related proposal for explicit `ContainerTiming` API.
-- `InteractionContentfulPaint` (ICP) entries act as `LargestContenfulPaint` (LCP) candidates for the navigation.
+- `InteractionContentfulPaint` entries act as `LargestContenfulPaint` (LCP) candidates for the navigation.
   - Note: this entry currently perfectly mirrors the shape of `LargestContenfulPaint`, but might change to extend it.
   - For example: `InteractionContentfulPaint` currently reports only new largest element paint candidates, like LCP, but it might change to also report each updated paint area via `size`, like `PerformanceContainerTiming`.
 
@@ -164,7 +164,7 @@ const soft_navs = performance.getEntriesByType("soft-navigation");
 
 ### Correlating performance entries with a soft navigation
 
-For each `PerformanceEntry` (which can be FCP, LCP, INP, CLS, ICP, etc), find its corresponding soft navigation, and report a duration relative to that navigation `timeOrigin`. For example:
+For each `PerformanceEntry` (which can be `(first|largest|interaction)-contentful-paint`, `layout-shift`, `event-timing`, etc), find its corresponding soft navigation, and report a duration relative to that navigation `timeOrigin`. For example:
 
 ```javascript
 const soft_navs = [];
@@ -175,7 +175,6 @@ const observer = new PerformanceObserver((list) => {
   }
 
   for (icpEntry of list.getEntriesByType("interaction-contentful-paint")) {
-    // console.log("[ICP]", icpEntry);
 
     // Find the soft navigaton entry matching on `navigationId`:
     const navEntry = soft_navs.filter(
