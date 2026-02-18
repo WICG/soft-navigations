@@ -1,15 +1,16 @@
 <pre class=metadata>
-Title: Soft Navigations
+Title: Soft Navigations and Interaction Contentful Paint
 Status: CG-DRAFT
-Shortname:soft-navigations
+Shortname: soft-navigations
 Group: wicg
 Level: none
 Editor: Michal Mocny, Google https://google.com, mmocny@chromium.org, w3cid 110398
-        Yoav Weiss, Shopify https://shopify.com, yoav@yoav.ws, w3cid 58673
+        Scott Haseley, Google https://google.com, shaseley@google.com
+Former Editor: Yoav Weiss, Shopify https://shopify.com, yoav@yoav.ws, w3cid 58673
 URL: https://wicg.github.io/soft-navigations/
 Repository: https://github.com/WICG/soft-navigations
 Test Suite: https://github.com/web-platform-tests/wpt/tree/master/soft-navigation-heuristics
-Abstract: This document defines a heuristic that would enable browsers to report metrics related to Single Page Apps soft navigations.
+Abstract: This document defines a mechanism for measuring interaction-initiated effects, enabling user agents to attribute page modifications and performance entries back to the user interactions that triggered them.
 Boilerplate: omit conformance
 Default Highlight: js
 Complain About: accidental-2119 yes
@@ -17,37 +18,89 @@ Markup Shorthands: markdown on
 </pre>
 
 <pre class=anchors>
-urlPrefix: https://html.spec.whatwg.org/C; spec: HTML;
-    type: dfn; url: #execute-the-script-element; text: execute the script element;
-    type: dfn; url: #update-document-for-history-step-application; text: update document for history step application;
-    type: dfn; url: #top-level-traversable; text: top-level traversable;
-    type: dfn; url: #timer-initialisation-steps; text: timer initialisation steps;
-    type: dfn; url: #hostmakejobcallback; text: HostMakeJobCallback;
-    type: dfn; url: #message-port-post-message-steps; text: message port post message steps;
-    type: dfn; url: #apply-the-history-step; text: apply the history step;
-    type: dfn; url: #tn-append-session-history-traversal-steps; text: append session history traversal steps;
-    type: dfn; url: #tn-append-session-history-sync-nav-steps; text: append session history synchronous navigation steps;
-    type: dfn; url: #prepare-the-script-element; text: prepare the script element;
-    type: dfn; url: #navigate-fragid; text: navigate to a fragment;
-    type: dfn; url: #hostcalljobcallback;text: hostcalljobcallback;
-    type: dfn; url: #she-url; text: session history entry url;
+urlPrefix: https://html.spec.whatwg.org/multipage/webappapis.html; spec: HTML;
+    type: dfn; 
+        text: execute the script element; url: #execute-the-script-element;
+        text: timer initialisation steps; url: #timer-initialisation-steps;
+        text: HostMakeJobCallback; url: #hostmakejobcallback;
+        text: hostcalljobcallback; url: #hostcalljobcallback;
+urlPrefix: https://html.spec.whatwg.org/multipage/browsing-the-web.html; spec: HTML;
+    type: dfn;
+        text: update document for history step application; url: #update-document-for-history-step-application;
+        text: top-level traversable; url: #top-level-traversable;
+        text: apply the history step; url: #apply-the-history-step;
+        text: append session history traversal steps; url: #tn-append-session-history-traversal-steps;
+        text: append session history synchronous navigation steps; url: #tn-append-session-history-sync-nav-steps;
+        text: navigate to a fragment; url: #navigate-fragid;
+        text: session history entry url; url: #she-url;
+urlPrefix: https://html.spec.whatwg.org/multipage/scripting.html; spec: HTML;
+    type: dfn; text: prepare the script element; url: #prepare-the-script-element;
+urlPrefix: https://html.spec.whatwg.org/multipage/web-messaging.html; spec: HTML;
+    type: dfn; text: message port post message steps; url: #message-port-post-message-steps;
+urlPrefix: https://html.spec.whatwg.org/multipage/nav-history-apis.html; spec: HTML;
+    type: dfn; text: shared history push/replace steps; url: #shared-history-push/replace-steps;
 urlPrefix: https://dom.spec.whatwg.org/; spec: DOM;
-    type: dfn; url: #concept-event-dispatch; text: event dispatch;
-    type: dfn; url: #concept-node-insert; text: node insert;
-    type: dfn; url: #dom-event-istrusted; text: isTrusted;
+    type: dfn;
+        text: event dispatch; url: #concept-event-dispatch;
+        text: node insert; url: #concept-node-insert;
+        text: isTrusted; url: #dom-event-istrusted;
+        text: event; url: #concept-event;
 urlPrefix: https://www.w3.org/TR/css-view-transitions-1/
-    type: dfn; url: #dom-document-startviewtransition; text: startViewTransition();
-urlPrefix: https://w3c.github.io/largest-contentful-paint/
-    type: dfn; url: #has-dispatched-scroll-event; text: has dispatched scroll event;
+    type: dfn; text: startViewTransition(); url: #dom-document-startviewtransition;
+urlPrefix: https://w3c.github.io/performance-timeline/; spec: PERFORMANCE-TIMELINE
+    type: dfn; text: queue a PerformanceEntry; url: #dfn-queue-a-performanceentry;
+urlPrefix: https://w3c.github.io/largest-contentful-paint/; spec: LARGEST-CONTENTFUL-PAINT
+    type: dfn;
+        text: has dispatched scroll event; url: #has-dispatched-scroll-event;
+        text: report largest contentful paint; url: #report-largest-contentful-paint;
 urlPrefix: https://w3c.github.io/event-timing/
-    type: dfn; url: #has-dispatched-input-event; text: has dispatched input event;
-urlPrefix: https://www.w3.org/TR/paint-timing/
-    type: dfn; url: #previously-reported-paints; text: previously reported paints;
+    type: dfn;
+        text: has dispatched input event; url: #has-dispatched-input-event;
+        text: interaction id; url: #interaction-id;
+        text: interaction; url: #dfn-interaction;
+urlPrefix: https://w3c.github.io/long-animation-frames/; spec: LONG-ANIMATION-FRAMES;
+    type: interface; text: PerformanceLongAnimationFrameTiming; url: #sec-PerformanceLongAnimationFrameTiming;
+    type: dfn; text: long animation frame; url: #dfn-long-animation-frame;
+    type: dfn; text: report long animation frames; url: #dfn-report-long-animation-frames;
+urlPrefix: https://pr-preview.s3.amazonaws.com/mmocny/event-timing/pull/165.html; spec: EVENT-TIMING;
+    type: dfn; text: interaction count; url: #window-interaction-count;
+    type: dfn; text: initial interactionId value; url: #window-initial-interactionid-value;
+    type: dfn; text: interactionId increment; url: #window-interactionid-increment;
+    type: dfn; text: get the next interactionId; url: #get-the-next-interactionid;
+urlPrefix: https://w3c.github.io/paint-timing/
+    type: dfn;
+        text: previously reported paints; url: #previously-reported-paints;
+        text: pending image record; url: #pending-image-record;
+        text: pending image record element; url: #pending-image-record-element;
+        text: paint timing info; url: #paint-timing-info;
+    type: dfn; for: paint timing info;
+        text: rendering update end time; url: #paint-timing-info-rendering-update-end-time;
+        text: implementation-defined presentation time; url: #paint-timing-info-implementation-defined-presentation-time;
+    type: interface; text: PaintTimingMixin; url: #paint-timing-mixin;
+    type: attribute; for: PaintTimingMixin;
+        text: paintTime; url: #dom-painttimingmixin-painttime;
+        text: presentationTime; url: #dom-painttimingmixin-presentationtime;
 </pre>
 <pre class=link-defaults>
-spec:html; type:dfn; text:script;
-spec:infra; type:dfn; text:peek;
 spec:dom; type:dfn; text:element;
+spec:dom; type:dfn; for:/; text:document;
+spec:html; type:dfn; for:/; text:global object;
+spec:dom; type:dfn; text:event;
+spec:dom; type:dfn; for:event; text:type;
+spec:hr-time-3; type:dfn; for:/; text:duration;
+</pre>
+
+<pre class=biblio>
+{
+  "ASYNC-CONTEXT": {
+    "title": "AsyncContext",
+    "href": "https://github.com/tc39/proposal-async-context"
+  },
+  "CONTAINER-TIMING": {
+    "title": "Container Timing API",
+    "href": "https://github.com/WICG/container-timing"
+  }
+}
 </pre>
 
 Introduction {#sec-intro}
@@ -56,403 +109,517 @@ Introduction {#sec-intro}
 <div class="non-normative">
 <em>This section is non-normative.</em>
 
-A Single Page Application or an SPA is a web application that dynamically rewrites the DOM contents when the user navigates from one piece of content to another, instead of loading a new HTML page.
-Development of SPAs has become a common  pattern on the web today. At the same time, browsers haven't been able to measure performance metrics for such sites.
-Specifically, JS-driven same-document navigations in SPAs have not been something that browsers detect, and hence went unmeasured.
+Modern web applications often dynamically update content in response to user interactions without performing a full page navigation. These interaction-initiated effects—such as structural DOM modifications, contentful paints, and history state changes—have historically been difficult to measure and attribute to the correct user actions.
 
-This specification outlines a heuristic to enable browsers to detect such navigations as Soft Navigations, and report them to the performance timeline and performance observers.
+Consider a typical Single Page Application pattern: a user clicks a product link, which triggers a `click` event handler. This handler initiates a network `fetch()` for product details. When the response arrives, a callback is executed that dynamically injects the new content into the DOM and uses the History or Navigation API to update the URL. While this appears to the user as a navigation, existing metrics like Largest Contentful Paint (LCP) ([[LARGEST-CONTENTFUL-PAINT]]) only measure the initial page load, and Interaction to Next Paint (INP) only measures the immediate visual feedback of the click itself, leaving the significant subsequent rendering and "soft" navigation uncaptured.
+
+This specification leverages the [[EVENT-TIMING]] API to define interactions and the [[ASYNC-CONTEXT]] proposal to track causality across asynchronous task boundaries. It defines how browsers can identify and report these effects, including "Soft Navigations," by integrating with [[PAINT-TIMING]] and [[LARGEST-CONTENTFUL-PAINT]] to attribute rendering changes to the performance timeline. 
+
+Furthermore, this specification integrates with the [[CONTAINER-TIMING]] proposal. When a user interaction causes DOM modifications, those modified nodes are designated as new "container roots." Any subsequent contentful paints within those subtrees are attributed to their respective roots, which are then traced back to the original interaction. This allows for efficient and accurate measurement of rich, dynamic page updates that occur far after the initial event dispatch.
 </div>
 
-Task Attribution {#sec-task-attribution-intro}
+Interaction Infrastructure {#sec-infrastructure}
+=====================
+
+Navigation ID {#sec-nav-id}
+-----------------
+
+A <dfn export>navigation id</dfn> is a unique identifier assigned to each navigation (both hard and soft) within a [=global object=]'s lifetime.
+
+Each [=/global object=] has a <dfn for="global object">current navigation id</dfn>, an `unsigned long long`, initially set to the same value that initializes the [=Document=]'s [=initial interactionId value=] and the initial `navigationId` for Navigation Timing.
+
+
+
+Interaction Context Intro {#sec-interaction-context-intro}
 -----------------
 
 <div class="non-normative">
-The above heuristic relies on the ability to track task ancestory and to know that certain tasks were triggered by other tasks.
-This specification also outlines a mechanism that would enable user agents to deduce that information, and use it in web exposed features, such as soft navigations.
+Soft navigation detection relies on the ability to track the causality of tasks and observe that certain operations (e.g., a DOM node append) were triggered by a specific user interaction.
 
-The user agent’s event loop is continuously running tasks, as well as microtasks.
-Being able to keep track of which task initiated which can be valuable in multiple cases:
-  * Enable user agents to create heuristics that rely on causal link between one operation (e.g. a user initiated click event) and another (e,g. a DOM node append).
-  * Enable user agents to make prioritization (of tasks as well as resource loading) "inheritable", and e.g. ensure that low-priority scripts cannot queue high-priority tasks.
-  * Enable causal user activation delegation.
-  * Enable accumulating knowledge of resource loading dependency chains, and enable developers to draw insights from them.
+This specification leverages the TC39 [[ASYNC-CONTEXT]] proposal to handle this propagation. Every new user interaction (as defined by Event Timing) or relevant navigation event creates a new **InteractionContext**. This context is stored in a hidden, internal-only `AsyncContext.Variable` (denoted as `[[ActiveInteractionContext]]`).
+
+The web platform's integration with AsyncContext ensures that this variable is automatically attached to asynchronous continuations (e.g., `setTimeout`, `fetch`, `await`), allowing the browser to attribute later effects back to the original interaction.
+
+In addition to script propagation, this specification defines how user interactions that modify the DOM establish **container roots** (via [[CONTAINER-TIMING]]). These roots allow subsequent rendering effects, like contentful paints, to be traced back to the initiating interaction context even when no asynchronous script is currently active.
+</div>
+
+The InteractionContext struct {#sec-interaction}
+-----------------
+
+<div dfn-for="InteractionContext">
+    <dfn>InteractionContext</dfn> is a [=struct=] used to maintain the data required to detect a soft navigation from a single interaction.
+    It has the following [=struct/items=]:
+    * <dfn>id</dfn>, initially unset - The [=interaction id=] associated with this context.
+    * <dfn>start time</dfn>, initially unset - Represents the start time of the interaction.
+    * <dfn>navigation type</dfn>, initially unset - Represents the type of navigation (e.g., "push", "replace").
+    * <dfn>first URL value</dfn>, initially unset - Represents the value of the URL at the first modification.
+    * <dfn>first URL update timestamp</dfn>, initially unset - Represents the time of the first URL modification during this interaction.
+    * <dfn>first scroll timestamp</dfn>, initially unset - Represents the time of the first scroll event during this interaction.
+    * <dfn>first input timestamp</dfn>, initially unset - Represents the time of the first input event during this interaction.
+    * <dfn>first contentful paint</dfn>, initially null - The first {{InteractionContentfulPaint}} entry for this interaction.
+    * <dfn>largest contentful paint</dfn>, initially null - The largest {{InteractionContentfulPaint}} entry for this interaction so far.
+    * <dfn>total painted area</dfn>, initially 0 - The sum of the areas of all contentful paints attributed to this interaction.
+    * <dfn>last URL value</dfn>, initially unset - Represents the value of the most recent URL modification during this interaction.
+    * <dfn>emitted</dfn> flag, initially false  - Indicates that a soft navigation entry was emitted by the interaction.
 
 </div>
 
+<div class="note">
+Future versions of this specification might track all URL updates that occur during an interaction context to provide a more complete history of the navigation. The **last URL value** is tracked internally to ensure accurate attribution of effects back to the final state of the interaction, even if only the **first URL value** is currently exposed in the {{SoftNavigationEntry}}'s name.
+</div>
+
+<div class="note">
+The concept of **total painted area** is expected to be refined as part of the [[CONTAINER-TIMING]] integration, potentially moving towards tracking specific updated regions.
+</div>
+
+Infrastructure Algorithms {#sec-infra-algos}
+-----------------
+
+<div algorithm="get current interaction context">
+    To <dfn>get current interaction context</dfn>, run the following steps:
+    1. Let |context| be the value of the internal `AsyncContext.Variable` `[[ActiveInteractionContext]]`.
+    1. Return |context|.
+
+</div>
+
+<div algorithm="get or create context for interaction">
+    To <dfn>get or create context for interaction</dfn>, given a [=Document=] |document|, an |interaction id|, and an [=Event=] |event|, run the following steps:
+    1. If |document|'s [=interaction id to interaction context=][|interaction id|] [=map/exists=], return |document|'s [=interaction id to interaction context=][|interaction id|].
+    1. Let |interaction context| be a new [=InteractionContext=].
+    1. Set |interaction context|'s [=InteractionContext/id=] to |interaction id|.
+    1. Set |interaction context|'s [=InteractionContext/start time=] to |event|'s `startTime`.
+    1. [=map/Set=] |document|'s [=interaction id to interaction context=][|interaction id|] to |interaction context|.
+    1. Return |interaction context|.
+
+</div>
+
+<div algorithm="update interaction contexts for event">
+    To <dfn>update interaction contexts for event</dfn>, given a [=Document=] |document| and an [=Event=] |event|, run the following steps:
+    1. Let |timestamp| be the [=current high resolution time=] given |document|'s [=relevant global object=].
+    1. Let |is scroll| be true if |event|'s type is "scroll", and false otherwise.
+    1. Let |is input| be true if |event|'s type is an event type that would trigger [=has dispatched input event=] (as defined in [[EVENT-TIMING]]), and false otherwise.
+    1. If |is scroll| is false and |is input| is false, return.
+    1. For each |interaction context| of |document|'s [=interaction id to interaction context=]'s values:
+        1. If |is scroll| is true and |interaction context|'s [=InteractionContext/first scroll timestamp=] is unset:
+            1. Set |interaction context|'s [=InteractionContext/first scroll timestamp=] to |timestamp|.
+        1. If |is input| is true and |interaction context|'s [=InteractionContext/first input timestamp=] is unset:
+            1. Set |interaction context|'s [=InteractionContext/first input timestamp=] to |timestamp|.
+
+</div>
+
+<div algorithm="interaction event processing start">
+    To <dfn>interaction event processing start</dfn>, given a [=Document=] |document|, an |interaction id|, and an [=Event=] |event|, run the following steps:
+    1. If |interaction id| is null, return null.
+    1. Let |interaction context| be the result of calling [=get or create context for interaction=] with |document|, |interaction id|, and |event|.
+    1. Set the value of the internal `AsyncContext.Variable` `[[ActiveInteractionContext]]` to |interaction context|.
+    1. Return |interaction context|.
+
+</div>
+
+<div algorithm="interaction event timing processing end">
+    To <dfn>interaction event timing processing end</dfn>, given null or [=InteractionContext=] |interaction context|, run the following steps:
+    1. If |interaction context| is null, return.
+    1. Set the value of the internal `AsyncContext.Variable` `[[ActiveInteractionContext]]` to null.
+
+</div>
+
+
+Interaction Contentful Paints {#sec-interaction-contentful-paint}
+=====================
+
+The `InteractionContentfulPaint` interface {#sec-interaction-contentful-paint-interface}
+-----------------
+
+<pre class=idl>
+[Exposed=Window]
+interface InteractionContentfulPaint : PerformanceEntry {
+    readonly attribute DOMHighResTimeStamp renderTime;
+    readonly attribute DOMHighResTimeStamp loadTime;
+    readonly attribute unsigned long long size;
+    readonly attribute DOMString id;
+    readonly attribute DOMString url;
+    readonly attribute Element? element;
+    readonly attribute unsigned long long interactionId;
+
+    object toJSON();
+};
+
+InteractionContentfulPaint includes PaintTimingMixin;
+</pre>
+
+Each {{InteractionContentfulPaint}} has an associated [=paint timing info=].
+
+<div class="note">
+Today this is modelled after the Largest Contentful Paint (LCP) performance entry, but a future direction is to model after Container Timing performance entry.
+</div>
+
+<div dfn-for="InteractionContentfulPaint">
+    The {{renderTime}} attribute's getter must return [=this=]'s associated [=paint timing info=]'s [=paint timing info/rendering update end time=].
+
+    The {{loadTime}} attribute's getter must return [=this=]'s associated [=paint timing info=]'s [=paint timing info/implementation-defined presentation time=].
+
+    The {{size}} attribute's getter must return the contentful paint's size.
+
+    The {{id}} attribute's getter must return the contentful paint's ID.
+
+    The {{url}} attribute's getter must return the contentful paint's URL.
+
+    The {{element}} attribute's getter must return the {{Element}} associated with the contentful paint, or null if the element has been removed from the document.
+
+    The {{InteractionContentfulPaint/interactionId}} attribute's getter must return the [=interaction id=] of the interaction that triggered this paint.
+
+</div>
+
+Interaction Contentful Paint Algorithms {#sec-interaction-contentful-paint-algos}
+-----------------
+
+<div algorithm="create an interaction contentful paint entry">
+    To <dfn>create an interaction contentful paint entry</dfn>, with a [=/global object=] |global|, an [=InteractionContext=] |interaction context|, and an [=/Element=] |element|, run the following steps:
+    1. Let |entry| be a new {{InteractionContentfulPaint}} object in |global|'s [=global object/realm=].
+    1. Set |entry|'s {{PerformanceEntry/entryType}} to be "interaction-contentful-paint".
+    1. Set |entry|'s {{InteractionContentfulPaint/element}} to be |element|.
+    1. Set |entry|'s {{InteractionContentfulPaint/interactionId}} to |interaction context|'s [=InteractionContext/id=].
+    1. Set |entry|'s associated [=paint timing info=] to a new [=paint timing info=].
+    1. Set entry's {{InteractionContentfulPaint/renderTime}}, {{InteractionContentfulPaint/loadTime}}, {{InteractionContentfulPaint/size}}, {{InteractionContentfulPaint/id}}, and {{InteractionContentfulPaint/url}} to the corresponding values of the contentful paint candidate as defined in the [=report largest contentful paint=] algorithm in [[LARGEST-CONTENTFUL-PAINT]].
+    1. Set |entry|'s {{PerformanceEntry/startTime}} to |interaction context|'s [=InteractionContext/start time=].
+    1. Set |entry|'s {{PerformanceEntry/duration}} to the difference between |entry|'s {{InteractionContentfulPaint/renderTime}} and |entry|'s {{PerformanceEntry/startTime}}.
+    1. Return |entry|.
+
+</div>
+
+<div algorithm="emit interaction contentful paint entry">
+    To <dfn>emit interaction contentful paint entry</dfn>, given an [=/Element=] |element|, a [=Document=] |document|, and an [=InteractionContext=] |interaction context|, run the following steps:
+    1. Let |global| be |document|'s [=relevant global object=].
+    1. Let |paint entry| be the result of calling [=create an interaction contentful paint entry=] with |global|, |interaction context|, and |element|.
+        Note: For elements that require resource loading (e.g., an image with a new `src`), the [[PAINT-TIMING]] specification is responsible for ensuring the "is loaded" criteria are met before triggering the contentful paint detection that eventually calls this algorithm.
+    1. If |interaction context|'s [=InteractionContext/first scroll timestamp=] is set and |paint entry|'s {{InteractionContentfulPaint/renderTime}} is greater than |interaction context|'s [=InteractionContext/first scroll timestamp=], return.
+    1. If |interaction context|'s [=InteractionContext/first input timestamp=] is set and |paint entry|'s {{InteractionContentfulPaint/renderTime}} is greater than |interaction context|'s [=InteractionContext/first input timestamp=], return.
+    1. [=queue a performanceentry|Queue=] |paint entry|.
+    1. Add |paint entry| to |global|'s [=performance entry buffer=].
+    1. If |interaction context|'s [=InteractionContext/first contentful paint=] is null:
+        1. Set |interaction context|'s [=InteractionContext/first contentful paint=] to |paint entry|.
+    1. Set |interaction context|'s [=InteractionContext/largest contentful paint=] to |paint entry|.
+    1. Increment |interaction context|'s [=InteractionContext/total painted area=] by |paint entry|'s size.
+
+</div>
+
+<div class="note">
+Note: `InteractionContentfulPaint` entries are emitted to the performance timeline as they are detected, independently of whether the interaction eventually results in a soft navigation. This allows developers to monitor rendering updates for all interactions.
+</div>
+
+
+Soft Navigations {#sec-soft-navs}
+=====================
+
 The `SoftNavigationEntry` interface {#sec-interface}
-==================================
+-----------------
 
 <pre class=idl>
 [Exposed=Window]
 interface SoftNavigationEntry : PerformanceEntry {
+    readonly attribute DOMString navigationType;
+    readonly attribute unsigned long long interactionId;
+    readonly attribute InteractionContentfulPaint? largestInteractionContentfulPaint;
+};
+
+SoftNavigationEntry includes PaintTimingMixin;
+</pre>
+
+Each {{SoftNavigationEntry}} has an associated [=paint timing info=].
+
+<div dfn-for="SoftNavigationEntry">
+    The {{SoftNavigationEntry/navigationType}} attribute's getter must return the [=InteractionContext/navigation type=] of the interaction that triggered the soft navigation.
+
+    The {{SoftNavigationEntry/interactionId}} attribute's getter must return the [=interaction id=] of the interaction that triggered the soft navigation.
+
+    The {{SoftNavigationEntry/largestInteractionContentfulPaint}} attribute's getter must return an {{InteractionContentfulPaint}} entry representing the largest contentful paint that occurred as a result of the interaction, or null if no such paint has occurred.
+
+    The {{PerformanceEntry/name}} attribute's getter must return the [=InteractionContext/first URL value=] of the interaction that triggered the soft navigation.
+
+    The {{PerformanceEntry/startTime}} attribute's getter must return the [=InteractionContext/start time=] of the interaction that triggered the soft navigation.
+
+    The {{PerformanceEntry/duration}} attribute's getter must return the difference between [=this=]'s {{PaintTimingMixin/presentationTime}} and [=this=]'s {{PerformanceEntry/startTime}} at the time of emission.
+
+</div>
+
+<div class="note">
+In practice, {{SoftNavigationEntry/largestInteractionContentfulPaint}} is expected to be non-null, as a confirmed soft navigation requires at least one detected interaction contentful paint to trigger its emission.
+
+However, future iterations could evaluate whether a soft navigation could be considered committed immediately upon URL modification, prior to the first paint. In such a model, this field might be null at the time of emission.
+
+The primary design consideration for this timing is the attribution of other timeline entries (e.g., `LayoutShift`, `PerformanceResourceTiming`, `LongAnimationFrameTiming`, etc) that occur in the interval between the URL modification and the first paint.  Many sites commit the new URL immediately upon initiating a fetch request, for example, even while the current page remains in the previous navigation state.  To ensure consistent timeline slicing, this specification attributes all such entries to the *previous* navigation identifier until the first paint confirms the transition.
+</div>
+
+Soft Navigation Algorithms {#sec-soft-nav-algos}
+-----------------
+
+A <dfn export>soft navigation</dfn> is a same-document navigation that satisfies the following conditions:
+* A same-document URL change occurs while an [=InteractionContext=] is active.
+* A contentful paint occurs that is attributed to the same [=InteractionContext=].
+
+<div algorithm="evaluate soft navigation emission">
+    To <dfn>evaluate soft navigation emission</dfn>, given a [=Document=] |document| and an [=InteractionContext=] |interaction context|, run the following steps:
+    1. If |interaction context|'s [=InteractionContext/emitted=] is true, return.
+    1. If |document|'s [=document/active soft navigation candidate=] is not |interaction context|, return.
+    1. If |interaction context|'s [=InteractionContext/first URL value=] is unset, return.
+    1. If |interaction context|'s [=InteractionContext/first contentful paint=] is null, return.
+    1. Let |global| be |document|'s [=relevant global object=].
+    1. Let |url| be |interaction context|'s [=InteractionContext/first URL value=].
+    1. Let |entry| be the result of calling [=create a soft navigation entry=] with |global|, |interaction context|, |url|, and |interaction context|'s [=InteractionContext/start time=].
+    1. Call [=emit soft navigation entry=] with |global|, |entry|.
+    1. Set |interaction context|'s [=InteractionContext/emitted=] to true.
+
+</div>
+
+<div algorithm="create a soft navigation entry">
+    To <dfn>create a soft navigation entry</dfn>, with a [=/global object=] |global|, an [=InteractionContext=] |interaction context|, a [=string=] |url|, and a {{DOMHighResTimeStamp}} |start time|, run the following steps:
+    1. Let |entry| be a new {{SoftNavigationEntry}} object in |global|'s [=global object/realm=].
+    1. Set |entry|'s {{PerformanceEntry/name}} to be |url|.
+    1. Set |entry|'s {{PerformanceEntry/entryType}} to be "soft-navigation".
+    1. Set |entry|'s {{PerformanceEntry/startTime}} to be |start time|.
+    1. Let |first paint| be |interaction context|'s [=InteractionContext/first contentful paint=].
+    1. If |first paint| is not null:
+        1. Set |entry|'s associated [=paint timing info=] to |first paint|'s associated [=paint timing info=].
+    1. Set |entry|'s {{SoftNavigationEntry/interactionId}} to |interaction context|'s [=InteractionContext/id=] (if available).
+    1. Set |entry|'s {{SoftNavigationEntry/largestInteractionContentfulPaint}} to |interaction context|'s [=InteractionContext/largest contentful paint=].
+    1. Return |entry|.
+
+</div>
+
+<div class="note">
+Note: `navigationId` is set further down, in [=queue a PerformanceEntry=].
+</div>
+
+<div algorithm="emit soft navigation entry">
+    To <dfn>emit soft navigation entry</dfn>, with a [=/global object=] |global|, and a {{SoftNavigationEntry}} |entry|, run the following steps:
+    1. Set |entry|'s [=PerformanceEntry/navigation id=] to |entry|'s {{SoftNavigationEntry/interactionId}}.
+    1. Set |global|'s [=global object/current navigation id=] to |entry|'s {{SoftNavigationEntry/interactionId}}.
+    1. [=queue a performanceentry|Queue=] |entry|.
+    1. Add |entry| to |global|'s [=performance entry buffer=].
+
+</div>
+
+<div algorithm="process same document commit">
+    To <dfn>process same document commit</dfn>, with a [=Document=] |document|, [=string=] |url|, and [=string=] |navigation type|, run the following steps:
+    1. Let |interaction context| be the result of calling [=get current interaction context=].
+    1. If |interaction context| is null, return.
+    1. Set |interaction context|'s [=InteractionContext/last URL value=] to |url|.
+    1. If |interaction context|'s [=InteractionContext/first URL update timestamp=] is unset:
+        1. Set |interaction context|'s [=InteractionContext/first URL update timestamp=] to the [=current high resolution time=] given |document|'s [=relevant global object=].
+        1. Set |interaction context|'s [=InteractionContext/first URL value=] to |url|.
+        1. Set |interaction context|'s [=InteractionContext/navigation type=] to |navigation type|.
+    1. Set |document|'s [=document/active soft navigation candidate=] to |interaction context|.
+    1. Call [=evaluate soft navigation emission=] with |document| and |interaction context|.
+
+</div>
+
+
+The `PerformanceEntry` extension {#sec-pe-extension}
+==================================
+
+<pre class=idl>
+[Exposed=(Window,Worker)]
+partial interface PerformanceEntry {
+    readonly attribute unsigned long long navigationId;
 };
 </pre>
 
-Algorithms {#sec-algos}
-=====================
+<div dfn-for="PerformanceEntry">
+    Each {{PerformanceEntry}} has an associated <dfn for="PerformanceEntry">navigation id</dfn>, an `unsigned long long`, initially 0.
 
-<div class=note>
-A Soft Navigation is a same document navigation which satisfies the following conditions:
-  * Its navigating task is a descendent of a user interaction task.
-  * There exists a DOM node append operation whose task is a descendent of the same user interaction task.
-    </div>
+    The {{navigationId}} attribute's getter must return [=this=]'s [=PerformanceEntry/navigation id=].
 
-To <dfn>check soft navigation</dfn>, with a [=Document=] |document|, run the following steps:
- 1. Let |interaction data| be the result of calling [=get current interaction data=] with |document|.
- 1. If |interaction data|'s [=same document commit=] is false or |interaction data|'s [=contentful paint=] is false, return.
- 1. Let |global| be |document|'s [=relevant global object=].
- 1. Let |url| be |interaction data|'s [=interaction data/url=].
- 1. Let |start time| be |interaction data|'s [=interaction data/start time=].
- 1. Let |entry| be the result of calling [=create a soft navigation entry=] with |global|, |url|, and |start time|.
- 1. Call [=emit soft navigation entry=] with |global|, |entry|, |url| and |start time|.
- 1. Set |interaction data|'s [=interaction data/emitted=] to true.
+</div>
 
 
-## Soft navigation entry ## {#sec-entry}
-To <dfn>create a soft navigation entry</dfn>, with a [=/global object=] |global|, a [=string=] |url|, a {{DOMHighResTimeStamp}} |start time|, run the following steps:
- 1. Let |entry| be a new {{SoftNavigationEntry}} object in |global|'s [=global object/realm=].
- 1. Set |entry|'s {{PerformanceEntry/name}} to be |url|.
- 1. Set |entry|'s {{PerformanceEntry/entryType}} to be "soft-navigation".
- 1. Set |entry|'s {{PerformanceEntry/startTime}} to be |start time|.
- 1. Let |now| be the [=current high resolution time=] given |global|;
- 1. Let |duration| be the [=duration=] between |now| and |start time|.
- 1. Set |entry|'s {{PerformanceEntry/duration}} to be |duration|.
- 1. Return |entry|.
-
-Note: `id` and `navigationId` are set further down, in [=queue a PerformanceEntry=].
-
-
-To <dfn>emit soft navigation entry</dfn>, with a [=/global object=] |global|, and a {{SoftNavigationEntry}} |entry|, run the following steps:
- 1. [=queue a performanceentry|Queue=] |entry|.
- 1. Add |entry| to |global|'s [=performance entry buffer=].
- 1. Set |global|'s [=has dispatched scroll event=] and [=has dispatched input event=] to false.
- 1. Let |doc| be |global|'s [=associated Document=].
- 1. Set |doc|'s [=previously reported paints=] to the empty [=/set=].
- 1. Set |doc|'s [=interaction task id to interaction data=] to an empty [=/map=].
- 1. Set |doc|'s [=task id to interaction task id=] to an empty [=/map=].
- 1. Set |doc|'s [=last interaction task id=] to an empty [=/map=].
-
-## Interaction ## {#sec-interaction}
-
-<dfn>Interaction data</dfn> is a [=struct=] used to maintain the data required to detect a soft navigation from a single interaction.
-It has the following [=struct/items=]:
- * <dfn for="interaction data">url</dfn>, initially unset - Represents the soft navigation's URL.
- * <dfn for="interaction data">start time</dfn>, initially unset - Represents the user interaction event processing start time..
- * <dfn for="interaction data">same document commit</dfn> flag, initially unset - Indicates if a same-document commit happened as a result of the interaction.
- * <dfn for="interaction data">contentful paint</dfn> flag, initially false  - Indicates that a contentful paint happened as a result of an element added by the interaction.
- * <dfn for="interaction data">emitted</dfn> flag, initially false  - Indicates that a soft navigation entry was emitted by the interaction.
-
-To <dfn>get current interaction data</dfn>, given a [=Document=] |document|, run the following steps:
- 1. Let |task id| be the result of calling [=get current task ID=].
- 1. Let |interaction id| be |document|'s [=task id to interaction task id=][|task id|] if it [=map/exists=], or |task id| otherwise.
- 1. Assert that |document|'s [=interaction task id to interaction data=][|interaction id|] [=map/exists=].
- 1. Return |document|'s [=interaction task id to interaction data=][|interaction id|].
-
-To <dfn>handle event callback</dfn>, given an {{EventTarget}} |target| and a [=string=] |event type|, run the following steps:
- 1. Let |document| be |target|'s [=associated Document=].
- 1. If |document| is not a [=top-level traversable=], return.
- 1. Let |is click| be true if |event type| [=equals=] "click", and false otherwise.
- 1. Let |is keyboard| be true if |target| is an {{HTMLBodyElement}} and |event type| [=equals=] "keydown", "keyup" or "keypress", and false otherwise.
- 1. Let |is navigation| be true if |event type| [=equals=] "navigate", and false otherwise.
- 1. If neither |is click|, |is keyboard| nor |is navigation| is true, return.
- 1. Let |task| be the result of calling [=get current task ID=].
- 1. [=set/Append=] |task| to |document|'s [=potential soft navigation task ids=].
- 1. Let |is new interaction| be true if |is click| is true or if |event type| [=equals=] "keydown", and false otherwise.
- 1. If |is new interaction| is false:
-    1. [=map/Set=] |document|'s [=task id to interaction task id=][|task|] to |document|'s [=last interaction task id=].
-    1. Return null.
- 1. If |document|'s [=interaction task id to interaction data=][|task|] [=map/exists=], return null.
- 1. Let |interaction data| be a new [=interaction data=].
- 1. [=map/Set=] |document|'s [=interaction task id to interaction data=][|task|] to |interaction data|.
- 1. Return |interaction data|.
-
-To <dfn>terminate event callback handling</dfn>, given a [=Document=] |document| and null or [=interaction data=] |interaction data|, run the following steps:
- 1. Set |interaction data|'s [=start time=] to the [=current high resolution time=] given |document|'s [=relevant global object=].
-
-## Same document commit ## {#sec-same-document-commit}
-
-To <dfn>check soft navigation same document commit</dfn>, with [=string=] |url|, run the following steps:
- 1. Let |interaction data| be the result of calling [=get current interaction data=] with |document|.
- 1. Let |is soft navigation same document commit| be the result of [=Check ancestor set for task=] given
-    |document|'s [=potential soft navigation task ids=].
- 1. [=map/Set=] |interaction data|'s [=same document commit=] to |is soft navigation same document commit|.
- 1. if |is soft navigation same document commit| is true, [=map/set=] |interaction data|'s [=interaction data/url=] to |url|.
- 1. Call [=check soft navigation=] with |document|.
-
-## Contentful paint ## {#sec-contentful-paint}
-
-To <dfn>check soft navigation contentful paint</dfn>, with [=/Element=] |element| and [=Document=] |document|, run the following steps:
- 1. Let |interaction data| be the result of calling [=get current interaction data=] with |document|.
- 1. If |element|'s [=node/appended by soft navigation=] is true, set |interaction data|'s [=contentful paint=] to true.
-    Otherwise, if |interaction data|'s [=interaction data/emitted=] is false, return false.
- 1. Call [=check soft navigation=] with |document|.
- 1. Return true.
-
-HTML integration {#sec-html}
+Specification Integrations {#sec-integrations}
 =================
 
-Document {#sec-html-document}
-----------
+HTML integration {#sec-html}
+-----------------
 
-Each [=document=] has a <dfn for=document>potential soft navigation task ids</dfn>, a [=/set=] of [=task attribution id=]s.
+### Document ### {#sec-html-document}
 
-Each [=document=] has a <dfn for=document>interaction task id to interaction data</dfn>, a [=/map=], initially empty.
+Each [=document=] has an <dfn for=document>interaction id to interaction context</dfn>, a [=/map=], initially empty.
 
-Each [=document=] has a <dfn for=document>task id to interaction task id</dfn>, a [=/map=], initially empty.
+Each [=document=] has an <dfn for=document>active soft navigation candidate</dfn>, an [=InteractionContext=] or null, initially null.
 
-Each [=document=] has a <dfn for=document>last interaction task id</dfn>, a [=task attribution id=].
+### History ### {#sec-html-history}
 
+<div algorithm="additions to history step application">
+    In [=update document for history step application=], before 5.5.1 (if `documentsEntryChanged` is true and if `documentIsNew` is false),
+    call [=process same document commit=] with the [=Document=], <var ignore>entry</var>'s [=session history entry url|url=], and "traverse".
 
-History {#sec-html-history}
-----------
+</div>
 
-In [=update document for history step application=], before 5.5.1 (if `documentsEntryChanged` is true and if `documentIsNew` is false),
-call [=check soft navigation same document commit=] with <var ignore>entry</var>'s [=session history entry url|url=].
+<div algorithm="additions to shared history push/replace steps">
+    In the [shared history push/replace steps](https://html.spec.whatwg.org/multipage/nav-history-apis.html#shared-history-push/replace-steps) (as defined in [[HTML]]), after the URL is updated,
+    call [=process same document commit=] with the [=Document=], the new URL, and the operation type (either "push" or "replace").
 
-Event dispatch {#sec-html-events}
-----------
+</div>
 
-At [=event dispatch=], after step 5.4 ("Let `isActivationEvent` be true..."), add the following steps:
- 1. If |event|'s [=isTrusted=] is true:
-    1. Let |interaction data| be the result of calling [=handle event callback=] with |target| and |event|'s type.
+### Node ### {#sec-html-node}
 
-At [=event dispatch=], before step 6 (after callback invocation), add the following step:
- 1. Call [=terminate event callback handling=] with |document| and |interaction data|.
+Each [=node=] has an <dfn for=node>associated interaction context</dfn>, initially null.
 
+### Hard Navigation ### {#sec-html-hard-nav}
 
-Node {#sec-html-node}
-----------
+When a new [=global object=] |global| is created (e.g., during a "hard" navigation), its [=global object/current navigation id=] is initialized as specified in [[#sec-nav-id]].
 
-Each [=node=] has a <dfn for=node>appended by soft navigation</dfn> flag, initially unset.
+<div algorithm="additions to Navigation Timing">
+    In [[NAVIGATION-TIMING]], when creating the {{PerformanceNavigationTiming}} entry for the initial navigation, the user agent must set its `navigationId` to the [=global object=]'s [=global object/current navigation id=].
+</div>
 
-At [=node insert=], add these initial steps:
- 1. Let |doc| be <var ignore>parent</var>'s [=node document=].
- 1. Let |is soft navigation append| be the result of running [=Check ancestor for task=]
-    with the |doc|'s [=potential soft navigation task id=] and the result of calling [=get current task ID=].
- 1. Set <var ignore>node</var>'s [=node/appended by soft navigation=] to |is soft navigation append|.
+Event Timing integration {#sec-event-timing-integration}
+-----------------
 
-LCP integration {#sec-lcp-integration}
-==========================
-In [=potentially add a LargestContentfulPaint entry=], add the following initial step:
- 1. If the result of calling [=check soft navigation contentful paint=] with <var ignore>element</var> and <var ignore>document</var> is false, return.
+This specification extends the [[EVENT-TIMING]] definition of interactions to include additional event types that are relevant for modern web applications and Single Page Applications.
 
-Task Attibution Algorithms {#sec-task-attribution-algorithms}
-=========================
+The following event types are considered to be part of an [=interaction=] (as defined in [[EVENT-TIMING]]):
+  * `navigate`
+  * `popstate`
+  * `hashchange`
 
-<p class=note>
-The task attribution algorithms and their integration with HTML are likely to end up integrated into HTML directly.
-Integration with other specifications is likely to end up in these specifications directly.
-</p>
+When these events are dispatched as a result of a user interaction, the user agent must assign them a unique [=interaction id=] obtained by running the steps to [=get the next interactionId=] for the document's [=relevant global object=]. If an event is triggered by a previous interaction that already has an assigned [=interaction id=], the user agent should reuse that same identifier.
 
+<div class="note">
+These events are only reported as primary interactions when they are the initiating event from a user action (e.g., clicking the browser UI's back button). In most other scenarios—such as a `click` handler manually manipulating history—the subsequent `popstate` or `navigate` events are not considered independent user interactions. 
 
-The general principle behind task attribution is quite simple:
-  * Script execution creates a task scope
-  * Tasks and microtasks that are queued during a task scope's lifetime are considered its descendents.
-  * Certain registered callbacks get an explicit parent task defined. (e.g. the task that registered the callback)
+While these programmatically triggered events might not have the `isTrusted` flag set, they are correctly attributed back to the original interaction via [[ASYNC-CONTEXT]], as the history and navigation APIs are treated as asynchronous continuations of the initiating task.
+</div>
 
-Each task maintains a connection to its parent task, enabling an implicit data structure that enables querying a task to find if another, specific one is its ancestor.
+<div class="note">
+Note: The events `navigate`, `popstate`, and `hashchange` are used as internal signals for tracking soft navigations and assigning `interactionId`. This specification does not require these event types to be exposed as `PerformanceEventTiming` entries to the performance timeline, leaving that determination to the [[EVENT-TIMING]] specification.
+</div>
 
+<div class="note">
+The [[EVENT-TIMING]] specification is expected to be updated to explicitly define `processingStart` and `processingEnd` hooks, and to ensure `interactionId` assignment happens early enough for this integration. Today, `interactionId` assignment is typically deferred until the end of the event processing.
 
-## Task scope ## {#sec-task-scope}
+<div class="note">
+**TODO/Bugfix**: This specification uses `unsigned long long` for **interactionId** to ensure a safe global counter, while [[EVENT-TIMING]] currently defines it as `unsigned long`. This mismatch is expected to be resolved in future versions of both specifications.
+</div>
+</div>
 
+<div algorithm="getting the next interactionId">
+    To <dfn>get the next interactionId</dfn> for a {{Window}} |window|:
+    1. Set |window|'s [=interaction count=] to |window|'s [=interaction count=] plus 1.
+    1. Return |window|'s [=initial interactionId value=] plus (|window|'s [=interaction count=] times |window|'s [=interactionId increment=]).
+</div>
 
-A <dfn id=concept-task-scope>task scope</dfn> is formally defined as a structure.
+<div algorithm="additions to Event Timing processingStart">
+    At **processingStart** (as defined in [[EVENT-TIMING]]), given a [=Document=] |document| and an [=Event=] |event|, add the following steps:
+    1. Call [=update interaction contexts for event=] with |document| and |event|.
+    1. Let |interaction id| be the |event|'s [=interaction id=].
+    1. Call [=interaction event processing start=] with |document|, |interaction id|, and |event|.
 
-A [=task scope=] has a <dfn for="task scope">task</dfn>, a [=/task=].
+</div>
 
-To <dfn>create a task scope</dfn>, given an optional |parent task|, a [=/task=], do the following:
-  1. Let |task| be a new [=/task=].
-  1. Set |task|'s [=task attribution ID=] to an [=implementation-defined=] unique value.
-  1. If |parent task| is provided, set |task|'s [=task/parent task=] to |parent task|.
-  1. Let |scope| be a new [=task scope=].
-  1. Set |scope|'s [=task scope/task=] to |task|.
-  1. Push |scope| to the [=relevant agent=]'s [=agent/event loop=]'s [=task scope stack=].
+<div algorithm="additions to Event Timing processingEnd">
+    At **processingEnd** (as defined in [[EVENT-TIMING]]), given a [=Document=] <var ignore>document</var> and an [=InteractionContext=] |interaction context|, add the following step:
+    1. Call [=interaction event timing processing end=] with |interaction context|.
 
+</div>
 
-To <dfn>tear down a task scope</dfn>, do the following:
-  1. Pop |scope| from the [=relevant agent=]'s [=agent/event loop=]'s [=task scope stack=]
+Largest Contentful Paint (LCP) integration {#sec-lcp-integration}
+-----------------
 
-## Is ancestor ## {#sec-is-ancestor}
-To <dfn export>check ancestor for task</dfn>, given |ancestor id|, a [=task attribution ID=], run the following:
-  1. Let |task| be the result of [=get current task=].
-  1. While true:
-    1. Let |id| be|task|'s [=task attribution ID=].
-    1. If |id| is unset, return false.
-    1. If |id| equals |ancestor id|, return true.
-    1. Set |task| to |task|'s [=task/parent task=].
+This specification hooks into the [[LARGEST-CONTENTFUL-PAINT]] algorithm to attribute paints to interactions.
 
-## Is ancestor in set ## {#sec-is-ancestor-in-set}
-
-To <dfn export>check ancestor set for task</dfn>, given |ancestor id set|, a [=task attribution ID=] [=/set=], run the following:
-  1. Let |task| be the result of [=get current task=].
-  1. While true:
-    1. Let |id| be |task|'s [=task attribution ID=] if |task| is set, or be unset otherwise.
-    1. If |id| is unset, return false.
-    1. If |ancestor id set| [=contains=] |id|, return true.
-    1. Set |task| to |task|'s [=task/parent task=].
-
-### Get current task ### {#sec-current-task}
-To <dfn export>get current task</dfn>, run the following steps:
-  1. Let |event loop| be the [=relevant agent=]'s [=agent/event loop=].
-  1. Let |scope| be the result of [=peeking=] into the |event loop|'s [=task scope stack=].
-  1. Return |scope|'s [=task scope/task=].
-
-### Get current task ID ### {#sec-current-task-id}
-To <dfn export>get current task id</dfn>, run the following steps:
-  1. Let |task| be the result of [=getting current task=].
-  1. Return |task|'s [=task attribution ID=].
-
-TaskAttribution integration {#sec-task-attribution-integration}
-================================
-
-Note: Most of this integration is with the HTML spec, although some of it is with WebIDL and CSS ViewTransitions.
-The desired end state would be for these integrations to be embedded in the relevant specifications.
-
-## Task additions  ## {#sec-task}
-
-A [=/task=] has a <dfn for="task">task attribution ID</dfn>, an [=implementation-defined=] value,
-representing a unique identifier. It is initially unset.
-
-A [=/task=] has a <dfn for="task">parent task</dfn>, a [=/task=], initially unset.
-
-## Event Loop additions ##{#sec-event-loop}
-Each [=/event loop=] has a <dfn>task scope stack</dfn>, a [=stack=] of <a>task scopes</a>.
-
-## Script execution ##{#sec-script}
-
-A [=script=] element has a <dfn for="script">parent task</dfn> [=/task=], initially unset.
-
-In [=prepare the script element=], add an initial step:
- 1. Set <var ignore>el</var>'s [=script/parent task=] to the result of running [=get current task=].
-
-Note: The parent task ensures that task creation through the injection of scripts can be properly attributed.
-
-In [=Execute the script element=], add initial steps:
-  1. [=Create a task scope=] <var ignore>el</var>'s [=script/parent task=].
-
-Also, add a terminating step:
-  1. [=Tear down a task scope=]
-
-## Task queueing ##{#sec-task-queueing}
-In [=queue a task=]:
-
-Add these steps after step 3, "Let task be a new task":
-  1. Set |task|'s [=task/parent task=] to the result of [=getting current task=].
-  1. [=Create a task scope=] with |task|.
-
-Add a terminating step:
-  1. [=Tear down a task scope=]
-
-## Timers ##{#sec-timers}
-In [=timer initialisation steps=], before step 8, add the following steps:
-  1. Let |parent task| be the result of [=getting current task=].
-  1. If |handler| is a Function, set |handler|'s [=callback function/parent task=] to |parent task|.
-  1. Otherwise, [=create a task scope=] with |parent task|..
-
-TODO: need a teardown here for the second case
-
-## Callbacks ##{#sec-callbacks}
-
-A [=callback function=] has a <dfn for="callback function">parent task</dfn>, a [=/task=], initially unset.
-
-In [=invoke|invoke a callback function=], add the following steps after step 7:
-  1. Let |task| be <var ignore>callback</var>'s [=callback function/parent task=].
-  1. [=create a task scope=] with |task| if set, and with nothing otherwise.
-
-Add a terminating step:
-  1. [=Tear down a task scope=]
-
-In [=call a user object's operation=], add the following steps after step 7:
-  1. Let |task| be <var ignore>value</var>'s [=callback function/parent task=].
-  1. [=create a task scope=] with |task| if set, and with nothing otherwise.
-
-Add a terminating step before returning:
-  1. [=Tear down a task scope=]
-
-ISSUE: May be this should be called in "prepare to run a callback"/"clean up after running a callback", but we'd need to pipe in the callback for that.
-
-ISSUE: May be we need to define registration semantics for everything that doesn't need anything more specific.
-
-In [=clean up after running a callback=], add the following step:
-  1. [=Tear down a task scope=].
-
-## Continuations  ##{#sec-continuations}
-
-### HostMakeJobCallback ##{#sec-hostmakejobcallback}
-In [=HostMakeJobCallback=], add the following steps:
-  1. Let |task| be the result of [=getting current task=].
-  1. Let <var ignore>callable</var>'s [=callback function/parent task=]  be |task|.
-
-Note: This is needed to ensure the current task is registered on the promise continuations when they are created.
-
-TODO: Figure out if we need to do something in particular with the FinalizationRegsitry.
-
-
-### HostCallJobCallback ###{#sec-hostcalljobcallback}
-
-In [=HostCallJobCallback=], add initial steps:
-  1. Let |task| be <var ignore>callback</var>'s [=callback function/parent task=].
-  1. [=create a task scope=] with |task| if set, and with nothing otherwise.
-
-Add a terminating step:
-  1. [=Tear down a task scope=]
-
-<p class=note>
-The above is called when promise continuations are run.
-That does not match Chromium where Blink is not notified when promise continuations are run inside
-of V8, and hence is subtly different than what's implemented in Chromium.
-In Chromium the the continuation task overrides the task stack, where here it pushes a new child
-task of itself onto that stack.  At the same time, there shouldn't be any functional differences
-between the two.
-</p>
-## MessagePorts ## {#sec-messageport}
-
-<p class=note>
-For message ports, we want the `message` event callback task to have the task that initiated the `postMessage` as its parent.
-</p>
-
-In [=message port post message steps=], add the following steps.
-
-Before step 7, which adds a task, add the following steps:
-  1. Let |parent task| be the result of [=getting current task=].
-
-In step 7.3, which fires the `messageerror` event, call [=create a task scope=] with |parent task| before firing the event, and [=tear down a task scope=] after firing it..
-
-Before step 7.6, which fires the `message` event, add the following steps:
-  1. Call [=create a task scope=] with |parent task|.
-
-After step 7.6, add the following steps:
-  1. Call [=tear down a task scope=].
-
-## Same-document navigations ## {#sec-same-document-navigations}
-A [=/traversable navigable=] has a <dfn>navigation task</dfn>, a [=/task=], initially unset.
-
-In [=append session history traversal steps=], also set |traversable|'s [=navigation task=] to the result of [=getting current task=].
-
-In [=append session history synchronous navigation steps=], also set |traversable|'s [=navigation task=] to the result of [=getting current task=].
-
-In [=apply the history step=] in step 14.11.2, pass the navigable's task to [=update document for history step application=].
-
-In [=navigate to a fragment=] step 14, pass the result of [=getting current task=].
-
-In [=update document for history step application=], before firing the popstate event in step 5.5.2, [=create a task scope=] with |task|. [=tear down a task scope=] after firing the event.
-
-TODO: more formally define the above.
-
-## View transitions ## {#sec-view-transitions}
-
-In [=startViewTransition()=] add the following initial steps:
-  1. Set updateCallback's [=callback function/parent task=] to the result of [=getting current task=].
+<div algorithm="additions to report largest contentful paint">
+    In [=report largest contentful paint=]:
+    1. Let |contextToNewLargestCandidate| be a new [=/map=].
+    1. For each |record| of <var ignore>paintedImages</var>:
+        1. Let |element| be |record|'s [=pending image record element=].
+        1. Let |interaction context| be |element|'s [=node/associated interaction context=].
+        1. If |interaction context| is null, continue.
+        1. Let |size| be the [=effective visual size=] of |element|.
+        1. If |size| is null, continue.
+        1. If |interaction context|'s [=InteractionContext/largest contentful paint=] is not null and |size| is less than or equal to |interaction context|'s [=InteractionContext/largest contentful paint=]'s {{InteractionContentfulPaint/size}}, continue.
+        1. If |contextToNewLargestCandidate|[|interaction context|] is unset or |size| is greater than |contextToNewLargestCandidate|[|interaction context|]'s {{InteractionContentfulPaint/size}}:
+            1. [=map/Set=] |contextToNewLargestCandidate|[|interaction context|] to |element|.
+    1. For each |textNode| of <var ignore>paintedTextNodes</var>:
+        1. Let |interaction context| be |textNode|'s [=node/associated interaction context=].
+        1. If |interaction context| is null, continue.
+        1. Let |size| be the [=effective visual size=] of |textNode|.
+        1. If |size| is null, continue.
+        1. If |interaction context|'s [=InteractionContext/largest contentful paint=] is not null and |size| is less than or equal to |interaction context|'s [=InteractionContext/largest contentful paint=]'s {{InteractionContentfulPaint/size}}, continue.
+        1. If |contextToNewLargestCandidate|[|interaction context|] is unset or |size| is greater than |contextToNewLargestCandidate|[|interaction context|]'s {{InteractionContentfulPaint/size}}:
+            1. [=map/Set=] |contextToNewLargestCandidate|[|interaction context|] to |textNode|.
+    1. For each |interaction context| → |newLargestElement| in |contextToNewLargestCandidate|:
+        1. Call [=emit interaction contentful paint entry=] with |newLargestElement|, |document|, and |interaction context|.
+        1. Call [=evaluate soft navigation emission=] with |document| and |interaction context|.
+
+</div>
+
+<div class="note">
+The [[#sec-container-timing-integration]] section defines how modifications to the DOM reset the **previously reported paints** for affected elements, ensuring they are re-evaluated by the [[LARGEST-CONTENTFUL-PAINT]] algorithm and correctly attributed to the current interaction.
+</div>
+
+<div class="note">
+The [[LARGEST-CONTENTFUL-PAINT]] algorithm is expected to ignore any paint that has an associated interaction context, as these are handled by this specification's [[#sec-interaction-contentful-paint-interface]].
+</div>
+
+Container Timing integration {#sec-container-timing-integration}
+-----------------
+
+The [[CONTAINER-TIMING]] API provides a mechanism to group rendering effects by their common DOM ancestor. This specification integrates with that mechanism to attribute rendering changes back to user interactions.
+
+<div algorithm="additions to node insert">
+    At [=node insert=], or when a [=node=] is modified in one of the following ways:
+    * The `class` or `style` attribute of an element is modified.
+    * A resource attribute (such as `src` on an `img` or `video` element) is modified.
+    
+    Run the following steps:
+    1. Let |interaction context| be the result of calling [=get current interaction context=].
+    1. If |interaction context| is not null:
+        1. Set the node's [=node/associated interaction context=] to |interaction context|.
+        1. Designate the node as a **container root** (as defined in [[CONTAINER-TIMING]]).
+        1. For the node and each of its descendants, remove them from the [=Document=]'s [=previously reported paints=] (as defined in [[PAINT-TIMING]]).
+
+</div>
+
+<div class="note">
+By removing the modified subtree from the set of **previously reported paints**, the user agent ensures that the next contentful paint for these elements will be re-detected and correctly attributed to the new **InteractionContext**.
+</div>
+
+<div class="note">
+Note: The reference to "node insert" is a high-level description covering all operations that add new elements to the document structure (e.g., `appendChild`, `innerHTML` updates, etc.). It is up to the user agent to map these to internal implementation hooks that track document structure modifications.
+</div>
+
+<div class="note">
+The user agent is encouraged to maintain a sparse tree of container roots. If a node is modified that is already a descendant of an existing container root associated with the same interaction context, the user agent might choose not to create a new redundant root.
+
+Furthermore, to avoid expensive main-thread work during large DOM modifications, user agents are encouraged to optimize the removal of descendants from **previously reported paints**. Instead of an immediate exhaustive traversal, the user agent can mark the modified root as "dirty" and lazily propagate this state during subsequent tree walks (e.g., during layout or paint). Subtrees that are known to be non-visible or skipped by existing mechanisms like `content-visibility` or CSS containment could also be skipped during this reset process.
+</div>
+
+Performance Timeline integration {#sec-performance-timeline-integration}
+-----------------
+
+In [=queue a PerformanceEntry=], after step 1 (initializing the entry), add the following steps:
+ 1. If |newEntry|'s [=PerformanceEntry/navigation id=] is 0:
+    1. Set |newEntry|'s [=PerformanceEntry/navigation id=] to |global|'s [=global object/current navigation id=].
+
+
+Overlapping Interactions and Race Conditions {#sec-overlapping-interactions}
+=================
+
+<div class="non-normative">
+<em>This section is non-normative.</em>
+
+Web applications often process multiple user interactions in rapid succession. This specification handles such overlapping interactions through the following model:
+
+*   **Context Independence**: Each interaction manages its own [=InteractionContext=] independently. Multiple contexts can be "in flight" simultaneously, each tracking its own URL modifications and contentful paints.
+*   **Active Candidate Singleton**: While many interactions can be active, the [=Document=] recognizes only one [=document/active soft navigation candidate=] at any given time.
+*   **Preemption**: An interaction context becomes the [=document/active soft navigation candidate=] the moment it triggers its first same-document URL modification. If a subsequent interaction modification occurs, it preempts the previous one and becomes the new candidate.
+*   **Emission Validation**: A {{SoftNavigationEntry}} is only emitted for the interaction context that is the [=document/active soft navigation candidate=] at the moment the emission criteria (URL change + contentful paint) are met. This ensures that soft navigation reporting remains consistent with the document's current visual and navigation state.
+*   **Persistent Attribution**: Even if an interaction is preempted as a soft navigation candidate, it continues to attribute and report its own {{InteractionContentfulPaint}} entries as long as it remains active. This allows for accurate measurement of concurrent rendering updates that are not themselves considered "navigations."
+
+</div>
 
 Security & privacy considerations {#priv-sec}
 ===============================================
 Exposing Soft Navigations to the performance timeline doesn't have security and privacy implications on its own.
-However, reseting the various paint timing entries as a result of a detected soft navigation can have implications,
+However, resetting the various paint timing entries as a result of a detected soft navigation can have implications,
 especially before [visited links are partitioned](https://github.com/kyraseevers/Partitioning-visited-links-history).
 As such, exposing such paint operations without partitioning the :visited cache needs to only be done after careful
  analysis of the paint operations in question, to make sure they don't expose the user's history across origins.
-
-Task Attribution as infrastructure doesn't directly expose any data to the web, so it doesn't have any privacy and security implications.
-Web exposed specifications that rely on this infrastructure could have such implications. As such, they need to be
-individually examined and have those implications outlined.
-
