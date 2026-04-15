@@ -4,9 +4,11 @@
   <title>Soft Navigations</title>
   <meta content="width=device-width, initial-scale=1, shrink-to-fit=no" name="viewport">
   <link href="https://www.w3.org/StyleSheets/TR/2021/cg-draft" rel="stylesheet">
-  <meta content="Bikeshed version b06c00b8e, updated Tue Jul 11 13:41:16 2023 -0700" name="generator">
+  <meta content="Bikeshed version 0ef803fdf, updated Tue Jan 6 11:59:39 2026 -0800" name="generator">
   <link href="https://wicg.github.io/soft-navigations/" rel="canonical">
-  <meta content="96becae20000cd4cc0e6da7c8ae0520fab7c24dd" name="document-revision">
+  <meta content="bde349a66eb5cdbf4e062e9ecf377fec477e854c" name="revision">
+  <meta content="dark light" name="color-scheme">
+  <link href="https://www.w3.org/StyleSheets/TR/2021/dark.css" media="(prefers-color-scheme: dark)" rel="stylesheet" type="text/css">
 <style>/* Boilerplate: style-autolinks */
 .css.css, .property.property, .descriptor.descriptor {
     color: var(--a-normal-text);
@@ -78,7 +80,6 @@ pre .property::before, pre .property::after {
 }
 </style>
 <style>/* Boilerplate: style-colors */
-
 /* Any --*-text not paired with a --*-bg is assumed to have a transparent bg */
 :root {
     color-scheme: light dark;
@@ -318,7 +319,7 @@ body {
 }
 .invalid.example:not(.no-marker)::before,
 .illegal.example:not(.no-marker)::before {
-    content: "Invalid Example" counter(example);
+    content: "Invalid Example " counter(example);
 }
 
 figcaption {
@@ -332,11 +333,15 @@ figcaption:not(.no-marker)::before {
 :root {
     --dfnpanel-bg: #ddd;
     --dfnpanel-text: var(--text);
+    --dfnpanel-target-bg: #ffc;
+    --dfnpanel-target-outline: orange;
 }
 @media (prefers-color-scheme: dark) {
     :root {
         --dfnpanel-bg: #222;
         --dfnpanel-text: var(--text);
+        --dfnpanel-target-bg: #333;
+        --dfnpanel-target-outline: silver;
     }
 }
 .dfn-panel {
@@ -359,11 +364,13 @@ figcaption:not(.no-marker)::before {
 .dfn-panel > b { display: block; }
 .dfn-panel a { color: var(--dfnpanel-text); }
 .dfn-panel a:not(:hover) { text-decoration: none !important; border-bottom: none !important; }
+.dfn-panel a:focus {
+    outline: 5px auto Highlight;
+    outline: 5px auto -webkit-focus-ring-color;
+}
 .dfn-panel > b + b { margin-top: 0.25em; }
 .dfn-panel ul { padding: 0 0 0 1em; list-style: none; }
 .dfn-panel li a {
-    white-space: pre;
-    display: inline-block;
     max-width: calc(300px - 1.5em - 1em);
     overflow: hidden;
     text-overflow: ellipsis;
@@ -372,67 +379,84 @@ figcaption:not(.no-marker)::before {
 .dfn-panel.activated {
     display: inline-block;
     position: fixed;
-    left: .5em;
+    left: 8px;
     bottom: 2em;
     margin: 0 auto;
     max-width: calc(100vw - 1.5em - .4em - .5em);
     max-height: 30vh;
+    transition: left 1s ease-out, bottom 1s ease-out;
 }
 
-.dfn-paneled[role="button"] { cursor: pointer; }
+.dfn-panel .link-item:hover {
+    text-decoration: underline;
+}
+.dfn-panel .link-item .copy-icon {
+    opacity: 0;
+}
+.dfn-panel .link-item:hover .copy-icon,
+.dfn-panel .link-item .copy-icon:focus {
+    opacity: 1;
+}
+
+.dfn-panel .copy-icon {
+    display: inline-block;
+    margin-right: 0.5em;
+    width: 0.85em;
+    height: 1em;
+    border-radius: 3px;
+    background-color: #ccc;
+    cursor: pointer;
+}
+
+.dfn-panel .copy-icon .icon {
+    width: 100%;
+    height: 100%;
+    background-color: #fff;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+}
+
+.dfn-panel .copy-icon .icon::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border: 1px solid black;
+    background-color: #ccc;
+    opacity: 0.25;
+    transform: translate(3px, -3px);
+}
+
+.dfn-panel .copy-icon:active .icon::before {
+    opacity: 1;
+}
+
+.dfn-paneled[role="button"] { cursor: help; }
+
+.highlighted {
+    animation: target-fade 3s;
+}
+
+@keyframes target-fade {
+    from {
+        background-color: var(--dfnpanel-target-bg);
+        outline: 5px solid var(--dfnpanel-target-outline);
+    }
+    to {
+        color: var(--a-normal-text);
+        background-color: transparent;
+        outline: transparent;
+    }
+}
 </style>
-<style>/* Boilerplate: style-dfn-panel */
-:root {
-    --dfnpanel-bg: #ddd;
-    --dfnpanel-text: var(--text);
+<style>/* Boilerplate: style-idl-highlighting */
+pre.idl.highlight {
+    background: var(--borderedblock-bg, var(--def-bg));
 }
-@media (prefers-color-scheme: dark) {
-    :root {
-        --dfnpanel-bg: #222;
-        --dfnpanel-text: var(--text);
-    }
-}
-.dfn-panel {
-    position: absolute;
-    z-index: 35;
-    width: 20em;
-    width: 300px;
-    height: auto;
-    max-height: 500px;
-    overflow: auto;
-    padding: 0.5em 0.75em;
-    font: small Helvetica Neue, sans-serif, Droid Sans Fallback;
-    background: var(--dfnpanel-bg);
-    color: var(--dfnpanel-text);
-    border: outset 0.2em;
-    white-space: normal; /* in case it's moved into a pre */
-}
-.dfn-panel:not(.on) { display: none; }
-.dfn-panel * { margin: 0; padding: 0; text-indent: 0; }
-.dfn-panel > b { display: block; }
-.dfn-panel a { color: var(--dfnpanel-text); }
-.dfn-panel a:not(:hover) { text-decoration: none !important; border-bottom: none !important; }
-.dfn-panel > b + b { margin-top: 0.25em; }
-.dfn-panel ul { padding: 0 0 0 1em; list-style: none; }
-.dfn-panel li a {
-    white-space: pre;
-    display: inline-block;
-    max-width: calc(300px - 1.5em - 1em);
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-.dfn-panel.activated {
-    display: inline-block;
-    position: fixed;
-    left: .5em;
-    bottom: 2em;
-    margin: 0 auto;
-    max-width: calc(100vw - 1.5em - .4em - .5em);
-    max-height: 30vh;
-}
-
-.dfn-paneled[role="button"] { cursor: pointer; }
 </style>
 <style>/* Boilerplate: style-issues */
 a[href].issue-return {
@@ -453,8 +477,40 @@ a[href].issue-return {
     margin-bottom: 0;
 }
 </style>
-<style>/* Boilerplate: style-selflinks */
+<style>/* Boilerplate: style-ref-hints */
+:root {
+    --ref-hint-bg: #ddd;
+    --ref-hint-text: var(--text);
+}
+@media (prefers-color-scheme: dark) {
+    :root {
+        --ref-hint-bg: #222;
+        --ref-hint-text: var(--text);
+    }
+}
 
+.ref-hint {
+    display: inline-block;
+    position: absolute;
+    z-index: 35;
+    width: 20em;
+    width: 300px;
+    height: auto;
+    max-height: 500px;
+    overflow: auto;
+    padding: 0.5em 0.5em;
+    font: small Helvetica Neue, sans-serif, Droid Sans Fallback;
+    background: var(--ref-hint-bg);
+    color: var(--ref-hint-text);
+    border: outset 0.2em;
+    white-space: normal; /* in case it's moved into a pre */
+}
+
+.ref-hint * { margin: 0; padding: 0; text-indent: 0; }
+
+.ref-hint ul { padding: 0 0 0 1em; list-style: none; }
+</style>
+<style>/* Boilerplate: style-selflinks */
 :root {
     --selflink-text: white;
     --selflink-bg: gray;
@@ -514,14 +570,6 @@ a.self-link::before            { content: "¶"; }
 dfn > a.self-link::before      { content: "#"; }
 </style>
 <style>/* Boilerplate: style-syntax-highlighting */
-
-            pre.idl.highlight {
-                background: var(--borderedblock-bg, var(--def-bg));
-            }
-            
-</style>
-<style>/* Boilerplate: style-syntax-highlighting */
-
 code.highlight { padding: .1em; border-radius: .3em; }
 pre.highlight, pre > code.highlight { display: block; padding: 1em; margin: .5em 0; overflow: auto; border-radius: 0; }
 
@@ -578,7 +626,6 @@ c-[vc] { color: #0077aa } /* Name.Variable.Class */
 c-[vg] { color: #0077aa } /* Name.Variable.Global */
 c-[vi] { color: #0077aa } /* Name.Variable.Instance */
 c-[il] { color: #000000 } /* Literal.Number.Integer.Long */
-
 
 @media (prefers-color-scheme: dark) {
     .highlight:not(.idl) { background: rgba(255, 255, 255, .05); }
@@ -645,9 +692,9 @@ c-[il] { color: #000000 } /* Literal.Number.Integer.Long */
 </style>
  <body class="h-entry">
   <div class="head">
-   <p data-fill-with="logo"><a class="logo" href="https://www.w3.org/"> <img alt="W3C" height="48" src="https://www.w3.org/StyleSheets/TR/2021/logos/W3C" width="72"> </a> </p>
-   <h1 class="p-name no-ref" id="title">Soft Navigations</h1>
-   <p id="w3c-state"><a href="https://www.w3.org/standards/types#CG-DRAFT">Draft Community Group Report</a>, <time class="dt-updated" datetime="2023-12-07">7 December 2023</time></p>
+   <h1 class="no-ref p-name" id="title">Soft Navigations</h1>
+   <p id="w3c-state"><a href="https://www.w3.org/standards/types/#CG-DRAFT">Draft Community Group Report</a>,
+    <time class="dt-updated" datetime="2026-04-15">15 April 2026</time></p>
    <div data-fill-with="spec-metadata">
     <dl>
      <dt>This version:
@@ -657,34 +704,41 @@ c-[il] { color: #000000 } /* Literal.Number.Integer.Long */
      <dt>Issue Tracking:
      <dd><a href="https://github.com/WICG/soft-navigations/issues/">GitHub</a>
      <dd><a href="#issues-index">Inline In Spec</a>
-     <dt class="editor">Editor:
-     <dd class="editor p-author h-card vcard" data-editor-id="58673"><a class="p-name fn u-email email" href="mailto:yoav@yoav.ws">Yoav Weiss</a> (<a class="p-org org" href="https://google.com">Google</a>)
+     <dt class="editor">Editors:
+     <dd class="editor h-card p-author vcard" data-editor-id="110398"><a class="email fn p-name u-email" href="mailto:mmocny@chromium.org">Michal Mocny</a> (<a class="org p-org" href="https://google.com">Google</a>)
+     <dd class="editor h-card p-author vcard" data-editor-id="58673"><a class="email fn p-name u-email" href="mailto:yoav@yoav.ws">Yoav Weiss</a> (<a class="org p-org" href="https://shopify.com">Shopify</a>)
     </dl>
    </div>
    <div data-fill-with="warning"></div>
-   <p class="copyright" data-fill-with="copyright"><a href="https://www.w3.org/policies/#copyright">Copyright</a> © 2023 the Contributors to the Soft Navigations Specification, published by the <a href="https://www.w3.org/community/wicg/">Web Platform Incubator Community Group</a> under the <a href="https://www.w3.org/community/about/agreements/cla/">W3C Community Contributor License Agreement (CLA)</a>.
-A human-readable <a href="http://www.w3.org/community/about/agreements/cla-deed/">summary</a> is available. </p>
+   <p class="copyright" data-fill-with="copyright"><a href="https://www.w3.org/policies/#copyright">Copyright</a> © 2026 the Contributors to the Soft Navigations Specification, published by the <a href="https://www.w3.org/community/wicg/">Web Platform Incubator Community Group</a> under the <a href="https://www.w3.org/community/about/agreements/cla/">W3C Community Contributor License Agreement (CLA)</a>.
+A human-readable <a href="http://www.w3.org/community/about/agreements/cla-deed/">summary</a> is available.
+</p>
    <hr title="Separator for header">
   </div>
   <div class="p-summary" data-fill-with="abstract">
-   <h2 class="no-num no-toc no-ref heading settled" id="abstract"><span class="content">Abstract</span></h2>
+   <h2 class="heading no-num no-ref no-toc settled" id="abstract"><span class="content">Abstract</span></h2>
    <p>This document defines a heuristic that would enable browsers to report metrics related to Single Page Apps soft navigations.</p>
   </div>
   <div data-fill-with="at-risk"></div>
-  <h2 class="no-num no-toc no-ref heading settled" id="status"><span class="content">Status of this document</span></h2>
+  <h2 class="heading no-num no-ref no-toc settled" id="status"><span class="content">Status of this document</span></h2>
   <div data-fill-with="status">
-   <p> This specification was published by the <a href="https://www.w3.org/community/wicg/">Web Platform Incubator Community Group</a>.
+   <p>
+  This specification was published by the <a href="https://www.w3.org/community/wicg/">Web Platform Incubator Community Group</a>.
   It is not a W3C Standard nor is it on the W3C Standards Track.
 
-  Please note that under the <a href="https://www.w3.org/community/about/agreements/cla/">W3C Community Contributor License Agreement (CLA)</a> there is a limited opt-out and other conditions apply.
+  Please note that under the
+  <a href="https://www.w3.org/community/about/agreements/cla/">W3C Community Contributor License Agreement (CLA)</a>
+  there is a limited opt-out and other conditions apply.
 
-  Learn more about <a href="http://www.w3.org/community/">W3C Community and Business Groups</a>. </p>
+  Learn more about
+  <a href="http://www.w3.org/community/">W3C Community and Business Groups</a>.
+</p>
    <p></p>
   </div>
   <div data-fill-with="at-risk"></div>
   <nav data-fill-with="table-of-contents" id="toc">
-   <h2 class="no-num no-toc no-ref" id="contents">Table of Contents</h2>
-   <ol class="toc" role="directory">
+   <h2 class="no-num no-ref no-toc" id="contents">Table of Contents</h2>
+   <ol class="toc">
     <li>
      <a href="#sec-intro"><span class="secno">1</span> <span class="content">Introduction</span></a>
      <ol class="toc">
@@ -758,7 +812,10 @@ A human-readable <a href="http://www.w3.org/community/about/agreements/cla-deed/
   <main>
    <h2 class="heading settled" data-level="1" id="sec-intro"><span class="secno">1. </span><span class="content">Introduction</span><a class="self-link" href="#sec-intro"></a></h2>
    <div class="non-normative">
-     <em>This section is non-normative.</em> 
+    
+<em>This section is non-normative.</em>
+
+
     <p>A Single Page Application or an SPA is a web application that dynamically rewrites the DOM contents when the user navigates from one piece of content to another, instead of loading a new HTML page.
 Development of SPAs has become a common  pattern on the web today. At the same time, browsers haven’t been able to measure performance metrics for such sites.
 Specifically, JS-driven same-document navigations in SPAs have not been something that browsers detect, and hence went unmeasured.</p>
@@ -766,8 +823,11 @@ Specifically, JS-driven same-document navigations in SPAs have not been somethin
    </div>
    <h3 class="heading settled" data-level="1.1" id="sec-task-attribution-intro"><span class="secno">1.1. </span><span class="content">Task Attribution</span><a class="self-link" href="#sec-task-attribution-intro"></a></h3>
    <div class="non-normative">
-     The above heuristic relies on the ability to track task ancestory and to know that certain tasks were triggered by other tasks.
-This specification also outlines a mechanism that would enable user agents to deduce that information, and use it in web exposed features, such as soft navigations. 
+    
+The above heuristic relies on the ability to track task ancestory and to know that certain tasks were triggered by other tasks.
+This specification also outlines a mechanism that would enable user agents to deduce that information, and use it in web exposed features, such as soft navigations.
+
+
     <p>The user agent’s event loop is continuously running tasks, as well as microtasks.
 Being able to keep track of which task initiated which can be valuable in multiple cases:</p>
     <ul>
@@ -782,13 +842,15 @@ Being able to keep track of which task initiated which can be valuable in multip
     </ul>
    </div>
    <h2 class="heading settled" data-level="2" id="sec-interface"><span class="secno">2. </span><span class="content">The <code class="highlight">SoftNavigationEntry</code> interface</span><a class="self-link" href="#sec-interface"></a></h2>
-<pre class="idl highlight def">[<a class="idl-code" data-link-type="extended-attribute" href="https://webidl.spec.whatwg.org/#Exposed" id="ref-for-Exposed"><c- g>Exposed</c-></a>=<c- n>Window</c->]
-<c- b>interface</c-> <dfn class="dfn-paneled idl-code" data-dfn-type="interface" data-export id="softnavigationentry"><code class="highlight"><c- g>SoftNavigationEntry</c-></code></dfn> : <a data-link-type="idl-name" href="https://w3c.github.io/performance-timeline/#dom-performanceentry" id="ref-for-dom-performanceentry"><c- n>PerformanceEntry</c-></a> {
+<pre class="def highlight idl">[<a class="idl-code" data-link-type="extended-attribute" href="https://webidl.spec.whatwg.org/#Exposed" id="ref-for-Exposed"><c- g>Exposed</c-></a>=<c- n>Window</c->]
+<c- b>interface</c-> <dfn class="dfn-paneled idl-code" data-dfn-type="interface" data-export id="softnavigationentry"><code class="highlight"><c- g>SoftNavigationEntry</c-></code></dfn> : <a data-link-type="idl-name" href="https://w3c.github.io/performance-timeline/#performanceentry" id="ref-for-performanceentry"><c- n>PerformanceEntry</c-></a> {
 };
 </pre>
    <h2 class="heading settled" data-level="3" id="sec-algos"><span class="secno">3. </span><span class="content">Algorithms</span><a class="self-link" href="#sec-algos"></a></h2>
    <div class="note" role="note">
-     A Soft Navigation is a same document navigation which satisfies the following conditions: 
+    
+A Soft Navigation is a same document navigation which satisfies the following conditions:
+
     <ul>
      <li data-md>
       <p>Its navigating task is a descendent of a user interaction task.</p>
@@ -796,7 +858,7 @@ Being able to keep track of which task initiated which can be valuable in multip
       <p>There exists a DOM node append operation whose task is a descendent of the same user interaction task.</p>
     </ul>
    </div>
-   <p>To <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport id="check-soft-navigation">check soft navigation</dfn>, with a <a data-link-type="dfn" href="https://dom.spec.whatwg.org/#concept-document" id="ref-for-concept-document">Document</a> <var>document</var>, run the following steps:</p>
+   <p>To <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport id="check-soft-navigation">check soft navigation</dfn>, with a <a data-link-type="dfn" href="https://dom.spec.whatwg.org/#clone-a-node-document" id="ref-for-clone-a-node-document">Document</a> <var>document</var>, run the following steps:</p>
    <ol>
     <li data-md>
      <p>Let <var>interaction data</var> be the result of calling <a data-link-type="dfn" href="#get-current-interaction-data" id="ref-for-get-current-interaction-data">get current interaction data</a> with <var>document</var>.</p>
@@ -816,7 +878,9 @@ Being able to keep track of which task initiated which can be valuable in multip
      <p>Set <var>interaction data</var>’s <a data-link-type="dfn" href="#interaction-data-emitted" id="ref-for-interaction-data-emitted">emitted</a> to true.</p>
    </ol>
    <h3 class="heading settled" data-level="3.1" id="sec-entry"><span class="secno">3.1. </span><span class="content">Soft navigation entry</span><a class="self-link" href="#sec-entry"></a></h3>
-    To <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport id="create-a-soft-navigation-entry">create a soft navigation entry</dfn>, with a <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#global-object" id="ref-for-global-object">global object</a> <var>global</var>, a <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#string" id="ref-for-string">string</a> <var>url</var>, a <code class="idl"><a data-link-type="idl" href="https://w3c.github.io/hr-time/#dom-domhighrestimestamp" id="ref-for-dom-domhighrestimestamp">DOMHighResTimeStamp</a></code> <var>start time</var>, run the following steps: 
+   
+To <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport id="create-a-soft-navigation-entry">create a soft navigation entry</dfn>, with a <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#global-object" id="ref-for-global-object">global object</a> <var>global</var>, a <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#string" id="ref-for-string">string</a> <var>url</var>, a <code class="idl"><a data-link-type="idl" href="https://w3c.github.io/hr-time/#typedefdef-domhighrestimestamp" id="ref-for-typedefdef-domhighrestimestamp">DOMHighResTimeStamp</a></code> <var>start time</var>, run the following steps:
+
    <ol>
     <li data-md>
      <p>Let <var>entry</var> be a new <code class="idl"><a data-link-type="idl" href="#softnavigationentry" id="ref-for-softnavigationentry">SoftNavigationEntry</a></code> object in <var>global</var>’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-global-object-realm" id="ref-for-concept-global-object-realm">realm</a>.</p>
@@ -841,7 +905,7 @@ Being able to keep track of which task initiated which can be valuable in multip
     <li data-md>
      <p><a data-link-type="dfn" href="https://w3c.github.io/performance-timeline/#dfn-queue-a-performanceentry" id="ref-for-dfn-queue-a-performanceentry①">Queue</a> <var>entry</var>.</p>
     <li data-md>
-     <p>Add <var>entry</var> to <var>global</var>’s <a data-link-type="dfn" href="https://w3c.github.io/performance-timeline/#dfn-performance-entry-buffer" id="ref-for-dfn-performance-entry-buffer">performance entry buffer</a>.</p>
+     <p>Add <var>entry</var> to <var>global</var>’s <a data-link-type="dfn" href="https://w3c.github.io/performance-timeline/#performance-entry-buffer" id="ref-for-performance-entry-buffer">performance entry buffer</a>.</p>
     <li data-md>
      <p>Set <var>global</var>’s <a data-link-type="dfn" href="https://w3c.github.io/largest-contentful-paint/#has-dispatched-scroll-event" id="ref-for-has-dispatched-scroll-event">has dispatched scroll event</a> and <a data-link-type="dfn" href="https://w3c.github.io/event-timing/#has-dispatched-input-event" id="ref-for-has-dispatched-input-event">has dispatched input event</a> to false.</p>
     <li data-md>
@@ -870,7 +934,7 @@ It has the following <a data-link-type="dfn" href="https://infra.spec.whatwg.org
     <li data-md>
      <p><dfn class="dfn-paneled" data-dfn-for="interaction data" data-dfn-type="dfn" data-noexport id="interaction-data-emitted">emitted</dfn> flag, initially false  - Indicates that a soft navigation entry was emitted by the interaction.</p>
    </ul>
-   <p>To <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport id="get-current-interaction-data">get current interaction data</dfn>, given a <a data-link-type="dfn" href="https://dom.spec.whatwg.org/#concept-document" id="ref-for-concept-document①">Document</a> <var>document</var>, run the following steps:</p>
+   <p>To <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport id="get-current-interaction-data">get current interaction data</dfn>, given a <a data-link-type="dfn" href="https://dom.spec.whatwg.org/#clone-a-node-document" id="ref-for-clone-a-node-document①">Document</a> <var>document</var>, run the following steps:</p>
    <ol>
     <li data-md>
      <p>Let <var>task id</var> be the result of calling <a data-link-type="dfn" href="#get-current-task-id" id="ref-for-get-current-task-id">get current task ID</a>.</p>
@@ -890,7 +954,7 @@ It has the following <a data-link-type="dfn" href="https://infra.spec.whatwg.org
     <li data-md>
      <p>Let <var>is click</var> be true if <var>event type</var> <a data-link-type="dfn" href="https://dom.spec.whatwg.org/#concept-node-equals" id="ref-for-concept-node-equals">equals</a> "click", and false otherwise.</p>
     <li data-md>
-     <p>Let <var>is keyboard</var> be true if <var>target</var> is an {{HTMLBodyElement} and <var>event type</var> <a data-link-type="dfn" href="https://dom.spec.whatwg.org/#concept-node-equals" id="ref-for-concept-node-equals①">equals</a> "keydown", "keyup" or "keypress", and false otherwise.</p>
+     <p>Let <var>is keyboard</var> be true if <var>target</var> is an <code class="idl"><a data-link-type="idl" href="https://html.spec.whatwg.org/multipage/sections.html#htmlbodyelement" id="ref-for-htmlbodyelement">HTMLBodyElement</a></code> and <var>event type</var> <a data-link-type="dfn" href="https://dom.spec.whatwg.org/#concept-node-equals" id="ref-for-concept-node-equals①">equals</a> "keydown", "keyup" or "keypress", and false otherwise.</p>
     <li data-md>
      <p>Let <var>is navigation</var> be true if <var>event type</var> <a data-link-type="dfn" href="https://dom.spec.whatwg.org/#concept-node-equals" id="ref-for-concept-node-equals②">equals</a> "navigate", and false otherwise.</p>
     <li data-md>
@@ -918,7 +982,7 @@ It has the following <a data-link-type="dfn" href="https://infra.spec.whatwg.org
     <li data-md>
      <p>Return <var>interaction data</var>.</p>
    </ol>
-   <p>To <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport id="terminate-event-callback-handling">terminate event callback handling</dfn>, given a <a data-link-type="dfn" href="https://dom.spec.whatwg.org/#concept-document" id="ref-for-concept-document②">Document</a> <var>document</var> and null or <a data-link-type="dfn" href="#interaction-data" id="ref-for-interaction-data①">interaction data</a> <var>interaction data</var>, run the following steps:</p>
+   <p>To <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport id="terminate-event-callback-handling">terminate event callback handling</dfn>, given a <a data-link-type="dfn" href="https://dom.spec.whatwg.org/#clone-a-node-document" id="ref-for-clone-a-node-document②">Document</a> <var>document</var> and null or <a data-link-type="dfn" href="#interaction-data" id="ref-for-interaction-data①">interaction data</a> <var>interaction data</var>, run the following steps:</p>
    <ol>
     <li data-md>
      <p>Set <var>interaction data</var>’s <a data-link-type="dfn" href="#interaction-data-start-time" id="ref-for-interaction-data-start-time①">start time</a> to the <a data-link-type="dfn" href="https://w3c.github.io/hr-time/#dfn-current-high-resolution-time" id="ref-for-dfn-current-high-resolution-time①">current high resolution time</a> given <var>document</var>’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-relevant-global" id="ref-for-concept-relevant-global①">relevant global object</a>.</p>
@@ -929,7 +993,8 @@ It has the following <a data-link-type="dfn" href="https://infra.spec.whatwg.org
     <li data-md>
      <p>Let <var>interaction data</var> be the result of calling <a data-link-type="dfn" href="#get-current-interaction-data" id="ref-for-get-current-interaction-data①">get current interaction data</a> with <var>document</var>.</p>
     <li data-md>
-     <p>Let <var>is soft navigation same document commit</var> be the result of <a data-link-type="dfn" href="#check-ancestor-set-for-task" id="ref-for-check-ancestor-set-for-task">Check ancestor set for task</a> given <var>document</var>’s <a data-link-type="dfn" href="#document-potential-soft-navigation-task-ids" id="ref-for-document-potential-soft-navigation-task-ids①">potential soft navigation task ids</a>.</p>
+     <p>Let <var>is soft navigation same document commit</var> be the result of <a data-link-type="dfn" href="#check-ancestor-set-for-task" id="ref-for-check-ancestor-set-for-task">Check ancestor set for task</a> given
+<var>document</var>’s <a data-link-type="dfn" href="#document-potential-soft-navigation-task-ids" id="ref-for-document-potential-soft-navigation-task-ids①">potential soft navigation task ids</a>.</p>
     <li data-md>
      <p><a data-link-type="dfn" href="https://infra.spec.whatwg.org/#map-set" id="ref-for-map-set②">Set</a> <var>interaction data</var>’s <a data-link-type="dfn" href="#interaction-data-same-document-commit" id="ref-for-interaction-data-same-document-commit①">same document commit</a> to <var>is soft navigation same document commit</var>.</p>
     <li data-md>
@@ -938,21 +1003,24 @@ It has the following <a data-link-type="dfn" href="https://infra.spec.whatwg.org
      <p>Call <a data-link-type="dfn" href="#check-soft-navigation" id="ref-for-check-soft-navigation">check soft navigation</a> with <var>document</var>.</p>
    </ol>
    <h3 class="heading settled" data-level="3.4" id="sec-contentful-paint"><span class="secno">3.4. </span><span class="content">Contentful paint</span><a class="self-link" href="#sec-contentful-paint"></a></h3>
-   <p>To <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport id="check-soft-navigation-contentful-paint">check soft navigation contentful paint</dfn>, with <a data-link-type="dfn" href="https://dom.spec.whatwg.org/#concept-element" id="ref-for-concept-element">Element</a> <var>element</var> and <a data-link-type="dfn" href="https://dom.spec.whatwg.org/#concept-document" id="ref-for-concept-document③">Document</a> <var>document</var>, run the following steps:</p>
+   <p>To <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport id="check-soft-navigation-contentful-paint">check soft navigation contentful paint</dfn>, with <a data-link-type="dfn" href="https://dom.spec.whatwg.org/#concept-element" id="ref-for-concept-element">Element</a> <var>element</var> and <a data-link-type="dfn" href="https://dom.spec.whatwg.org/#clone-a-node-document" id="ref-for-clone-a-node-document③">Document</a> <var>document</var>, run the following steps:</p>
    <ol>
     <li data-md>
      <p>Let <var>interaction data</var> be the result of calling <a data-link-type="dfn" href="#get-current-interaction-data" id="ref-for-get-current-interaction-data②">get current interaction data</a> with <var>document</var>.</p>
     <li data-md>
-     <p>If <var>element</var>’s <a data-link-type="dfn" href="#node-appended-by-soft-navigation" id="ref-for-node-appended-by-soft-navigation">appended by soft navigation</a> is true, set <var>interaction data</var>’s <a data-link-type="dfn" href="#interaction-data-contentful-paint" id="ref-for-interaction-data-contentful-paint①">contentful paint</a> to true.</p>
+     <p>If <var>element</var>’s <a data-link-type="dfn" href="#node-appended-by-soft-navigation" id="ref-for-node-appended-by-soft-navigation">appended by soft navigation</a> is true, set <var>interaction data</var>’s <a data-link-type="dfn" href="#interaction-data-contentful-paint" id="ref-for-interaction-data-contentful-paint①">contentful paint</a> to true.
+Otherwise, if <var>interaction data</var>’s <a data-link-type="dfn" href="#interaction-data-emitted" id="ref-for-interaction-data-emitted①">emitted</a> is false, return false.</p>
     <li data-md>
      <p>Call <a data-link-type="dfn" href="#check-soft-navigation" id="ref-for-check-soft-navigation①">check soft navigation</a> with <var>document</var>.</p>
+    <li data-md>
+     <p>Return true.</p>
    </ol>
    <h2 class="heading settled" data-level="4" id="sec-html"><span class="secno">4. </span><span class="content">HTML integration</span><a class="self-link" href="#sec-html"></a></h2>
    <h3 class="heading settled" data-level="4.1" id="sec-html-document"><span class="secno">4.1. </span><span class="content">Document</span><a class="self-link" href="#sec-html-document"></a></h3>
-   <p>Each <a data-link-type="dfn" href="https://dom.spec.whatwg.org/#concept-document" id="ref-for-concept-document④">document</a> has a <dfn class="dfn-paneled" data-dfn-for="document" data-dfn-type="dfn" data-noexport id="document-potential-soft-navigation-task-ids">potential soft navigation task ids</dfn>, a <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#ordered-set" id="ref-for-ordered-set①">set</a> of <a data-link-type="dfn" href="#task-task-attribution-id" id="ref-for-task-task-attribution-id">task attribution id</a>s.</p>
-   <p>Each <a data-link-type="dfn" href="https://dom.spec.whatwg.org/#concept-document" id="ref-for-concept-document⑤">document</a> has a <dfn class="dfn-paneled" data-dfn-for="document" data-dfn-type="dfn" data-noexport id="document-interaction-task-id-to-interaction-data">interaction task id to interaction data</dfn>, a <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#ordered-map" id="ref-for-ordered-map③">map</a>, initially empty.</p>
-   <p>Each <a data-link-type="dfn" href="https://dom.spec.whatwg.org/#concept-document" id="ref-for-concept-document⑥">document</a> has a <dfn class="dfn-paneled" data-dfn-for="document" data-dfn-type="dfn" data-noexport id="document-task-id-to-interaction-task-id">task id to interaction task id</dfn>, a <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#ordered-map" id="ref-for-ordered-map④">map</a>, initially empty.</p>
-   <p>Each <a data-link-type="dfn" href="https://dom.spec.whatwg.org/#concept-document" id="ref-for-concept-document⑦">document</a> has a <dfn class="dfn-paneled" data-dfn-for="document" data-dfn-type="dfn" data-noexport id="document-last-interaction-task-id">last interaction task id</dfn>, a <a data-link-type="dfn" href="#task-task-attribution-id" id="ref-for-task-task-attribution-id①">task attribution id</a>.</p>
+   <p>Each <a data-link-type="dfn" href="https://dom.spec.whatwg.org/#clone-a-node-document" id="ref-for-clone-a-node-document④">document</a> has a <dfn class="dfn-paneled" data-dfn-for="document" data-dfn-type="dfn" data-noexport id="document-potential-soft-navigation-task-ids">potential soft navigation task ids</dfn>, a <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#ordered-set" id="ref-for-ordered-set①">set</a> of <a data-link-type="dfn" href="#task-task-attribution-id" id="ref-for-task-task-attribution-id">task attribution id</a>s.</p>
+   <p>Each <a data-link-type="dfn" href="https://dom.spec.whatwg.org/#clone-a-node-document" id="ref-for-clone-a-node-document⑤">document</a> has a <dfn class="dfn-paneled" data-dfn-for="document" data-dfn-type="dfn" data-noexport id="document-interaction-task-id-to-interaction-data">interaction task id to interaction data</dfn>, a <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#ordered-map" id="ref-for-ordered-map③">map</a>, initially empty.</p>
+   <p>Each <a data-link-type="dfn" href="https://dom.spec.whatwg.org/#clone-a-node-document" id="ref-for-clone-a-node-document⑥">document</a> has a <dfn class="dfn-paneled" data-dfn-for="document" data-dfn-type="dfn" data-noexport id="document-task-id-to-interaction-task-id">task id to interaction task id</dfn>, a <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#ordered-map" id="ref-for-ordered-map④">map</a>, initially empty.</p>
+   <p>Each <a data-link-type="dfn" href="https://dom.spec.whatwg.org/#clone-a-node-document" id="ref-for-clone-a-node-document⑦">document</a> has a <dfn class="dfn-paneled" data-dfn-for="document" data-dfn-type="dfn" data-noexport id="document-last-interaction-task-id">last interaction task id</dfn>, a <a data-link-type="dfn" href="#task-task-attribution-id" id="ref-for-task-task-attribution-id①">task attribution id</a>.</p>
    <h3 class="heading settled" data-level="4.2" id="sec-html-history"><span class="secno">4.2. </span><span class="content">History</span><a class="self-link" href="#sec-html-history"></a></h3>
    <p>In <a data-link-type="dfn" href="https://html.spec.whatwg.org/C#update-document-for-history-step-application" id="ref-for-update-document-for-history-step-application">update document for history step application</a>, before 5.5.1 (if <code class="highlight">documentsEntryChanged</code> is true and if <code class="highlight">documentIsNew</code> is false),
 call <a data-link-type="dfn" href="#check-soft-navigation-same-document-commit" id="ref-for-check-soft-navigation-same-document-commit">check soft navigation same document commit</a> with <var>entry</var>’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/C#she-url" id="ref-for-she-url">url</a>.</p>
@@ -978,19 +1046,24 @@ call <a data-link-type="dfn" href="#check-soft-navigation-same-document-commit" 
     <li data-md>
      <p>Let <var>doc</var> be <var>parent</var>’s <a data-link-type="dfn" href="https://dom.spec.whatwg.org/#concept-node-document" id="ref-for-concept-node-document">node document</a>.</p>
     <li data-md>
-     <p>Let <var>is soft navigation append</var> be the result of running <a data-link-type="dfn" href="#check-ancestor-for-task" id="ref-for-check-ancestor-for-task">Check ancestor for task</a> with the <var>doc</var>’s <a data-link-type="dfn" href="#document-potential-soft-navigation-task-ids" id="ref-for-document-potential-soft-navigation-task-ids②">potential soft navigation task id</a> and the result of calling <a data-link-type="dfn" href="#get-current-task-id" id="ref-for-get-current-task-id②">get current task ID</a>.</p>
+     <p>Let <var>is soft navigation append</var> be the result of running <a data-link-type="dfn" href="#check-ancestor-for-task" id="ref-for-check-ancestor-for-task">Check ancestor for task</a>
+with the <var>doc</var>’s <a data-link-type="dfn" href="#document-potential-soft-navigation-task-ids" id="ref-for-document-potential-soft-navigation-task-ids②">potential soft navigation task id</a> and the result of calling <a data-link-type="dfn" href="#get-current-task-id" id="ref-for-get-current-task-id②">get current task ID</a>.</p>
     <li data-md>
      <p>Set <var>node</var>’s <a data-link-type="dfn" href="#node-appended-by-soft-navigation" id="ref-for-node-appended-by-soft-navigation①">appended by soft navigation</a> to <var>is soft navigation append</var>.</p>
    </ol>
    <h2 class="heading settled" data-level="5" id="sec-lcp-integration"><span class="secno">5. </span><span class="content">LCP integration</span><a class="self-link" href="#sec-lcp-integration"></a></h2>
-    In <a data-link-type="dfn" href="https://w3c.github.io/largest-contentful-paint/#potentially-add-a-largestcontentfulpaint-entry" id="ref-for-potentially-add-a-largestcontentfulpaint-entry">potentially add a LargestContentfulPaint entry</a>, add the following initial step: 
+   
+In <u class="link-error" data-lt="potentially add a LargestContentfulPaint entry" title="LINK ERROR: No &apos;dfn&apos; refs found for &apos;potentially add a largestcontentfulpaint entry&apos;.">potentially add a LargestContentfulPaint entry</u>, add the following initial step:
+
    <ol>
     <li data-md>
-     <p>Call <a data-link-type="dfn" href="#check-soft-navigation-contentful-paint" id="ref-for-check-soft-navigation-contentful-paint">check soft navigation contentful paint</a> with <var>element</var> and <var>document</var>.</p>
+     <p>If the result of calling <a data-link-type="dfn" href="#check-soft-navigation-contentful-paint" id="ref-for-check-soft-navigation-contentful-paint">check soft navigation contentful paint</a> with <var>element</var> and <var>document</var> is false, return.</p>
    </ol>
    <h2 class="heading settled" data-level="6" id="sec-task-attribution-algorithms"><span class="secno">6. </span><span class="content">Task Attibution Algorithms</span><a class="self-link" href="#sec-task-attribution-algorithms"></a></h2>
-   <p class="note" role="note"> The task attribution algorithms and their integration with HTML are likely to end up integrated into HTML directly.
-Integration with other specifications is likely to end up in these specifications directly. </p>
+   <p class="note" role="note">
+The task attribution algorithms and their integration with HTML are likely to end up integrated into HTML directly.
+Integration with other specifications is likely to end up in these specifications directly.
+</p>
    <p>The general principle behind task attribution is quite simple:</p>
    <ul>
     <li data-md>
@@ -1017,15 +1090,17 @@ Integration with other specifications is likely to end up in these specification
     <li data-md>
      <p>Set <var>scope</var>’s <a data-link-type="dfn" href="#task-scope-task" id="ref-for-task-scope-task">task</a> to <var>task</var>.</p>
     <li data-md>
-     <p>Push <var>scope</var> to the <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#relevant-agent" id="ref-for-relevant-agent">relevant agent</a>'s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-agent-event-loop" id="ref-for-concept-agent-event-loop">event loop</a>'s <a data-link-type="dfn" href="#task-scope-stack" id="ref-for-task-scope-stack">task scope stack</a>.</p>
+     <p>Push <var>scope</var> to the <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#relevant-agent" id="ref-for-relevant-agent">relevant agent</a>’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-agent-event-loop" id="ref-for-concept-agent-event-loop">event loop</a>’s <a data-link-type="dfn" href="#task-scope-stack" id="ref-for-task-scope-stack">task scope stack</a>.</p>
    </ol>
    <p>To <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport id="tear-down-a-task-scope">tear down a task scope</dfn>, do the following:</p>
    <ol>
     <li data-md>
-     <p>Pop <var>scope</var> from the <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#relevant-agent" id="ref-for-relevant-agent①">relevant agent</a>'s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-agent-event-loop" id="ref-for-concept-agent-event-loop①">event loop</a>'s <a data-link-type="dfn" href="#task-scope-stack" id="ref-for-task-scope-stack①">task scope stack</a></p>
+     <p>Pop <var>scope</var> from the <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#relevant-agent" id="ref-for-relevant-agent①">relevant agent</a>’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-agent-event-loop" id="ref-for-concept-agent-event-loop①">event loop</a>’s <a data-link-type="dfn" href="#task-scope-stack" id="ref-for-task-scope-stack①">task scope stack</a></p>
    </ol>
    <h3 class="heading settled" data-level="6.2" id="sec-is-ancestor"><span class="secno">6.2. </span><span class="content">Is ancestor</span><a class="self-link" href="#sec-is-ancestor"></a></h3>
-    To <dfn class="dfn-paneled" data-dfn-type="dfn" data-export id="check-ancestor-for-task">check ancestor for task</dfn>, given <var>ancestor id</var>, a <a data-link-type="dfn" href="#task-task-attribution-id" id="ref-for-task-task-attribution-id③">task attribution ID</a>, run the following: 
+   
+To <dfn class="dfn-paneled" data-dfn-type="dfn" data-export id="check-ancestor-for-task">check ancestor for task</dfn>, given <var>ancestor id</var>, a <a data-link-type="dfn" href="#task-task-attribution-id" id="ref-for-task-task-attribution-id③">task attribution ID</a>, run the following:
+
    <ol>
     <li data-md>
      <p>Let <var>task</var> be the result of <a data-link-type="dfn" href="#get-current-task" id="ref-for-get-current-task">get current task</a>.</p>
@@ -1061,17 +1136,21 @@ Integration with other specifications is likely to end up in these specification
      </ol>
    </ol>
    <h4 class="heading settled" data-level="6.3.1" id="sec-current-task"><span class="secno">6.3.1. </span><span class="content">Get current task</span><a class="self-link" href="#sec-current-task"></a></h4>
-    To <dfn class="dfn-paneled" data-dfn-type="dfn" data-export id="get-current-task">get current task</dfn>, run the following steps: 
+   
+To <dfn class="dfn-paneled" data-dfn-type="dfn" data-export id="get-current-task">get current task</dfn>, run the following steps:
+
    <ol>
     <li data-md>
-     <p>Let <var>event loop</var> be the <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#relevant-agent" id="ref-for-relevant-agent②">relevant agent</a>'s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-agent-event-loop" id="ref-for-concept-agent-event-loop②">event loop</a>.</p>
+     <p>Let <var>event loop</var> be the <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#relevant-agent" id="ref-for-relevant-agent②">relevant agent</a>’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-agent-event-loop" id="ref-for-concept-agent-event-loop②">event loop</a>.</p>
     <li data-md>
      <p>Let <var>scope</var> be the result of <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#stack-peek" id="ref-for-stack-peek">peeking</a> into the <var>event loop</var>’s <a data-link-type="dfn" href="#task-scope-stack" id="ref-for-task-scope-stack②">task scope stack</a>.</p>
     <li data-md>
      <p>Return <var>scope</var>’s <a data-link-type="dfn" href="#task-scope-task" id="ref-for-task-scope-task①">task</a>.</p>
    </ol>
    <h4 class="heading settled" data-level="6.3.2" id="sec-current-task-id"><span class="secno">6.3.2. </span><span class="content">Get current task ID</span><a class="self-link" href="#sec-current-task-id"></a></h4>
-    To <dfn class="dfn-paneled" data-dfn-type="dfn" data-export id="get-current-task-id">get current task id</dfn>, run the following steps: 
+   
+To <dfn class="dfn-paneled" data-dfn-type="dfn" data-export id="get-current-task-id">get current task id</dfn>, run the following steps:
+
    <ol>
     <li data-md>
      <p>Let <var>task</var> be the result of <a data-link-type="dfn" href="#get-current-task" id="ref-for-get-current-task②">getting current task</a>.</p>
@@ -1086,7 +1165,10 @@ The desired end state would be for these integrations to be embedded in the rele
 representing a unique identifier. It is initially unset.</p>
    <p>A <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-task" id="ref-for-concept-task④">task</a> has a <dfn class="dfn-paneled" data-dfn-for="task" data-dfn-type="dfn" data-noexport id="task-parent-task">parent task</dfn>, a <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-task" id="ref-for-concept-task⑤">task</a>, initially unset.</p>
    <h3 class="heading settled" data-level="7.2" id="sec-event-loop"><span class="secno">7.2. </span><span class="content">Event Loop additions</span><a class="self-link" href="#sec-event-loop"></a></h3>
-    Each <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#event-loop" id="ref-for-event-loop">event loop</a> has a <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport id="task-scope-stack">task scope stack</dfn>, a <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#stack" id="ref-for-stack">stack</a> of <a data-link-type="dfn" href="#concept-task-scope" id="ref-for-concept-task-scope②">task scopes</a>. 
+   
+Each <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#event-loop" id="ref-for-event-loop">event loop</a> has a <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport id="task-scope-stack">task scope stack</dfn>, a <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#stack" id="ref-for-stack">stack</a> of <a data-link-type="dfn" href="#concept-task-scope" id="ref-for-concept-task-scope②">task scopes</a>.
+
+
    <h3 class="heading settled" data-level="7.3" id="sec-script"><span class="secno">7.3. </span><span class="content">Script execution</span><a class="self-link" href="#sec-script"></a></h3>
    <p>A <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-script" id="ref-for-concept-script">script</a> element has a <dfn class="dfn-paneled" data-dfn-for="script" data-dfn-type="dfn" data-noexport id="script-parent-task">parent task</dfn> <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-task" id="ref-for-concept-task⑥">task</a>, initially unset.</p>
    <p>In <a data-link-type="dfn" href="https://html.spec.whatwg.org/C#prepare-the-script-element" id="ref-for-prepare-the-script-element">prepare the script element</a>, add an initial step:</p>
@@ -1106,7 +1188,10 @@ representing a unique identifier. It is initially unset.</p>
      <p><a data-link-type="dfn" href="#tear-down-a-task-scope" id="ref-for-tear-down-a-task-scope">Tear down a task scope</a></p>
    </ol>
    <h3 class="heading settled" data-level="7.4" id="sec-task-queueing"><span class="secno">7.4. </span><span class="content">Task queueing</span><a class="self-link" href="#sec-task-queueing"></a></h3>
-    In <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#queue-a-task" id="ref-for-queue-a-task">queue a task</a>: 
+   
+In <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#queue-a-task" id="ref-for-queue-a-task">queue a task</a>:
+
+
    <p>Add these steps after step 3, "Let task be a new task":</p>
    <ol>
     <li data-md>
@@ -1120,7 +1205,9 @@ representing a unique identifier. It is initially unset.</p>
      <p><a data-link-type="dfn" href="#tear-down-a-task-scope" id="ref-for-tear-down-a-task-scope①">Tear down a task scope</a></p>
    </ol>
    <h3 class="heading settled" data-level="7.5" id="sec-timers"><span class="secno">7.5. </span><span class="content">Timers</span><a class="self-link" href="#sec-timers"></a></h3>
-    In <a data-link-type="dfn" href="https://html.spec.whatwg.org/C#timer-initialisation-steps" id="ref-for-timer-initialisation-steps">timer initialisation steps</a>, before step 8, add the following steps: 
+   
+In <a data-link-type="dfn" href="https://html.spec.whatwg.org/C#timer-initialisation-steps" id="ref-for-timer-initialisation-steps">timer initialisation steps</a>, before step 8, add the following steps:
+
    <ol>
     <li data-md>
      <p>Let <var>parent task</var> be the result of <a data-link-type="dfn" href="#get-current-task" id="ref-for-get-current-task⑤">getting current task</a>.</p>
@@ -1165,12 +1252,14 @@ representing a unique identifier. It is initially unset.</p>
    </ol>
    <h3 class="heading settled" data-level="7.7" id="sec-continuations"><span class="secno">7.7. </span><span class="content">Continuations</span><a class="self-link" href="#sec-continuations"></a></h3>
    <h4 class="heading settled" data-level="7.7.1" id="sec-hostmakejobcallback"><span class="secno">7.7.1. </span><span class="content">HostMakeJobCallback ##{#sec-hostmakejobcallback}</span><a class="self-link" href="#sec-hostmakejobcallback"></a></h4>
-    In <a data-link-type="dfn" href="https://html.spec.whatwg.org/C#hostmakejobcallback" id="ref-for-hostmakejobcallback">HostMakeJobCallback</a>, add the following steps: 
+   
+In <a data-link-type="dfn" href="https://html.spec.whatwg.org/C#hostmakejobcallback" id="ref-for-hostmakejobcallback">HostMakeJobCallback</a>, add the following steps:
+
    <ol>
     <li data-md>
      <p>Let <var>task</var> be the result of <a data-link-type="dfn" href="#get-current-task" id="ref-for-get-current-task⑥">getting current task</a>.</p>
     <li data-md>
-     <p>Let <var>callable</var>’s [=callback function/parent task|  be <var>task</var>.</p>
+     <p>Let <var>callable</var>’s <a data-link-type="dfn" href="#callback-function-parent-task" id="ref-for-callback-function-parent-task③">parent task</a>  be <var>task</var>.</p>
    </ol>
    <p class="note" role="note"><span class="marker">Note:</span> This is needed to ensure the current task is registered on the promise continuations when they are created.</p>
    <p>TODO: Figure out if we need to do something in particular with the FinalizationRegsitry.</p>
@@ -1178,7 +1267,7 @@ representing a unique identifier. It is initially unset.</p>
    <p>In <a data-link-type="dfn" href="https://html.spec.whatwg.org/C#hostcalljobcallback" id="ref-for-hostcalljobcallback">HostCallJobCallback</a>, add initial steps:</p>
    <ol>
     <li data-md>
-     <p>Let <var>task</var> be <var>callback</var>’s <a data-link-type="dfn" href="#callback-function-parent-task" id="ref-for-callback-function-parent-task③">parent task</a>.</p>
+     <p>Let <var>task</var> be <var>callback</var>’s <a data-link-type="dfn" href="#callback-function-parent-task" id="ref-for-callback-function-parent-task④">parent task</a>.</p>
     <li data-md>
      <p><a data-link-type="dfn" href="#create-a-task-scope" id="ref-for-create-a-task-scope⑤">create a task scope</a> with <var>task</var> if set, and with nothing otherwise.</p>
    </ol>
@@ -1187,14 +1276,18 @@ representing a unique identifier. It is initially unset.</p>
     <li data-md>
      <p><a data-link-type="dfn" href="#tear-down-a-task-scope" id="ref-for-tear-down-a-task-scope⑤">Tear down a task scope</a></p>
    </ol>
-   <p class="note" role="note"> The above is called when promise continuations are run.
+   <p class="note" role="note">
+The above is called when promise continuations are run.
 That does not match Chromium where Blink is not notified when promise continuations are run inside
 of V8, and hence is subtly different than what’s implemented in Chromium.
 In Chromium the the continuation task overrides the task stack, where here it pushes a new child
 task of itself onto that stack.  At the same time, there shouldn’t be any functional differences
-between the two. </p>
+between the two.
+</p>
    <h3 class="heading settled" data-level="7.8" id="sec-messageport"><span class="secno">7.8. </span><span class="content">MessagePorts</span><a class="self-link" href="#sec-messageport"></a></h3>
-   <p class="note" role="note"> For message ports, we want the <code class="highlight">message</code> event callback task to have the task that initiated the <code class="highlight">postMessage</code> as its parent. </p>
+   <p class="note" role="note">
+For message ports, we want the <code class="highlight">message</code> event callback task to have the task that initiated the <code class="highlight">postMessage</code> as its parent.
+</p>
    <p>In <a data-link-type="dfn" href="https://html.spec.whatwg.org/C#message-port-post-message-steps" id="ref-for-message-port-post-message-steps">message port post message steps</a>, add the following steps.</p>
    <p>Before step 7, which adds a task, add the following steps:</p>
    <ol>
@@ -1213,7 +1306,10 @@ between the two. </p>
      <p>Call <a data-link-type="dfn" href="#tear-down-a-task-scope" id="ref-for-tear-down-a-task-scope⑦">tear down a task scope</a>.</p>
    </ol>
    <h3 class="heading settled" data-level="7.9" id="sec-same-document-navigations"><span class="secno">7.9. </span><span class="content">Same-document navigations</span><a class="self-link" href="#sec-same-document-navigations"></a></h3>
-    A <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/document-sequences.html#traversable-navigable" id="ref-for-traversable-navigable">traversable navigable</a> has a <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport id="navigation-task">navigation task</dfn>, a <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-task" id="ref-for-concept-task⑧">task</a>, initially unset. 
+   
+A <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/document-sequences.html#traversable-navigable" id="ref-for-traversable-navigable">traversable navigable</a> has a <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport id="navigation-task">navigation task</dfn>, a <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-task" id="ref-for-concept-task⑧">task</a>, initially unset.
+
+
    <p>In <a data-link-type="dfn" href="https://html.spec.whatwg.org/C#tn-append-session-history-traversal-steps" id="ref-for-tn-append-session-history-traversal-steps">append session history traversal steps</a>, also set <var>traversable</var>’s <a data-link-type="dfn" href="#navigation-task" id="ref-for-navigation-task">navigation task</a> to the result of <a data-link-type="dfn" href="#get-current-task" id="ref-for-get-current-task⑧">getting current task</a>.</p>
    <p>In <a data-link-type="dfn" href="https://html.spec.whatwg.org/C#tn-append-session-history-sync-nav-steps" id="ref-for-tn-append-session-history-sync-nav-steps">append session history synchronous navigation steps</a>, also set <var>traversable</var>’s <a data-link-type="dfn" href="#navigation-task" id="ref-for-navigation-task①">navigation task</a> to the result of <a data-link-type="dfn" href="#get-current-task" id="ref-for-get-current-task⑨">getting current task</a>.</p>
    <p>In <a data-link-type="dfn" href="https://html.spec.whatwg.org/C#apply-the-history-step" id="ref-for-apply-the-history-step">apply the history step</a> in step 14.11.2, pass the navigable’s task to <a data-link-type="dfn" href="https://html.spec.whatwg.org/C#update-document-for-history-step-application" id="ref-for-update-document-for-history-step-application①">update document for history step application</a>.</p>
@@ -1224,21 +1320,24 @@ between the two. </p>
    <p>In <a data-link-type="dfn" href="https://www.w3.org/TR/css-view-transitions-1/#dom-document-startviewtransition" id="ref-for-dom-document-startviewtransition">startViewTransition()</a> add the following initial steps:</p>
    <ol>
     <li data-md>
-     <p>Set updateCallback’s <a data-link-type="dfn" href="#callback-function-parent-task" id="ref-for-callback-function-parent-task④">parent task</a> to the result of <a data-link-type="dfn" href="#get-current-task" id="ref-for-get-current-task①①">getting current task</a>.</p>
+     <p>Set updateCallback’s <a data-link-type="dfn" href="#callback-function-parent-task" id="ref-for-callback-function-parent-task⑤">parent task</a> to the result of <a data-link-type="dfn" href="#get-current-task" id="ref-for-get-current-task①①">getting current task</a>.</p>
    </ol>
    <h2 class="heading settled" data-level="8" id="priv-sec"><span class="secno">8. </span><span class="content">Security &amp; privacy considerations</span><a class="self-link" href="#priv-sec"></a></h2>
-    Exposing Soft Navigations to the performance timeline doesn’t have security and privacy implications on its own.
+   
+Exposing Soft Navigations to the performance timeline doesn’t have security and privacy implications on its own.
 However, reseting the various paint timing entries as a result of a detected soft navigation can have implications,
 especially before <a href="https://github.com/kyraseevers/Partitioning-visited-links-history">visited links are partitioned</a>.
 As such, exposing such paint operations without partitioning the :visited cache needs to only be done after careful
- analysis of the paint operations in question, to make sure they don’t expose the user’s history across origins. 
+ analysis of the paint operations in question, to make sure they don’t expose the user’s history across origins.
+
+
    <p>Task Attribution as infrastructure doesn’t directly expose any data to the web, so it doesn’t have any privacy and security implications.
 Web exposed specifications that rely on this infrastructure could have such implications. As such, they need to be
 individually examined and have those implications outlined.</p>
   </main>
-<script src="https://www.w3.org/scripts/TR/2021/fixup.js"></script>
-  <h2 class="no-num no-ref heading settled" id="index"><span class="content">Index</span><a class="self-link" href="#index"></a></h2>
-  <h3 class="no-num no-ref heading settled" id="index-defined-here"><span class="content">Terms defined by this specification</span><a class="self-link" href="#index-defined-here"></a></h3>
+  <script src="https://www.w3.org/scripts/TR/2021/fixup.js"></script>
+  <h2 class="heading no-num no-ref settled" id="index"><span class="content">Index</span><a class="self-link" href="#index"></a></h2>
+  <h3 class="heading no-num no-ref settled" id="index-defined-here"><span class="content">Terms defined by this specification</span><a class="self-link" href="#index-defined-here"></a></h3>
   <ul class="index">
    <li><a href="#node-appended-by-soft-navigation">appended by soft navigation</a><span>, in § 4.4</span>
    <li><a href="#check-ancestor-for-task">check ancestor for task</a><span>, in § 6.2</span>
@@ -1279,7 +1378,7 @@ individually examined and have those implications outlined.</p>
    <li><a href="#terminate-event-callback-handling">terminate event callback handling</a><span>, in § 3.2</span>
    <li><a href="#interaction-data-url">url</a><span>, in § 3.2</span>
   </ul>
-  <h3 class="no-num no-ref heading settled" id="index-defined-elsewhere"><span class="content">Terms defined by reference</span><a class="self-link" href="#index-defined-elsewhere"></a></h3>
+  <h3 class="heading no-num no-ref settled" id="index-defined-elsewhere"><span class="content">Terms defined by reference</span><a class="self-link" href="#index-defined-elsewhere"></a></h3>
   <ul class="index">
    <li>
     <a data-link-type="biblio">[]</a> defines the following terms:
@@ -1287,17 +1386,17 @@ individually examined and have those implications outlined.</p>
      <li><span class="dfn-paneled" id="bc2342f0">has dispatched input event</span>
      <li><span class="dfn-paneled" id="ea3a4c2f">has dispatched scroll event</span>
      <li><span class="dfn-paneled" id="976def1b">previously reported paints</span>
-     <li><span class="dfn-paneled" id="bb2c4ef9">startviewtransition()</span>
+     <li><span class="dfn-paneled" id="bb2c4ef9">startViewTransition()</span>
     </ul>
    <li>
     <a data-link-type="biblio">[DOM]</a> defines the following terms:
     <ul>
      <li><span class="dfn-paneled" id="2bc0cdf4">EventTarget</span>
-     <li><span class="dfn-paneled" id="a973e0fe">document</span>
+     <li><span class="dfn-paneled" id="a84c14c9">document</span>
      <li><span class="dfn-paneled" id="27d9b7ea">element</span>
      <li><span class="dfn-paneled" id="e9486b7f">equals</span>
      <li><span class="dfn-paneled" id="4523ab1a">event dispatch</span>
-     <li><span class="dfn-paneled" id="b87df86e">istrusted</span>
+     <li><span class="dfn-paneled" id="b87df86e">isTrusted</span>
      <li><span class="dfn-paneled" id="d462b34f">node</span>
      <li><span class="dfn-paneled" id="5216e1a0">node document</span>
      <li><span class="dfn-paneled" id="59bfea49">node insert</span>
@@ -1310,24 +1409,25 @@ individually examined and have those implications outlined.</p>
    <li>
     <a data-link-type="biblio">[HR-TIME-3]</a> defines the following terms:
     <ul>
-     <li><span class="dfn-paneled" id="0e9f636b">DOMHighResTimeStamp</span>
+     <li><span class="dfn-paneled" id="00c8c5e6">DOMHighResTimeStamp</span>
      <li><span class="dfn-paneled" id="7e7cc1d8">current high resolution time</span>
      <li><span class="dfn-paneled" id="4b2c8c72">duration</span>
     </ul>
    <li>
     <a data-link-type="biblio">[HTML]</a> defines the following terms:
     <ul>
+     <li><span class="dfn-paneled" id="2104d2a0">HTMLBodyElement</span>
      <li><span class="dfn-paneled" id="ea97efc6">append session history synchronous navigation steps</span>
      <li><span class="dfn-paneled" id="e2ab0b9e">append session history traversal steps</span>
      <li><span class="dfn-paneled" id="019c28e2">apply the history step</span>
-     <li><span class="dfn-paneled" id="3349d69f">associated document</span>
+     <li><span class="dfn-paneled" id="3349d69f">associated Document</span>
      <li><span class="dfn-paneled" id="d5ac3b38">clean up after running a callback</span>
      <li><span class="dfn-paneled" id="c6d19e56">event loop</span>
      <li><span class="dfn-paneled" id="b78d6a64">event loop <small>(for agent)</small></span>
      <li><span class="dfn-paneled" id="9ed0e01d">execute the script element</span>
      <li><span class="dfn-paneled" id="4b6086d7">global object</span>
      <li><span class="dfn-paneled" id="355696eb">hostcalljobcallback</span>
-     <li><span class="dfn-paneled" id="d0010562">hostmakejobcallback</span>
+     <li><span class="dfn-paneled" id="d0010562">HostMakeJobCallback</span>
      <li><span class="dfn-paneled" id="132c94e7">message port post message steps</span>
      <li><span class="dfn-paneled" id="887585a1">navigate to a fragment</span>
      <li><span class="dfn-paneled" id="5e31523c">prepare the script element</span>
@@ -1359,19 +1459,14 @@ individually examined and have those implications outlined.</p>
      <li><span class="dfn-paneled" id="984221ca">struct</span>
     </ul>
    <li>
-    <a data-link-type="biblio">[LARGEST-CONTENTFUL-PAINT]</a> defines the following terms:
-    <ul>
-     <li><span class="dfn-paneled" id="984cff1a">potentially add a largestcontentfulpaint entry</span>
-    </ul>
-   <li>
     <a data-link-type="biblio">[PERFORMANCE-TIMELINE]</a> defines the following terms:
     <ul>
-     <li><span class="dfn-paneled" id="a7f8f241">PerformanceEntry</span>
+     <li><span class="dfn-paneled" id="61f06c86">PerformanceEntry</span>
      <li><span class="dfn-paneled" id="fabd3046">duration</span>
      <li><span class="dfn-paneled" id="08a90f22">entryType</span>
      <li><span class="dfn-paneled" id="09c54b53">name</span>
-     <li><span class="dfn-paneled" id="d52ccb4e">performance entry buffer</span>
-     <li><span class="dfn-paneled" id="a9ea380f">queue a performanceentry</span>
+     <li><span class="dfn-paneled" id="6f0c9044">performance entry buffer</span>
+     <li><span class="dfn-paneled" id="a9ea380f">queue a PerformanceEntry</span>
      <li><span class="dfn-paneled" id="cc7c9b78">startTime</span>
     </ul>
    <li>
@@ -1383,8 +1478,8 @@ individually examined and have those implications outlined.</p>
      <li><span class="dfn-paneled" id="10ce5f6f">invoke</span>
     </ul>
   </ul>
-  <h2 class="no-num no-ref heading settled" id="references"><span class="content">References</span><a class="self-link" href="#references"></a></h2>
-  <h3 class="no-num no-ref heading settled" id="normative"><span class="content">Normative References</span><a class="self-link" href="#normative"></a></h3>
+  <h2 class="heading no-num no-ref settled" id="references"><span class="content">References</span><a class="self-link" href="#references"></a></h2>
+  <h3 class="heading no-num no-ref settled" id="normative"><span class="content">Normative References</span><a class="self-link" href="#normative"></a></h3>
   <dl>
    <dt id="biblio-dom">[DOM]
    <dd>Anne van Kesteren. <a href="https://dom.spec.whatwg.org/"><cite>DOM Standard</cite></a>. Living Standard. URL: <a href="https://dom.spec.whatwg.org/">https://dom.spec.whatwg.org/</a>
@@ -1396,433 +1491,24 @@ individually examined and have those implications outlined.</p>
    <dd>Anne van Kesteren; et al. <a href="https://html.spec.whatwg.org/multipage/"><cite>HTML Standard</cite></a>. Living Standard. URL: <a href="https://html.spec.whatwg.org/multipage/">https://html.spec.whatwg.org/multipage/</a>
    <dt id="biblio-infra">[INFRA]
    <dd>Anne van Kesteren; Domenic Denicola. <a href="https://infra.spec.whatwg.org/"><cite>Infra Standard</cite></a>. Living Standard. URL: <a href="https://infra.spec.whatwg.org/">https://infra.spec.whatwg.org/</a>
-   <dt id="biblio-largest-contentful-paint">[LARGEST-CONTENTFUL-PAINT]
-   <dd>Yoav Weiss; Nicolas Pena Moreno. <a href="https://w3c.github.io/largest-contentful-paint/"><cite>Largest Contentful Paint</cite></a>. URL: <a href="https://w3c.github.io/largest-contentful-paint/">https://w3c.github.io/largest-contentful-paint/</a>
    <dt id="biblio-performance-timeline">[PERFORMANCE-TIMELINE]
    <dd>Nicolas Pena Moreno. <a href="https://w3c.github.io/performance-timeline/"><cite>Performance Timeline</cite></a>. URL: <a href="https://w3c.github.io/performance-timeline/">https://w3c.github.io/performance-timeline/</a>
    <dt id="biblio-webidl">[WEBIDL]
    <dd>Edgar Chen; Timothy Gu. <a href="https://webidl.spec.whatwg.org/"><cite>Web IDL Standard</cite></a>. Living Standard. URL: <a href="https://webidl.spec.whatwg.org/">https://webidl.spec.whatwg.org/</a>
   </dl>
-  <h2 class="no-num no-ref heading settled" id="idl-index"><span class="content">IDL Index</span><a class="self-link" href="#idl-index"></a></h2>
-<pre class="idl highlight def">[<a class="idl-code" data-link-type="extended-attribute" href="https://webidl.spec.whatwg.org/#Exposed"><c- g>Exposed</c-></a>=<c- n>Window</c->]
-<c- b>interface</c-> <a href="#softnavigationentry"><code class="highlight"><c- g>SoftNavigationEntry</c-></code></a> : <a data-link-type="idl-name" href="https://w3c.github.io/performance-timeline/#dom-performanceentry"><c- n>PerformanceEntry</c-></a> {
+  <h2 class="heading no-num no-ref settled" id="idl-index"><span class="content">IDL Index</span><a class="self-link" href="#idl-index"></a></h2>
+<pre class="def highlight idl">[<a class="idl-code" data-link-type="extended-attribute" href="https://webidl.spec.whatwg.org/#Exposed"><c- g>Exposed</c-></a>=<c- n>Window</c->]
+<c- b>interface</c-> <a href="#softnavigationentry"><code class="highlight"><c- g>SoftNavigationEntry</c-></code></a> : <a data-link-type="idl-name" href="https://w3c.github.io/performance-timeline/#performanceentry"><c- n>PerformanceEntry</c-></a> {
 };
 
 </pre>
-  <h2 class="no-num no-ref heading settled" id="issues-index"><span class="content">Issues Index</span><a class="self-link" href="#issues-index"></a></h2>
+  <h2 class="heading no-num no-ref settled" id="issues-index"><span class="content">Issues Index</span><a class="self-link" href="#issues-index"></a></h2>
   <div style="counter-reset:issue">
    <div class="issue"> May be this should be called in "prepare to run a callback"/"clean up after running a callback", but we’d need to pipe in the callback for that. <a class="issue-return" href="#issue-eae2392e" title="Jump to section">↵</a></div>
    <div class="issue"> May be we need to define registration semantics for everything that doesn’t need anything more specific. <a class="issue-return" href="#issue-83823d90" title="Jump to section">↵</a></div>
   </div>
-<script>/* Boilerplate: script-dfn-panel */
-"use strict";
-{
-    const dfnsJson = window.dfnsJson || {};
-
-    function genDfnPanel({dfnID, url, dfnText, refSections, external}) {
-        return mk.aside({
-            class: "dfn-panel",
-            id: `infopanel-for-${dfnID}`,
-            "data-for": dfnID,
-            "aria-labelled-by":`infopaneltitle-for-${dfnID}`,
-            },
-            mk.span({id:`infopaneltitle-for-${dfnID}`, style:"display:none"},
-                `Info about the '${dfnText}' ${external?"external":""} reference.`),
-            mk.a({href:url}, url),
-            mk.b({}, "Referenced in:"),
-            mk.ul({},
-                ...refSections.map(section=>
-                    mk.li({},
-                        ...section.refs.map((ref, refI)=>
-                            [
-                                mk.a({
-                                    href: `#${ref.id}`
-                                    },
-                                    (refI == 0) ? section.title : `(${refI + 1})`
-                                ),
-                                " ",
-                            ]
-                        ),
-                    ),
-                ),
-            ),
-        );
-    }
-
-    function genAllDfnPanels() {
-        for(const panelData of Object.values(window.dfnpanelData)) {
-            const dfnID = panelData.dfnID;
-            const dfn = document.getElementById(dfnID);
-            if(!dfn) {
-                console.log(`Can't find dfn#${dfnID}.`, panelData);
-            } else {
-                const panel = genDfnPanel(panelData);
-                append(document.body, panel);
-                insertDfnPopupAction(dfn, panel)
-            }
-        }
-    }
-
-    document.addEventListener("DOMContentLoaded", ()=>{
-        genAllDfnPanels();
-
-        // Add popup behavior to all dfns to show the corresponding dfn-panel.
-        var dfns = queryAll('.dfn-paneled');
-        for(let dfn of dfns) { ; }
-
-        document.body.addEventListener("click", (e) => {
-            // If not handled already, just hide all dfn panels.
-            hideAllDfnPanels();
-        });
-    })
-
-
-    function hideAllDfnPanels() {
-        // Turn off any currently "on" or "activated" panels.
-        queryAll(".dfn-panel.on, .dfn-panel.activated").forEach(el=>hideDfnPanel(el));
-    }
-
-    function showDfnPanel(dfnPanel, dfn) {
-        hideAllDfnPanels(); // Only display one at this time.
-        dfn.setAttribute("aria-expanded", "true");
-        dfnPanel.classList.add("on");
-        dfnPanel.style.left = "5px";
-        dfnPanel.style.top = "0px";
-        const panelRect = dfnPanel.getBoundingClientRect();
-        const panelWidth = panelRect.right - panelRect.left;
-        if (panelRect.right > document.body.scrollWidth) {
-            // Panel's overflowing the screen.
-            // Just drop it below the dfn and flip it rightward instead.
-            // This still wont' fix things if the screen is *really* wide,
-            // but fixing that's a lot harder without 'anchor()'.
-            dfnPanel.style.top = "1.5em";
-            dfnPanel.style.left = "auto";
-            dfnPanel.style.right = "0px";
-        }
-    }
-
-    function pinDfnPanel(dfnPanel) {
-        // Switch it to "activated" state, which pins it.
-        dfnPanel.classList.add("activated");
-        dfnPanel.style.left = null;
-        dfnPanel.style.top = null;
-    }
-
-    function hideDfnPanel(dfnPanel, dfn) {
-        if(!dfn) {
-            dfn = document.getElementById(dfnPanel.getAttribute("data-for"));
-        }
-        dfn.setAttribute("aria-expanded", "false")
-        dfnPanel.classList.remove("on");
-        dfnPanel.classList.remove("activated");
-    }
-
-    function toggleDfnPanel(dfnPanel, dfn) {
-        if(dfnPanel.classList.contains("on")) {
-            hideDfnPanel(dfnPanel, dfn);
-        } else {
-            showDfnPanel(dfnPanel, dfn);
-        }
-    }
-
-    function insertDfnPopupAction(dfn, dfnPanel) {
-        // Find dfn panel
-        const panelWrapper = document.createElement('span');
-        panelWrapper.appendChild(dfnPanel);
-        panelWrapper.style.position = "relative";
-        panelWrapper.style.height = "0px";
-        dfn.insertAdjacentElement("afterend", panelWrapper);
-        dfn.setAttribute('role', 'button');
-        dfn.setAttribute('aria-expanded', 'false')
-        dfn.tabIndex = 0;
-        dfn.classList.add('has-dfn-panel');
-        dfn.addEventListener('click', (event) => {
-            showDfnPanel(dfnPanel, dfn);
-            event.stopPropagation();
-        });
-        dfn.addEventListener('keypress', (event) => {
-            const kc = event.keyCode;
-            // 32->Space, 13->Enter
-            if(kc == 32 || kc == 13) {
-                toggleDfnPanel(dfnPanel, dfn);
-                event.stopPropagation();
-                event.preventDefault();
-            }
-        });
-
-        dfnPanel.addEventListener('click', (event) => {
-            if (event.target.nodeName == 'A') {
-                pinDfnPanel(dfnPanel);
-            }
-            event.stopPropagation();
-        });
-
-        dfnPanel.addEventListener('keydown', (event) => {
-            if(event.keyCode == 27) { // Escape key
-                hideDfnPanel(dfnPanel, dfn);
-                event.stopPropagation();
-                event.preventDefault();
-            }
-        })
-    }
-}
-</script>
-<script>/* Boilerplate: script-dfn-panel */
-"use strict";
-{
-    const dfnsJson = window.dfnsJson || {};
-
-    function genDfnPanel({dfnID, url, dfnText, refSections, external}) {
-        return mk.aside({
-            class: "dfn-panel",
-            id: `infopanel-for-${dfnID}`,
-            "data-for": dfnID,
-            "aria-labelled-by":`infopaneltitle-for-${dfnID}`,
-            },
-            mk.span({id:`infopaneltitle-for-${dfnID}`, style:"display:none"},
-                `Info about the '${dfnText}' ${external?"external":""} reference.`),
-            mk.a({href:url}, url),
-            mk.b({}, "Referenced in:"),
-            mk.ul({},
-                ...refSections.map(section=>
-                    mk.li({},
-                        ...section.refs.map((ref, refI)=>
-                            [
-                                mk.a({
-                                    href: `#${ref.id}`
-                                    },
-                                    (refI == 0) ? section.title : `(${refI + 1})`
-                                ),
-                                " ",
-                            ]
-                        ),
-                    ),
-                ),
-            ),
-        );
-    }
-
-    function genAllDfnPanels() {
-        for(const panelData of Object.values(window.dfnpanelData)) {
-            const dfnID = panelData.dfnID;
-            const dfn = document.getElementById(dfnID);
-            if(!dfn) {
-                console.log(`Can't find dfn#${dfnID}.`, panelData);
-            } else {
-                const panel = genDfnPanel(panelData);
-                append(document.body, panel);
-                insertDfnPopupAction(dfn, panel)
-            }
-        }
-    }
-
-    document.addEventListener("DOMContentLoaded", ()=>{
-        genAllDfnPanels();
-
-        // Add popup behavior to all dfns to show the corresponding dfn-panel.
-        var dfns = queryAll('.dfn-paneled');
-        for(let dfn of dfns) { ; }
-
-        document.body.addEventListener("click", (e) => {
-            // If not handled already, just hide all dfn panels.
-            hideAllDfnPanels();
-        });
-    })
-
-
-    function hideAllDfnPanels() {
-        // Turn off any currently "on" or "activated" panels.
-        queryAll(".dfn-panel.on, .dfn-panel.activated").forEach(el=>hideDfnPanel(el));
-    }
-
-    function showDfnPanel(dfnPanel, dfn) {
-        hideAllDfnPanels(); // Only display one at this time.
-        dfn.setAttribute("aria-expanded", "true");
-        dfnPanel.classList.add("on");
-        dfnPanel.style.left = "5px";
-        dfnPanel.style.top = "0px";
-        const panelRect = dfnPanel.getBoundingClientRect();
-        const panelWidth = panelRect.right - panelRect.left;
-        if (panelRect.right > document.body.scrollWidth) {
-            // Panel's overflowing the screen.
-            // Just drop it below the dfn and flip it rightward instead.
-            // This still wont' fix things if the screen is *really* wide,
-            // but fixing that's a lot harder without 'anchor()'.
-            dfnPanel.style.top = "1.5em";
-            dfnPanel.style.left = "auto";
-            dfnPanel.style.right = "0px";
-        }
-    }
-
-    function pinDfnPanel(dfnPanel) {
-        // Switch it to "activated" state, which pins it.
-        dfnPanel.classList.add("activated");
-        dfnPanel.style.left = null;
-        dfnPanel.style.top = null;
-    }
-
-    function hideDfnPanel(dfnPanel, dfn) {
-        if(!dfn) {
-            dfn = document.getElementById(dfnPanel.getAttribute("data-for"));
-        }
-        dfn.setAttribute("aria-expanded", "false")
-        dfnPanel.classList.remove("on");
-        dfnPanel.classList.remove("activated");
-    }
-
-    function toggleDfnPanel(dfnPanel, dfn) {
-        if(dfnPanel.classList.contains("on")) {
-            hideDfnPanel(dfnPanel, dfn);
-        } else {
-            showDfnPanel(dfnPanel, dfn);
-        }
-    }
-
-    function insertDfnPopupAction(dfn, dfnPanel) {
-        // Find dfn panel
-        const panelWrapper = document.createElement('span');
-        panelWrapper.appendChild(dfnPanel);
-        panelWrapper.style.position = "relative";
-        panelWrapper.style.height = "0px";
-        dfn.insertAdjacentElement("afterend", panelWrapper);
-        dfn.setAttribute('role', 'button');
-        dfn.setAttribute('aria-expanded', 'false')
-        dfn.tabIndex = 0;
-        dfn.classList.add('has-dfn-panel');
-        dfn.addEventListener('click', (event) => {
-            showDfnPanel(dfnPanel, dfn);
-            event.stopPropagation();
-        });
-        dfn.addEventListener('keypress', (event) => {
-            const kc = event.keyCode;
-            // 32->Space, 13->Enter
-            if(kc == 32 || kc == 13) {
-                toggleDfnPanel(dfnPanel, dfn);
-                event.stopPropagation();
-                event.preventDefault();
-            }
-        });
-
-        dfnPanel.addEventListener('click', (event) => {
-            if (event.target.nodeName == 'A') {
-                pinDfnPanel(dfnPanel);
-            }
-            event.stopPropagation();
-        });
-
-        dfnPanel.addEventListener('keydown', (event) => {
-            if(event.keyCode == 27) { // Escape key
-                hideDfnPanel(dfnPanel, dfn);
-                event.stopPropagation();
-                event.preventDefault();
-            }
-        })
-    }
-}
-</script>
-<script>/* Boilerplate: script-dfn-panel-json */
-window.dfnpanelData = {};
-window.dfnpanelData['bc2342f0'] = {"dfnID": "bc2342f0", "url": "https://w3c.github.io/event-timing/#has-dispatched-input-event", "dfnText": "has dispatched input event", "refSections": [{"refs": [{"id": "ref-for-has-dispatched-input-event"}], "title": "3.1. Soft navigation entry"}], "external": true};
-window.dfnpanelData['ea3a4c2f'] = {"dfnID": "ea3a4c2f", "url": "https://w3c.github.io/largest-contentful-paint/#has-dispatched-scroll-event", "dfnText": "has dispatched scroll event", "refSections": [{"refs": [{"id": "ref-for-has-dispatched-scroll-event"}], "title": "3.1. Soft navigation entry"}], "external": true};
-window.dfnpanelData['976def1b'] = {"dfnID": "976def1b", "url": "https://www.w3.org/TR/paint-timing/#previously-reported-paints", "dfnText": "previously reported paints", "refSections": [{"refs": [{"id": "ref-for-previously-reported-paints"}], "title": "3.1. Soft navigation entry"}], "external": true};
-window.dfnpanelData['bb2c4ef9'] = {"dfnID": "bb2c4ef9", "url": "https://www.w3.org/TR/css-view-transitions-1/#dom-document-startviewtransition", "dfnText": "startviewtransition()", "refSections": [{"refs": [{"id": "ref-for-dom-document-startviewtransition"}], "title": "7.10. View transitions"}], "external": true};
-window.dfnpanelData['2bc0cdf4'] = {"dfnID": "2bc0cdf4", "url": "https://dom.spec.whatwg.org/#eventtarget", "dfnText": "EventTarget", "refSections": [{"refs": [{"id": "ref-for-eventtarget"}], "title": "3.2. Interaction"}], "external": true};
-window.dfnpanelData['a973e0fe'] = {"dfnID": "a973e0fe", "url": "https://dom.spec.whatwg.org/#concept-document", "dfnText": "document", "refSections": [{"refs": [{"id": "ref-for-concept-document"}], "title": "3. Algorithms"}, {"refs": [{"id": "ref-for-concept-document\u2460"}, {"id": "ref-for-concept-document\u2461"}], "title": "3.2. Interaction"}, {"refs": [{"id": "ref-for-concept-document\u2462"}], "title": "3.4. Contentful paint"}, {"refs": [{"id": "ref-for-concept-document\u2463"}, {"id": "ref-for-concept-document\u2464"}, {"id": "ref-for-concept-document\u2465"}, {"id": "ref-for-concept-document\u2466"}], "title": "4.1. Document"}], "external": true};
-window.dfnpanelData['27d9b7ea'] = {"dfnID": "27d9b7ea", "url": "https://dom.spec.whatwg.org/#concept-element", "dfnText": "element", "refSections": [{"refs": [{"id": "ref-for-concept-element"}], "title": "3.4. Contentful paint"}], "external": true};
-window.dfnpanelData['e9486b7f'] = {"dfnID": "e9486b7f", "url": "https://dom.spec.whatwg.org/#concept-node-equals", "dfnText": "equals", "refSections": [{"refs": [{"id": "ref-for-concept-node-equals"}, {"id": "ref-for-concept-node-equals\u2460"}, {"id": "ref-for-concept-node-equals\u2461"}, {"id": "ref-for-concept-node-equals\u2462"}], "title": "3.2. Interaction"}], "external": true};
-window.dfnpanelData['4523ab1a'] = {"dfnID": "4523ab1a", "url": "https://dom.spec.whatwg.org/#concept-event-dispatch", "dfnText": "event dispatch", "refSections": [{"refs": [{"id": "ref-for-concept-event-dispatch"}, {"id": "ref-for-concept-event-dispatch\u2460"}], "title": "4.3. Event dispatch"}], "external": true};
-window.dfnpanelData['b87df86e'] = {"dfnID": "b87df86e", "url": "https://dom.spec.whatwg.org/#dom-event-istrusted", "dfnText": "istrusted", "refSections": [{"refs": [{"id": "ref-for-dom-event-istrusted"}], "title": "4.3. Event dispatch"}], "external": true};
-window.dfnpanelData['d462b34f'] = {"dfnID": "d462b34f", "url": "https://dom.spec.whatwg.org/#boundary-point-node", "dfnText": "node", "refSections": [{"refs": [{"id": "ref-for-boundary-point-node"}], "title": "4.4. Node"}], "external": true};
-window.dfnpanelData['5216e1a0'] = {"dfnID": "5216e1a0", "url": "https://dom.spec.whatwg.org/#concept-node-document", "dfnText": "node document", "refSections": [{"refs": [{"id": "ref-for-concept-node-document"}], "title": "4.4. Node"}], "external": true};
-window.dfnpanelData['59bfea49'] = {"dfnID": "59bfea49", "url": "https://dom.spec.whatwg.org/#concept-node-insert", "dfnText": "node insert", "refSections": [{"refs": [{"id": "ref-for-concept-node-insert"}], "title": "4.4. Node"}], "external": true};
-window.dfnpanelData['d5434eef'] = {"dfnID": "d5434eef", "url": "https://fetch.spec.whatwg.org/#header-list-contains", "dfnText": "contains", "refSections": [{"refs": [{"id": "ref-for-header-list-contains"}], "title": "6.3. Is ancestor in set"}], "external": true};
-window.dfnpanelData['0e9f636b'] = {"dfnID": "0e9f636b", "url": "https://w3c.github.io/hr-time/#dom-domhighrestimestamp", "dfnText": "DOMHighResTimeStamp", "refSections": [{"refs": [{"id": "ref-for-dom-domhighrestimestamp"}], "title": "3.1. Soft navigation entry"}], "external": true};
-window.dfnpanelData['7e7cc1d8'] = {"dfnID": "7e7cc1d8", "url": "https://w3c.github.io/hr-time/#dfn-current-high-resolution-time", "dfnText": "current high resolution time", "refSections": [{"refs": [{"id": "ref-for-dfn-current-high-resolution-time"}], "title": "3.1. Soft navigation entry"}, {"refs": [{"id": "ref-for-dfn-current-high-resolution-time\u2460"}], "title": "3.2. Interaction"}], "external": true};
-window.dfnpanelData['4b2c8c72'] = {"dfnID": "4b2c8c72", "url": "https://w3c.github.io/hr-time/#dfn-duration", "dfnText": "duration", "refSections": [{"refs": [{"id": "ref-for-dfn-duration"}], "title": "3.1. Soft navigation entry"}], "external": true};
-window.dfnpanelData['ea97efc6'] = {"dfnID": "ea97efc6", "url": "https://html.spec.whatwg.org/C#tn-append-session-history-sync-nav-steps", "dfnText": "append session history synchronous navigation steps", "refSections": [{"refs": [{"id": "ref-for-tn-append-session-history-sync-nav-steps"}], "title": "7.9. Same-document navigations"}], "external": true};
-window.dfnpanelData['e2ab0b9e'] = {"dfnID": "e2ab0b9e", "url": "https://html.spec.whatwg.org/C#tn-append-session-history-traversal-steps", "dfnText": "append session history traversal steps", "refSections": [{"refs": [{"id": "ref-for-tn-append-session-history-traversal-steps"}], "title": "7.9. Same-document navigations"}], "external": true};
-window.dfnpanelData['019c28e2'] = {"dfnID": "019c28e2", "url": "https://html.spec.whatwg.org/C#apply-the-history-step", "dfnText": "apply the history step", "refSections": [{"refs": [{"id": "ref-for-apply-the-history-step"}], "title": "7.9. Same-document navigations"}], "external": true};
-window.dfnpanelData['3349d69f'] = {"dfnID": "3349d69f", "url": "https://html.spec.whatwg.org/multipage/nav-history-apis.html#concept-document-window", "dfnText": "associated document", "refSections": [{"refs": [{"id": "ref-for-concept-document-window"}], "title": "3.1. Soft navigation entry"}, {"refs": [{"id": "ref-for-concept-document-window\u2460"}], "title": "3.2. Interaction"}], "external": true};
-window.dfnpanelData['d5ac3b38'] = {"dfnID": "d5ac3b38", "url": "https://html.spec.whatwg.org/multipage/webappapis.html#clean-up-after-running-a-callback", "dfnText": "clean up after running a callback", "refSections": [{"refs": [{"id": "ref-for-clean-up-after-running-a-callback"}], "title": "7.6. Callbacks"}], "external": true};
-window.dfnpanelData['c6d19e56'] = {"dfnID": "c6d19e56", "url": "https://html.spec.whatwg.org/multipage/webappapis.html#event-loop", "dfnText": "event loop", "refSections": [{"refs": [{"id": "ref-for-event-loop"}], "title": "7.2. Event Loop additions"}], "external": true};
-window.dfnpanelData['b78d6a64'] = {"dfnID": "b78d6a64", "url": "https://html.spec.whatwg.org/multipage/webappapis.html#concept-agent-event-loop", "dfnText": "event loop (for agent)", "refSections": [{"refs": [{"id": "ref-for-concept-agent-event-loop"}, {"id": "ref-for-concept-agent-event-loop\u2460"}], "title": "6.1. Task scope"}, {"refs": [{"id": "ref-for-concept-agent-event-loop\u2461"}], "title": "6.3.1. Get current task"}], "external": true};
-window.dfnpanelData['9ed0e01d'] = {"dfnID": "9ed0e01d", "url": "https://html.spec.whatwg.org/C#execute-the-script-element", "dfnText": "execute the script element", "refSections": [{"refs": [{"id": "ref-for-execute-the-script-element"}], "title": "7.3. Script execution"}], "external": true};
-window.dfnpanelData['4b6086d7'] = {"dfnID": "4b6086d7", "url": "https://html.spec.whatwg.org/multipage/webappapis.html#global-object", "dfnText": "global object", "refSections": [{"refs": [{"id": "ref-for-global-object"}, {"id": "ref-for-global-object\u2460"}], "title": "3.1. Soft navigation entry"}], "external": true};
-window.dfnpanelData['355696eb'] = {"dfnID": "355696eb", "url": "https://html.spec.whatwg.org/C#hostcalljobcallback", "dfnText": "hostcalljobcallback", "refSections": [{"refs": [{"id": "ref-for-hostcalljobcallback"}], "title": "7.7.2. HostCallJobCallback"}], "external": true};
-window.dfnpanelData['d0010562'] = {"dfnID": "d0010562", "url": "https://html.spec.whatwg.org/C#hostmakejobcallback", "dfnText": "hostmakejobcallback", "refSections": [{"refs": [{"id": "ref-for-hostmakejobcallback"}], "title": "7.7.1. HostMakeJobCallback ##{#sec-hostmakejobcallback}"}], "external": true};
-window.dfnpanelData['132c94e7'] = {"dfnID": "132c94e7", "url": "https://html.spec.whatwg.org/C#message-port-post-message-steps", "dfnText": "message port post message steps", "refSections": [{"refs": [{"id": "ref-for-message-port-post-message-steps"}], "title": "7.8. MessagePorts"}], "external": true};
-window.dfnpanelData['887585a1'] = {"dfnID": "887585a1", "url": "https://html.spec.whatwg.org/C#navigate-fragid", "dfnText": "navigate to a fragment", "refSections": [{"refs": [{"id": "ref-for-navigate-fragid"}], "title": "7.9. Same-document navigations"}], "external": true};
-window.dfnpanelData['5e31523c'] = {"dfnID": "5e31523c", "url": "https://html.spec.whatwg.org/C#prepare-the-script-element", "dfnText": "prepare the script element", "refSections": [{"refs": [{"id": "ref-for-prepare-the-script-element"}], "title": "7.3. Script execution"}], "external": true};
-window.dfnpanelData['9a517a7d'] = {"dfnID": "9a517a7d", "url": "https://html.spec.whatwg.org/multipage/webappapis.html#queue-a-task", "dfnText": "queue a task", "refSections": [{"refs": [{"id": "ref-for-queue-a-task"}], "title": "7.4. Task queueing"}], "external": true};
-window.dfnpanelData['b75a7d23'] = {"dfnID": "b75a7d23", "url": "https://html.spec.whatwg.org/multipage/webappapis.html#concept-global-object-realm", "dfnText": "realm", "refSections": [{"refs": [{"id": "ref-for-concept-global-object-realm"}], "title": "3.1. Soft navigation entry"}], "external": true};
-window.dfnpanelData['d8049b98'] = {"dfnID": "d8049b98", "url": "https://html.spec.whatwg.org/multipage/webappapis.html#relevant-agent", "dfnText": "relevant agent", "refSections": [{"refs": [{"id": "ref-for-relevant-agent"}, {"id": "ref-for-relevant-agent\u2460"}], "title": "6.1. Task scope"}, {"refs": [{"id": "ref-for-relevant-agent\u2461"}], "title": "6.3.1. Get current task"}], "external": true};
-window.dfnpanelData['e99bd18e'] = {"dfnID": "e99bd18e", "url": "https://html.spec.whatwg.org/multipage/webappapis.html#concept-relevant-global", "dfnText": "relevant global object", "refSections": [{"refs": [{"id": "ref-for-concept-relevant-global"}], "title": "3. Algorithms"}, {"refs": [{"id": "ref-for-concept-relevant-global\u2460"}], "title": "3.2. Interaction"}], "external": true};
-window.dfnpanelData['dd6462cb'] = {"dfnID": "dd6462cb", "url": "https://html.spec.whatwg.org/multipage/webappapis.html#concept-script", "dfnText": "script", "refSections": [{"refs": [{"id": "ref-for-concept-script"}], "title": "7.3. Script execution"}], "external": true};
-window.dfnpanelData['770d6174'] = {"dfnID": "770d6174", "url": "https://html.spec.whatwg.org/C#she-url", "dfnText": "session history entry url", "refSections": [{"refs": [{"id": "ref-for-she-url"}], "title": "4.2. History"}], "external": true};
-window.dfnpanelData['e270bd2a'] = {"dfnID": "e270bd2a", "url": "https://html.spec.whatwg.org/multipage/webappapis.html#concept-task", "dfnText": "task", "refSections": [{"refs": [{"id": "ref-for-concept-task"}, {"id": "ref-for-concept-task\u2460"}, {"id": "ref-for-concept-task\u2461"}], "title": "6.1. Task scope"}, {"refs": [{"id": "ref-for-concept-task\u2462"}, {"id": "ref-for-concept-task\u2463"}, {"id": "ref-for-concept-task\u2464"}], "title": "7.1. Task additions"}, {"refs": [{"id": "ref-for-concept-task\u2465"}], "title": "7.3. Script execution"}, {"refs": [{"id": "ref-for-concept-task\u2466"}], "title": "7.6. Callbacks"}, {"refs": [{"id": "ref-for-concept-task\u2467"}], "title": "7.9. Same-document navigations"}], "external": true};
-window.dfnpanelData['32301e7b'] = {"dfnID": "32301e7b", "url": "https://html.spec.whatwg.org/C#timer-initialisation-steps", "dfnText": "timer initialisation steps", "refSections": [{"refs": [{"id": "ref-for-timer-initialisation-steps"}], "title": "7.5. Timers"}], "external": true};
-window.dfnpanelData['5fd199e1'] = {"dfnID": "5fd199e1", "url": "https://html.spec.whatwg.org/C#top-level-traversable", "dfnText": "top-level traversable", "refSections": [{"refs": [{"id": "ref-for-top-level-traversable"}], "title": "3.2. Interaction"}], "external": true};
-window.dfnpanelData['d0c1b934'] = {"dfnID": "d0c1b934", "url": "https://html.spec.whatwg.org/multipage/document-sequences.html#traversable-navigable", "dfnText": "traversable navigable", "refSections": [{"refs": [{"id": "ref-for-traversable-navigable"}], "title": "7.9. Same-document navigations"}], "external": true};
-window.dfnpanelData['d0c5bc48'] = {"dfnID": "d0c5bc48", "url": "https://html.spec.whatwg.org/C#update-document-for-history-step-application", "dfnText": "update document for history step application", "refSections": [{"refs": [{"id": "ref-for-update-document-for-history-step-application"}], "title": "4.2. History"}, {"refs": [{"id": "ref-for-update-document-for-history-step-application\u2460"}, {"id": "ref-for-update-document-for-history-step-application\u2461"}], "title": "7.9. Same-document navigations"}], "external": true};
-window.dfnpanelData['a3b18719'] = {"dfnID": "a3b18719", "url": "https://infra.spec.whatwg.org/#set-append", "dfnText": "append", "refSections": [{"refs": [{"id": "ref-for-set-append"}], "title": "3.2. Interaction"}], "external": true};
-window.dfnpanelData['1243a891'] = {"dfnID": "1243a891", "url": "https://infra.spec.whatwg.org/#map-exists", "dfnText": "exist", "refSections": [{"refs": [{"id": "ref-for-map-exists"}, {"id": "ref-for-map-exists\u2460"}, {"id": "ref-for-map-exists\u2461"}], "title": "3.2. Interaction"}], "external": true};
-window.dfnpanelData['860300d4'] = {"dfnID": "860300d4", "url": "https://infra.spec.whatwg.org/#implementation-defined", "dfnText": "implementation-defined", "refSections": [{"refs": [{"id": "ref-for-implementation-defined"}], "title": "6.1. Task scope"}, {"refs": [{"id": "ref-for-implementation-defined\u2460"}], "title": "7.1. Task additions"}], "external": true};
-window.dfnpanelData['c88f3887'] = {"dfnID": "c88f3887", "url": "https://infra.spec.whatwg.org/#struct-item", "dfnText": "item", "refSections": [{"refs": [{"id": "ref-for-struct-item"}], "title": "3.2. Interaction"}], "external": true};
-window.dfnpanelData['3fca5a9e'] = {"dfnID": "3fca5a9e", "url": "https://infra.spec.whatwg.org/#ordered-map", "dfnText": "map", "refSections": [{"refs": [{"id": "ref-for-ordered-map"}, {"id": "ref-for-ordered-map\u2460"}, {"id": "ref-for-ordered-map\u2461"}], "title": "3.1. Soft navigation entry"}, {"refs": [{"id": "ref-for-ordered-map\u2462"}, {"id": "ref-for-ordered-map\u2463"}], "title": "4.1. Document"}], "external": true};
-window.dfnpanelData['a5ad1660'] = {"dfnID": "a5ad1660", "url": "https://infra.spec.whatwg.org/#stack-peek", "dfnText": "peek", "refSections": [{"refs": [{"id": "ref-for-stack-peek"}], "title": "6.3.1. Get current task"}], "external": true};
-window.dfnpanelData['15e48c39'] = {"dfnID": "15e48c39", "url": "https://infra.spec.whatwg.org/#ordered-set", "dfnText": "set", "refSections": [{"refs": [{"id": "ref-for-ordered-set"}], "title": "3.1. Soft navigation entry"}, {"refs": [{"id": "ref-for-ordered-set\u2460"}], "title": "4.1. Document"}, {"refs": [{"id": "ref-for-ordered-set\u2461"}], "title": "6.3. Is ancestor in set"}], "external": true};
-window.dfnpanelData['0e6b2056'] = {"dfnID": "0e6b2056", "url": "https://infra.spec.whatwg.org/#map-set", "dfnText": "set (for map)", "refSections": [{"refs": [{"id": "ref-for-map-set"}, {"id": "ref-for-map-set\u2460"}], "title": "3.2. Interaction"}, {"refs": [{"id": "ref-for-map-set\u2461"}, {"id": "ref-for-map-set\u2462"}], "title": "3.3. Same document commit"}], "external": true};
-window.dfnpanelData['ceacaa1c'] = {"dfnID": "ceacaa1c", "url": "https://infra.spec.whatwg.org/#stack", "dfnText": "stack", "refSections": [{"refs": [{"id": "ref-for-stack"}], "title": "7.2. Event Loop additions"}], "external": true};
-window.dfnpanelData['0698d556'] = {"dfnID": "0698d556", "url": "https://infra.spec.whatwg.org/#string", "dfnText": "string", "refSections": [{"refs": [{"id": "ref-for-string"}], "title": "3.1. Soft navigation entry"}, {"refs": [{"id": "ref-for-string\u2460"}], "title": "3.2. Interaction"}, {"refs": [{"id": "ref-for-string\u2461"}], "title": "3.3. Same document commit"}], "external": true};
-window.dfnpanelData['984221ca'] = {"dfnID": "984221ca", "url": "https://infra.spec.whatwg.org/#struct", "dfnText": "struct", "refSections": [{"refs": [{"id": "ref-for-struct"}], "title": "3.2. Interaction"}], "external": true};
-window.dfnpanelData['984cff1a'] = {"dfnID": "984cff1a", "url": "https://w3c.github.io/largest-contentful-paint/#potentially-add-a-largestcontentfulpaint-entry", "dfnText": "potentially add a largestcontentfulpaint entry", "refSections": [{"refs": [{"id": "ref-for-potentially-add-a-largestcontentfulpaint-entry"}], "title": "5. LCP integration"}], "external": true};
-window.dfnpanelData['a7f8f241'] = {"dfnID": "a7f8f241", "url": "https://w3c.github.io/performance-timeline/#dom-performanceentry", "dfnText": "PerformanceEntry", "refSections": [{"refs": [{"id": "ref-for-dom-performanceentry"}], "title": "2. The SoftNavigationEntry interface"}], "external": true};
-window.dfnpanelData['fabd3046'] = {"dfnID": "fabd3046", "url": "https://w3c.github.io/performance-timeline/#dom-performanceentry-duration", "dfnText": "duration", "refSections": [{"refs": [{"id": "ref-for-dom-performanceentry-duration"}], "title": "3.1. Soft navigation entry"}], "external": true};
-window.dfnpanelData['08a90f22'] = {"dfnID": "08a90f22", "url": "https://w3c.github.io/performance-timeline/#dom-performanceentry-entrytype", "dfnText": "entryType", "refSections": [{"refs": [{"id": "ref-for-dom-performanceentry-entrytype"}], "title": "3.1. Soft navigation entry"}], "external": true};
-window.dfnpanelData['09c54b53'] = {"dfnID": "09c54b53", "url": "https://w3c.github.io/performance-timeline/#dom-performanceentry-name", "dfnText": "name", "refSections": [{"refs": [{"id": "ref-for-dom-performanceentry-name"}], "title": "3.1. Soft navigation entry"}], "external": true};
-window.dfnpanelData['d52ccb4e'] = {"dfnID": "d52ccb4e", "url": "https://w3c.github.io/performance-timeline/#dfn-performance-entry-buffer", "dfnText": "performance entry buffer", "refSections": [{"refs": [{"id": "ref-for-dfn-performance-entry-buffer"}], "title": "3.1. Soft navigation entry"}], "external": true};
-window.dfnpanelData['a9ea380f'] = {"dfnID": "a9ea380f", "url": "https://w3c.github.io/performance-timeline/#dfn-queue-a-performanceentry", "dfnText": "queue a performanceentry", "refSections": [{"refs": [{"id": "ref-for-dfn-queue-a-performanceentry"}, {"id": "ref-for-dfn-queue-a-performanceentry\u2460"}], "title": "3.1. Soft navigation entry"}], "external": true};
-window.dfnpanelData['cc7c9b78'] = {"dfnID": "cc7c9b78", "url": "https://w3c.github.io/performance-timeline/#dom-performanceentry-starttime", "dfnText": "startTime", "refSections": [{"refs": [{"id": "ref-for-dom-performanceentry-starttime"}], "title": "3.1. Soft navigation entry"}], "external": true};
-window.dfnpanelData['889e932f'] = {"dfnID": "889e932f", "url": "https://webidl.spec.whatwg.org/#Exposed", "dfnText": "Exposed", "refSections": [{"refs": [{"id": "ref-for-Exposed"}], "title": "2. The SoftNavigationEntry interface"}], "external": true};
-window.dfnpanelData['feb93a86'] = {"dfnID": "feb93a86", "url": "https://webidl.spec.whatwg.org/#call-a-user-objects-operation", "dfnText": "call a user object's operation", "refSections": [{"refs": [{"id": "ref-for-call-a-user-objects-operation"}], "title": "7.6. Callbacks"}], "external": true};
-window.dfnpanelData['3ab7bf79'] = {"dfnID": "3ab7bf79", "url": "https://webidl.spec.whatwg.org/#dfn-callback-function", "dfnText": "callback function", "refSections": [{"refs": [{"id": "ref-for-dfn-callback-function"}], "title": "7.6. Callbacks"}], "external": true};
-window.dfnpanelData['10ce5f6f'] = {"dfnID": "10ce5f6f", "url": "https://webidl.spec.whatwg.org/#invoke-a-callback-function", "dfnText": "invoke", "refSections": [{"refs": [{"id": "ref-for-invoke-a-callback-function"}], "title": "7.6. Callbacks"}], "external": true};
-window.dfnpanelData['softnavigationentry'] = {"dfnID": "softnavigationentry", "url": "#softnavigationentry", "dfnText": "SoftNavigationEntry", "refSections": [{"refs": [{"id": "ref-for-softnavigationentry"}, {"id": "ref-for-softnavigationentry\u2460"}], "title": "3.1. Soft navigation entry"}], "external": false};
-window.dfnpanelData['check-soft-navigation'] = {"dfnID": "check-soft-navigation", "url": "#check-soft-navigation", "dfnText": "check soft navigation", "refSections": [{"refs": [{"id": "ref-for-check-soft-navigation"}], "title": "3.3. Same document commit"}, {"refs": [{"id": "ref-for-check-soft-navigation\u2460"}], "title": "3.4. Contentful paint"}], "external": false};
-window.dfnpanelData['create-a-soft-navigation-entry'] = {"dfnID": "create-a-soft-navigation-entry", "url": "#create-a-soft-navigation-entry", "dfnText": "create a soft navigation entry", "refSections": [{"refs": [{"id": "ref-for-create-a-soft-navigation-entry"}], "title": "3. Algorithms"}], "external": false};
-window.dfnpanelData['emit-soft-navigation-entry'] = {"dfnID": "emit-soft-navigation-entry", "url": "#emit-soft-navigation-entry", "dfnText": "emit soft navigation entry", "refSections": [{"refs": [{"id": "ref-for-emit-soft-navigation-entry"}], "title": "3. Algorithms"}], "external": false};
-window.dfnpanelData['interaction-data'] = {"dfnID": "interaction-data", "url": "#interaction-data", "dfnText": "Interaction data", "refSections": [{"refs": [{"id": "ref-for-interaction-data"}, {"id": "ref-for-interaction-data\u2460"}], "title": "3.2. Interaction"}], "external": false};
-window.dfnpanelData['interaction-data-url'] = {"dfnID": "interaction-data-url", "url": "#interaction-data-url", "dfnText": "url", "refSections": [{"refs": [{"id": "ref-for-interaction-data-url"}], "title": "3. Algorithms"}, {"refs": [{"id": "ref-for-interaction-data-url\u2460"}], "title": "3.3. Same document commit"}], "external": false};
-window.dfnpanelData['interaction-data-start-time'] = {"dfnID": "interaction-data-start-time", "url": "#interaction-data-start-time", "dfnText": "start time", "refSections": [{"refs": [{"id": "ref-for-interaction-data-start-time"}], "title": "3. Algorithms"}, {"refs": [{"id": "ref-for-interaction-data-start-time\u2460"}], "title": "3.2. Interaction"}], "external": false};
-window.dfnpanelData['interaction-data-same-document-commit'] = {"dfnID": "interaction-data-same-document-commit", "url": "#interaction-data-same-document-commit", "dfnText": "same document commit", "refSections": [{"refs": [{"id": "ref-for-interaction-data-same-document-commit"}], "title": "3. Algorithms"}, {"refs": [{"id": "ref-for-interaction-data-same-document-commit\u2460"}], "title": "3.3. Same document commit"}], "external": false};
-window.dfnpanelData['interaction-data-contentful-paint'] = {"dfnID": "interaction-data-contentful-paint", "url": "#interaction-data-contentful-paint", "dfnText": "contentful paint", "refSections": [{"refs": [{"id": "ref-for-interaction-data-contentful-paint"}], "title": "3. Algorithms"}, {"refs": [{"id": "ref-for-interaction-data-contentful-paint\u2460"}], "title": "3.4. Contentful paint"}], "external": false};
-window.dfnpanelData['interaction-data-emitted'] = {"dfnID": "interaction-data-emitted", "url": "#interaction-data-emitted", "dfnText": "emitted", "refSections": [{"refs": [{"id": "ref-for-interaction-data-emitted"}], "title": "3. Algorithms"}], "external": false};
-window.dfnpanelData['get-current-interaction-data'] = {"dfnID": "get-current-interaction-data", "url": "#get-current-interaction-data", "dfnText": "get current interaction data", "refSections": [{"refs": [{"id": "ref-for-get-current-interaction-data"}], "title": "3. Algorithms"}, {"refs": [{"id": "ref-for-get-current-interaction-data\u2460"}], "title": "3.3. Same document commit"}, {"refs": [{"id": "ref-for-get-current-interaction-data\u2461"}], "title": "3.4. Contentful paint"}], "external": false};
-window.dfnpanelData['handle-event-callback'] = {"dfnID": "handle-event-callback", "url": "#handle-event-callback", "dfnText": "handle event callback", "refSections": [{"refs": [{"id": "ref-for-handle-event-callback"}], "title": "4.3. Event dispatch"}], "external": false};
-window.dfnpanelData['terminate-event-callback-handling'] = {"dfnID": "terminate-event-callback-handling", "url": "#terminate-event-callback-handling", "dfnText": "terminate event callback handling", "refSections": [{"refs": [{"id": "ref-for-terminate-event-callback-handling"}], "title": "4.3. Event dispatch"}], "external": false};
-window.dfnpanelData['check-soft-navigation-same-document-commit'] = {"dfnID": "check-soft-navigation-same-document-commit", "url": "#check-soft-navigation-same-document-commit", "dfnText": "check soft navigation same document commit", "refSections": [{"refs": [{"id": "ref-for-check-soft-navigation-same-document-commit"}], "title": "4.2. History"}], "external": false};
-window.dfnpanelData['check-soft-navigation-contentful-paint'] = {"dfnID": "check-soft-navigation-contentful-paint", "url": "#check-soft-navigation-contentful-paint", "dfnText": "check soft navigation contentful paint", "refSections": [{"refs": [{"id": "ref-for-check-soft-navigation-contentful-paint"}], "title": "5. LCP integration"}], "external": false};
-window.dfnpanelData['document-potential-soft-navigation-task-ids'] = {"dfnID": "document-potential-soft-navigation-task-ids", "url": "#document-potential-soft-navigation-task-ids", "dfnText": "potential soft navigation task ids", "refSections": [{"refs": [{"id": "ref-for-document-potential-soft-navigation-task-ids"}], "title": "3.2. Interaction"}, {"refs": [{"id": "ref-for-document-potential-soft-navigation-task-ids\u2460"}], "title": "3.3. Same document commit"}, {"refs": [{"id": "ref-for-document-potential-soft-navigation-task-ids\u2461"}], "title": "4.4. Node"}], "external": false};
-window.dfnpanelData['document-interaction-task-id-to-interaction-data'] = {"dfnID": "document-interaction-task-id-to-interaction-data", "url": "#document-interaction-task-id-to-interaction-data", "dfnText": "interaction task id to interaction data", "refSections": [{"refs": [{"id": "ref-for-document-interaction-task-id-to-interaction-data"}], "title": "3.1. Soft navigation entry"}, {"refs": [{"id": "ref-for-document-interaction-task-id-to-interaction-data\u2460"}, {"id": "ref-for-document-interaction-task-id-to-interaction-data\u2461"}, {"id": "ref-for-document-interaction-task-id-to-interaction-data\u2462"}, {"id": "ref-for-document-interaction-task-id-to-interaction-data\u2463"}], "title": "3.2. Interaction"}], "external": false};
-window.dfnpanelData['document-task-id-to-interaction-task-id'] = {"dfnID": "document-task-id-to-interaction-task-id", "url": "#document-task-id-to-interaction-task-id", "dfnText": "task id to interaction task id", "refSections": [{"refs": [{"id": "ref-for-document-task-id-to-interaction-task-id"}], "title": "3.1. Soft navigation entry"}, {"refs": [{"id": "ref-for-document-task-id-to-interaction-task-id\u2460"}, {"id": "ref-for-document-task-id-to-interaction-task-id\u2461"}], "title": "3.2. Interaction"}], "external": false};
-window.dfnpanelData['document-last-interaction-task-id'] = {"dfnID": "document-last-interaction-task-id", "url": "#document-last-interaction-task-id", "dfnText": "last interaction task id", "refSections": [{"refs": [{"id": "ref-for-document-last-interaction-task-id"}], "title": "3.1. Soft navigation entry"}, {"refs": [{"id": "ref-for-document-last-interaction-task-id\u2460"}], "title": "3.2. Interaction"}], "external": false};
-window.dfnpanelData['node-appended-by-soft-navigation'] = {"dfnID": "node-appended-by-soft-navigation", "url": "#node-appended-by-soft-navigation", "dfnText": "appended by soft navigation", "refSections": [{"refs": [{"id": "ref-for-node-appended-by-soft-navigation"}], "title": "3.4. Contentful paint"}, {"refs": [{"id": "ref-for-node-appended-by-soft-navigation\u2460"}], "title": "4.4. Node"}], "external": false};
-window.dfnpanelData['concept-task-scope'] = {"dfnID": "concept-task-scope", "url": "#concept-task-scope", "dfnText": "task scope", "refSections": [{"refs": [{"id": "ref-for-concept-task-scope"}, {"id": "ref-for-concept-task-scope\u2460"}], "title": "6.1. Task scope"}, {"refs": [{"id": "ref-for-concept-task-scope\u2461"}], "title": "7.2. Event Loop additions"}], "external": false};
-window.dfnpanelData['task-scope-task'] = {"dfnID": "task-scope-task", "url": "#task-scope-task", "dfnText": "task", "refSections": [{"refs": [{"id": "ref-for-task-scope-task"}], "title": "6.1. Task scope"}, {"refs": [{"id": "ref-for-task-scope-task\u2460"}], "title": "6.3.1. Get current task"}], "external": false};
-window.dfnpanelData['create-a-task-scope'] = {"dfnID": "create-a-task-scope", "url": "#create-a-task-scope", "dfnText": "create a task scope", "refSections": [{"refs": [{"id": "ref-for-create-a-task-scope"}], "title": "7.3. Script execution"}, {"refs": [{"id": "ref-for-create-a-task-scope\u2460"}], "title": "7.4. Task queueing"}, {"refs": [{"id": "ref-for-create-a-task-scope\u2461"}], "title": "7.5. Timers"}, {"refs": [{"id": "ref-for-create-a-task-scope\u2462"}, {"id": "ref-for-create-a-task-scope\u2463"}], "title": "7.6. Callbacks"}, {"refs": [{"id": "ref-for-create-a-task-scope\u2464"}], "title": "7.7.2. HostCallJobCallback"}, {"refs": [{"id": "ref-for-create-a-task-scope\u2465"}, {"id": "ref-for-create-a-task-scope\u2466"}], "title": "7.8. MessagePorts"}, {"refs": [{"id": "ref-for-create-a-task-scope\u2467"}], "title": "7.9. Same-document navigations"}], "external": false};
-window.dfnpanelData['tear-down-a-task-scope'] = {"dfnID": "tear-down-a-task-scope", "url": "#tear-down-a-task-scope", "dfnText": "tear down a task scope", "refSections": [{"refs": [{"id": "ref-for-tear-down-a-task-scope"}], "title": "7.3. Script execution"}, {"refs": [{"id": "ref-for-tear-down-a-task-scope\u2460"}], "title": "7.4. Task queueing"}, {"refs": [{"id": "ref-for-tear-down-a-task-scope\u2461"}, {"id": "ref-for-tear-down-a-task-scope\u2462"}, {"id": "ref-for-tear-down-a-task-scope\u2463"}], "title": "7.6. Callbacks"}, {"refs": [{"id": "ref-for-tear-down-a-task-scope\u2464"}], "title": "7.7.2. HostCallJobCallback"}, {"refs": [{"id": "ref-for-tear-down-a-task-scope\u2465"}, {"id": "ref-for-tear-down-a-task-scope\u2466"}], "title": "7.8. MessagePorts"}, {"refs": [{"id": "ref-for-tear-down-a-task-scope\u2467"}], "title": "7.9. Same-document navigations"}], "external": false};
-window.dfnpanelData['check-ancestor-for-task'] = {"dfnID": "check-ancestor-for-task", "url": "#check-ancestor-for-task", "dfnText": "check ancestor for task", "refSections": [{"refs": [{"id": "ref-for-check-ancestor-for-task"}], "title": "4.4. Node"}], "external": false};
-window.dfnpanelData['check-ancestor-set-for-task'] = {"dfnID": "check-ancestor-set-for-task", "url": "#check-ancestor-set-for-task", "dfnText": "check ancestor set for task", "refSections": [{"refs": [{"id": "ref-for-check-ancestor-set-for-task"}], "title": "3.3. Same document commit"}], "external": false};
-window.dfnpanelData['get-current-task'] = {"dfnID": "get-current-task", "url": "#get-current-task", "dfnText": "get current task", "refSections": [{"refs": [{"id": "ref-for-get-current-task"}], "title": "6.2. Is ancestor"}, {"refs": [{"id": "ref-for-get-current-task\u2460"}], "title": "6.3. Is ancestor in set"}, {"refs": [{"id": "ref-for-get-current-task\u2461"}], "title": "6.3.2. Get current task ID"}, {"refs": [{"id": "ref-for-get-current-task\u2462"}], "title": "7.3. Script execution"}, {"refs": [{"id": "ref-for-get-current-task\u2463"}], "title": "7.4. Task queueing"}, {"refs": [{"id": "ref-for-get-current-task\u2464"}], "title": "7.5. Timers"}, {"refs": [{"id": "ref-for-get-current-task\u2465"}], "title": "7.7.1. HostMakeJobCallback ##{#sec-hostmakejobcallback}"}, {"refs": [{"id": "ref-for-get-current-task\u2466"}], "title": "7.8. MessagePorts"}, {"refs": [{"id": "ref-for-get-current-task\u2467"}, {"id": "ref-for-get-current-task\u2468"}, {"id": "ref-for-get-current-task\u2460\u24ea"}], "title": "7.9. Same-document navigations"}, {"refs": [{"id": "ref-for-get-current-task\u2460\u2460"}], "title": "7.10. View transitions"}], "external": false};
-window.dfnpanelData['get-current-task-id'] = {"dfnID": "get-current-task-id", "url": "#get-current-task-id", "dfnText": "get current task id", "refSections": [{"refs": [{"id": "ref-for-get-current-task-id"}, {"id": "ref-for-get-current-task-id\u2460"}], "title": "3.2. Interaction"}, {"refs": [{"id": "ref-for-get-current-task-id\u2461"}], "title": "4.4. Node"}], "external": false};
-window.dfnpanelData['task-task-attribution-id'] = {"dfnID": "task-task-attribution-id", "url": "#task-task-attribution-id", "dfnText": "task attribution ID", "refSections": [{"refs": [{"id": "ref-for-task-task-attribution-id"}, {"id": "ref-for-task-task-attribution-id\u2460"}], "title": "4.1. Document"}, {"refs": [{"id": "ref-for-task-task-attribution-id\u2461"}], "title": "6.1. Task scope"}, {"refs": [{"id": "ref-for-task-task-attribution-id\u2462"}, {"id": "ref-for-task-task-attribution-id\u2463"}], "title": "6.2. Is ancestor"}, {"refs": [{"id": "ref-for-task-task-attribution-id\u2464"}, {"id": "ref-for-task-task-attribution-id\u2465"}], "title": "6.3. Is ancestor in set"}, {"refs": [{"id": "ref-for-task-task-attribution-id\u2466"}], "title": "6.3.2. Get current task ID"}], "external": false};
-window.dfnpanelData['task-parent-task'] = {"dfnID": "task-parent-task", "url": "#task-parent-task", "dfnText": "parent task", "refSections": [{"refs": [{"id": "ref-for-task-parent-task"}], "title": "6.1. Task scope"}, {"refs": [{"id": "ref-for-task-parent-task\u2460"}], "title": "6.2. Is ancestor"}, {"refs": [{"id": "ref-for-task-parent-task\u2461"}], "title": "6.3. Is ancestor in set"}, {"refs": [{"id": "ref-for-task-parent-task\u2462"}], "title": "7.4. Task queueing"}], "external": false};
-window.dfnpanelData['task-scope-stack'] = {"dfnID": "task-scope-stack", "url": "#task-scope-stack", "dfnText": "task scope stack", "refSections": [{"refs": [{"id": "ref-for-task-scope-stack"}, {"id": "ref-for-task-scope-stack\u2460"}], "title": "6.1. Task scope"}, {"refs": [{"id": "ref-for-task-scope-stack\u2461"}], "title": "6.3.1. Get current task"}], "external": false};
-window.dfnpanelData['script-parent-task'] = {"dfnID": "script-parent-task", "url": "#script-parent-task", "dfnText": "parent task", "refSections": [{"refs": [{"id": "ref-for-script-parent-task"}, {"id": "ref-for-script-parent-task\u2460"}], "title": "7.3. Script execution"}], "external": false};
-window.dfnpanelData['callback-function-parent-task'] = {"dfnID": "callback-function-parent-task", "url": "#callback-function-parent-task", "dfnText": "parent task", "refSections": [{"refs": [{"id": "ref-for-callback-function-parent-task"}], "title": "7.5. Timers"}, {"refs": [{"id": "ref-for-callback-function-parent-task\u2460"}, {"id": "ref-for-callback-function-parent-task\u2461"}], "title": "7.6. Callbacks"}, {"refs": [{"id": "ref-for-callback-function-parent-task\u2462"}], "title": "7.7.2. HostCallJobCallback"}, {"refs": [{"id": "ref-for-callback-function-parent-task\u2463"}], "title": "7.10. View transitions"}], "external": false};
-window.dfnpanelData['navigation-task'] = {"dfnID": "navigation-task", "url": "#navigation-task", "dfnText": "navigation task", "refSections": [{"refs": [{"id": "ref-for-navigation-task"}, {"id": "ref-for-navigation-task\u2460"}], "title": "7.9. Same-document navigations"}], "external": false};
-</script>
 <script>/* Boilerplate: script-dom-helper */
+"use strict";
 function query(sel) { return document.querySelector(sel); }
 
 function queryAll(sel) { return [...document.querySelectorAll(sel)]; }
@@ -2016,5 +1702,797 @@ function parseHTML(markup) {
 		el.innerHTML = markup;
 		return el.content;
 	}
+}</script>
+<script>/* Boilerplate: script-dfn-panel */
+"use strict";
+{
+let dfnPanelData = {
+"00c8c5e6": {"dfnID":"00c8c5e6","dfnText":"DOMHighResTimeStamp","external":true,"refSections":[{"refs":[{"id":"ref-for-typedefdef-domhighrestimestamp"}],"title":"3.1. Soft navigation entry"}],"url":"https://w3c.github.io/hr-time/#typedefdef-domhighrestimestamp"},
+"019c28e2": {"dfnID":"019c28e2","dfnText":"apply the history step","external":true,"refSections":[{"refs":[{"id":"ref-for-apply-the-history-step"}],"title":"7.9. Same-document navigations"}],"url":"https://html.spec.whatwg.org/C#apply-the-history-step"},
+"0698d556": {"dfnID":"0698d556","dfnText":"string","external":true,"refSections":[{"refs":[{"id":"ref-for-string"}],"title":"3.1. Soft navigation entry"},{"refs":[{"id":"ref-for-string\u2460"}],"title":"3.2. Interaction"},{"refs":[{"id":"ref-for-string\u2461"}],"title":"3.3. Same document commit"}],"url":"https://infra.spec.whatwg.org/#string"},
+"08a90f22": {"dfnID":"08a90f22","dfnText":"entryType","external":true,"refSections":[{"refs":[{"id":"ref-for-dom-performanceentry-entrytype"}],"title":"3.1. Soft navigation entry"}],"url":"https://w3c.github.io/performance-timeline/#dom-performanceentry-entrytype"},
+"09c54b53": {"dfnID":"09c54b53","dfnText":"name","external":true,"refSections":[{"refs":[{"id":"ref-for-dom-performanceentry-name"}],"title":"3.1. Soft navigation entry"}],"url":"https://w3c.github.io/performance-timeline/#dom-performanceentry-name"},
+"0e6b2056": {"dfnID":"0e6b2056","dfnText":"set (for map)","external":true,"refSections":[{"refs":[{"id":"ref-for-map-set"},{"id":"ref-for-map-set\u2460"}],"title":"3.2. Interaction"},{"refs":[{"id":"ref-for-map-set\u2461"},{"id":"ref-for-map-set\u2462"}],"title":"3.3. Same document commit"}],"url":"https://infra.spec.whatwg.org/#map-set"},
+"10ce5f6f": {"dfnID":"10ce5f6f","dfnText":"invoke","external":true,"refSections":[{"refs":[{"id":"ref-for-invoke-a-callback-function"}],"title":"7.6. Callbacks"}],"url":"https://webidl.spec.whatwg.org/#invoke-a-callback-function"},
+"1243a891": {"dfnID":"1243a891","dfnText":"exist","external":true,"refSections":[{"refs":[{"id":"ref-for-map-exists"},{"id":"ref-for-map-exists\u2460"},{"id":"ref-for-map-exists\u2461"}],"title":"3.2. Interaction"}],"url":"https://infra.spec.whatwg.org/#map-exists"},
+"132c94e7": {"dfnID":"132c94e7","dfnText":"message port post message steps","external":true,"refSections":[{"refs":[{"id":"ref-for-message-port-post-message-steps"}],"title":"7.8. MessagePorts"}],"url":"https://html.spec.whatwg.org/C#message-port-post-message-steps"},
+"15e48c39": {"dfnID":"15e48c39","dfnText":"set","external":true,"refSections":[{"refs":[{"id":"ref-for-ordered-set"}],"title":"3.1. Soft navigation entry"},{"refs":[{"id":"ref-for-ordered-set\u2460"}],"title":"4.1. Document"},{"refs":[{"id":"ref-for-ordered-set\u2461"}],"title":"6.3. Is ancestor in set"}],"url":"https://infra.spec.whatwg.org/#ordered-set"},
+"2104d2a0": {"dfnID":"2104d2a0","dfnText":"HTMLBodyElement","external":true,"refSections":[{"refs":[{"id":"ref-for-htmlbodyelement"}],"title":"3.2. Interaction"}],"url":"https://html.spec.whatwg.org/multipage/sections.html#htmlbodyelement"},
+"27d9b7ea": {"dfnID":"27d9b7ea","dfnText":"element","external":true,"refSections":[{"refs":[{"id":"ref-for-concept-element"}],"title":"3.4. Contentful paint"}],"url":"https://dom.spec.whatwg.org/#concept-element"},
+"2bc0cdf4": {"dfnID":"2bc0cdf4","dfnText":"EventTarget","external":true,"refSections":[{"refs":[{"id":"ref-for-eventtarget"}],"title":"3.2. Interaction"}],"url":"https://dom.spec.whatwg.org/#eventtarget"},
+"32301e7b": {"dfnID":"32301e7b","dfnText":"timer initialisation steps","external":true,"refSections":[{"refs":[{"id":"ref-for-timer-initialisation-steps"}],"title":"7.5. Timers"}],"url":"https://html.spec.whatwg.org/C#timer-initialisation-steps"},
+"3349d69f": {"dfnID":"3349d69f","dfnText":"associated Document","external":true,"refSections":[{"refs":[{"id":"ref-for-concept-document-window"}],"title":"3.1. Soft navigation entry"},{"refs":[{"id":"ref-for-concept-document-window\u2460"}],"title":"3.2. Interaction"}],"url":"https://html.spec.whatwg.org/multipage/nav-history-apis.html#concept-document-window"},
+"355696eb": {"dfnID":"355696eb","dfnText":"hostcalljobcallback","external":true,"refSections":[{"refs":[{"id":"ref-for-hostcalljobcallback"}],"title":"7.7.2. HostCallJobCallback"}],"url":"https://html.spec.whatwg.org/C#hostcalljobcallback"},
+"3ab7bf79": {"dfnID":"3ab7bf79","dfnText":"callback function","external":true,"refSections":[{"refs":[{"id":"ref-for-dfn-callback-function"}],"title":"7.6. Callbacks"}],"url":"https://webidl.spec.whatwg.org/#dfn-callback-function"},
+"3fca5a9e": {"dfnID":"3fca5a9e","dfnText":"map","external":true,"refSections":[{"refs":[{"id":"ref-for-ordered-map"},{"id":"ref-for-ordered-map\u2460"},{"id":"ref-for-ordered-map\u2461"}],"title":"3.1. Soft navigation entry"},{"refs":[{"id":"ref-for-ordered-map\u2462"},{"id":"ref-for-ordered-map\u2463"}],"title":"4.1. Document"}],"url":"https://infra.spec.whatwg.org/#ordered-map"},
+"4523ab1a": {"dfnID":"4523ab1a","dfnText":"event dispatch","external":true,"refSections":[{"refs":[{"id":"ref-for-concept-event-dispatch"},{"id":"ref-for-concept-event-dispatch\u2460"}],"title":"4.3. Event dispatch"}],"url":"https://dom.spec.whatwg.org/#concept-event-dispatch"},
+"4b2c8c72": {"dfnID":"4b2c8c72","dfnText":"duration","external":true,"refSections":[{"refs":[{"id":"ref-for-dfn-duration"}],"title":"3.1. Soft navigation entry"}],"url":"https://w3c.github.io/hr-time/#dfn-duration"},
+"4b6086d7": {"dfnID":"4b6086d7","dfnText":"global object","external":true,"refSections":[{"refs":[{"id":"ref-for-global-object"},{"id":"ref-for-global-object\u2460"}],"title":"3.1. Soft navigation entry"}],"url":"https://html.spec.whatwg.org/multipage/webappapis.html#global-object"},
+"5216e1a0": {"dfnID":"5216e1a0","dfnText":"node document","external":true,"refSections":[{"refs":[{"id":"ref-for-concept-node-document"}],"title":"4.4. Node"}],"url":"https://dom.spec.whatwg.org/#concept-node-document"},
+"59bfea49": {"dfnID":"59bfea49","dfnText":"node insert","external":true,"refSections":[{"refs":[{"id":"ref-for-concept-node-insert"}],"title":"4.4. Node"}],"url":"https://dom.spec.whatwg.org/#concept-node-insert"},
+"5e31523c": {"dfnID":"5e31523c","dfnText":"prepare the script element","external":true,"refSections":[{"refs":[{"id":"ref-for-prepare-the-script-element"}],"title":"7.3. Script execution"}],"url":"https://html.spec.whatwg.org/C#prepare-the-script-element"},
+"5fd199e1": {"dfnID":"5fd199e1","dfnText":"top-level traversable","external":true,"refSections":[{"refs":[{"id":"ref-for-top-level-traversable"}],"title":"3.2. Interaction"}],"url":"https://html.spec.whatwg.org/C#top-level-traversable"},
+"61f06c86": {"dfnID":"61f06c86","dfnText":"PerformanceEntry","external":true,"refSections":[{"refs":[{"id":"ref-for-performanceentry"}],"title":"2. The SoftNavigationEntry interface"}],"url":"https://w3c.github.io/performance-timeline/#performanceentry"},
+"6f0c9044": {"dfnID":"6f0c9044","dfnText":"performance entry buffer","external":true,"refSections":[{"refs":[{"id":"ref-for-performance-entry-buffer"}],"title":"3.1. Soft navigation entry"}],"url":"https://w3c.github.io/performance-timeline/#performance-entry-buffer"},
+"770d6174": {"dfnID":"770d6174","dfnText":"session history entry url","external":true,"refSections":[{"refs":[{"id":"ref-for-she-url"}],"title":"4.2. History"}],"url":"https://html.spec.whatwg.org/C#she-url"},
+"7e7cc1d8": {"dfnID":"7e7cc1d8","dfnText":"current high resolution time","external":true,"refSections":[{"refs":[{"id":"ref-for-dfn-current-high-resolution-time"}],"title":"3.1. Soft navigation entry"},{"refs":[{"id":"ref-for-dfn-current-high-resolution-time\u2460"}],"title":"3.2. Interaction"}],"url":"https://w3c.github.io/hr-time/#dfn-current-high-resolution-time"},
+"860300d4": {"dfnID":"860300d4","dfnText":"implementation-defined","external":true,"refSections":[{"refs":[{"id":"ref-for-implementation-defined"}],"title":"6.1. Task scope"},{"refs":[{"id":"ref-for-implementation-defined\u2460"}],"title":"7.1. Task additions"}],"url":"https://infra.spec.whatwg.org/#implementation-defined"},
+"887585a1": {"dfnID":"887585a1","dfnText":"navigate to a fragment","external":true,"refSections":[{"refs":[{"id":"ref-for-navigate-fragid"}],"title":"7.9. Same-document navigations"}],"url":"https://html.spec.whatwg.org/C#navigate-fragid"},
+"889e932f": {"dfnID":"889e932f","dfnText":"Exposed","external":true,"refSections":[{"refs":[{"id":"ref-for-Exposed"}],"title":"2. The SoftNavigationEntry interface"}],"url":"https://webidl.spec.whatwg.org/#Exposed"},
+"976def1b": {"dfnID":"976def1b","dfnText":"previously reported paints","external":true,"refSections":[{"refs":[{"id":"ref-for-previously-reported-paints"}],"title":"3.1. Soft navigation entry"}],"url":"https://www.w3.org/TR/paint-timing/#previously-reported-paints"},
+"984221ca": {"dfnID":"984221ca","dfnText":"struct","external":true,"refSections":[{"refs":[{"id":"ref-for-struct"}],"title":"3.2. Interaction"}],"url":"https://infra.spec.whatwg.org/#struct"},
+"9a517a7d": {"dfnID":"9a517a7d","dfnText":"queue a task","external":true,"refSections":[{"refs":[{"id":"ref-for-queue-a-task"}],"title":"7.4. Task queueing"}],"url":"https://html.spec.whatwg.org/multipage/webappapis.html#queue-a-task"},
+"9ed0e01d": {"dfnID":"9ed0e01d","dfnText":"execute the script element","external":true,"refSections":[{"refs":[{"id":"ref-for-execute-the-script-element"}],"title":"7.3. Script execution"}],"url":"https://html.spec.whatwg.org/C#execute-the-script-element"},
+"a3b18719": {"dfnID":"a3b18719","dfnText":"append","external":true,"refSections":[{"refs":[{"id":"ref-for-set-append"}],"title":"3.2. Interaction"}],"url":"https://infra.spec.whatwg.org/#set-append"},
+"a5ad1660": {"dfnID":"a5ad1660","dfnText":"peek","external":true,"refSections":[{"refs":[{"id":"ref-for-stack-peek"}],"title":"6.3.1. Get current task"}],"url":"https://infra.spec.whatwg.org/#stack-peek"},
+"a84c14c9": {"dfnID":"a84c14c9","dfnText":"document","external":true,"refSections":[{"refs":[{"id":"ref-for-clone-a-node-document"}],"title":"3. Algorithms"},{"refs":[{"id":"ref-for-clone-a-node-document\u2460"},{"id":"ref-for-clone-a-node-document\u2461"}],"title":"3.2. Interaction"},{"refs":[{"id":"ref-for-clone-a-node-document\u2462"}],"title":"3.4. Contentful paint"},{"refs":[{"id":"ref-for-clone-a-node-document\u2463"},{"id":"ref-for-clone-a-node-document\u2464"},{"id":"ref-for-clone-a-node-document\u2465"},{"id":"ref-for-clone-a-node-document\u2466"}],"title":"4.1. Document"}],"url":"https://dom.spec.whatwg.org/#clone-a-node-document"},
+"a9ea380f": {"dfnID":"a9ea380f","dfnText":"queue a PerformanceEntry","external":true,"refSections":[{"refs":[{"id":"ref-for-dfn-queue-a-performanceentry"},{"id":"ref-for-dfn-queue-a-performanceentry\u2460"}],"title":"3.1. Soft navigation entry"}],"url":"https://w3c.github.io/performance-timeline/#dfn-queue-a-performanceentry"},
+"b75a7d23": {"dfnID":"b75a7d23","dfnText":"realm","external":true,"refSections":[{"refs":[{"id":"ref-for-concept-global-object-realm"}],"title":"3.1. Soft navigation entry"}],"url":"https://html.spec.whatwg.org/multipage/webappapis.html#concept-global-object-realm"},
+"b78d6a64": {"dfnID":"b78d6a64","dfnText":"event loop (for agent)","external":true,"refSections":[{"refs":[{"id":"ref-for-concept-agent-event-loop"},{"id":"ref-for-concept-agent-event-loop\u2460"}],"title":"6.1. Task scope"},{"refs":[{"id":"ref-for-concept-agent-event-loop\u2461"}],"title":"6.3.1. Get current task"}],"url":"https://html.spec.whatwg.org/multipage/webappapis.html#concept-agent-event-loop"},
+"b87df86e": {"dfnID":"b87df86e","dfnText":"isTrusted","external":true,"refSections":[{"refs":[{"id":"ref-for-dom-event-istrusted"}],"title":"4.3. Event dispatch"}],"url":"https://dom.spec.whatwg.org/#dom-event-istrusted"},
+"bb2c4ef9": {"dfnID":"bb2c4ef9","dfnText":"startViewTransition()","external":true,"refSections":[{"refs":[{"id":"ref-for-dom-document-startviewtransition"}],"title":"7.10. View transitions"}],"url":"https://www.w3.org/TR/css-view-transitions-1/#dom-document-startviewtransition"},
+"bc2342f0": {"dfnID":"bc2342f0","dfnText":"has dispatched input event","external":true,"refSections":[{"refs":[{"id":"ref-for-has-dispatched-input-event"}],"title":"3.1. Soft navigation entry"}],"url":"https://w3c.github.io/event-timing/#has-dispatched-input-event"},
+"c6d19e56": {"dfnID":"c6d19e56","dfnText":"event loop","external":true,"refSections":[{"refs":[{"id":"ref-for-event-loop"}],"title":"7.2. Event Loop additions"}],"url":"https://html.spec.whatwg.org/multipage/webappapis.html#event-loop"},
+"c88f3887": {"dfnID":"c88f3887","dfnText":"item","external":true,"refSections":[{"refs":[{"id":"ref-for-struct-item"}],"title":"3.2. Interaction"}],"url":"https://infra.spec.whatwg.org/#struct-item"},
+"callback-function-parent-task": {"dfnID":"callback-function-parent-task","dfnText":"parent task","external":false,"refSections":[{"refs":[{"id":"ref-for-callback-function-parent-task"}],"title":"7.5. Timers"},{"refs":[{"id":"ref-for-callback-function-parent-task\u2460"},{"id":"ref-for-callback-function-parent-task\u2461"}],"title":"7.6. Callbacks"},{"refs":[{"id":"ref-for-callback-function-parent-task\u2462"}],"title":"7.7.1. HostMakeJobCallback ##{#sec-hostmakejobcallback}"},{"refs":[{"id":"ref-for-callback-function-parent-task\u2463"}],"title":"7.7.2. HostCallJobCallback"},{"refs":[{"id":"ref-for-callback-function-parent-task\u2464"}],"title":"7.10. View transitions"}],"url":"#callback-function-parent-task"},
+"cc7c9b78": {"dfnID":"cc7c9b78","dfnText":"startTime","external":true,"refSections":[{"refs":[{"id":"ref-for-dom-performanceentry-starttime"}],"title":"3.1. Soft navigation entry"}],"url":"https://w3c.github.io/performance-timeline/#dom-performanceentry-starttime"},
+"ceacaa1c": {"dfnID":"ceacaa1c","dfnText":"stack","external":true,"refSections":[{"refs":[{"id":"ref-for-stack"}],"title":"7.2. Event Loop additions"}],"url":"https://infra.spec.whatwg.org/#stack"},
+"check-ancestor-for-task": {"dfnID":"check-ancestor-for-task","dfnText":"check ancestor for task","external":false,"refSections":[{"refs":[{"id":"ref-for-check-ancestor-for-task"}],"title":"4.4. Node"}],"url":"#check-ancestor-for-task"},
+"check-ancestor-set-for-task": {"dfnID":"check-ancestor-set-for-task","dfnText":"check ancestor set for task","external":false,"refSections":[{"refs":[{"id":"ref-for-check-ancestor-set-for-task"}],"title":"3.3. Same document commit"}],"url":"#check-ancestor-set-for-task"},
+"check-soft-navigation": {"dfnID":"check-soft-navigation","dfnText":"check soft navigation","external":false,"refSections":[{"refs":[{"id":"ref-for-check-soft-navigation"}],"title":"3.3. Same document commit"},{"refs":[{"id":"ref-for-check-soft-navigation\u2460"}],"title":"3.4. Contentful paint"}],"url":"#check-soft-navigation"},
+"check-soft-navigation-contentful-paint": {"dfnID":"check-soft-navigation-contentful-paint","dfnText":"check soft navigation contentful paint","external":false,"refSections":[{"refs":[{"id":"ref-for-check-soft-navigation-contentful-paint"}],"title":"5. LCP integration"}],"url":"#check-soft-navigation-contentful-paint"},
+"check-soft-navigation-same-document-commit": {"dfnID":"check-soft-navigation-same-document-commit","dfnText":"check soft navigation same document commit","external":false,"refSections":[{"refs":[{"id":"ref-for-check-soft-navigation-same-document-commit"}],"title":"4.2. History"}],"url":"#check-soft-navigation-same-document-commit"},
+"concept-task-scope": {"dfnID":"concept-task-scope","dfnText":"task scope","external":false,"refSections":[{"refs":[{"id":"ref-for-concept-task-scope"},{"id":"ref-for-concept-task-scope\u2460"}],"title":"6.1. Task scope"},{"refs":[{"id":"ref-for-concept-task-scope\u2461"}],"title":"7.2. Event Loop additions"}],"url":"#concept-task-scope"},
+"create-a-soft-navigation-entry": {"dfnID":"create-a-soft-navigation-entry","dfnText":"create a soft navigation entry","external":false,"refSections":[{"refs":[{"id":"ref-for-create-a-soft-navigation-entry"}],"title":"3. Algorithms"}],"url":"#create-a-soft-navigation-entry"},
+"create-a-task-scope": {"dfnID":"create-a-task-scope","dfnText":"create a task scope","external":false,"refSections":[{"refs":[{"id":"ref-for-create-a-task-scope"}],"title":"7.3. Script execution"},{"refs":[{"id":"ref-for-create-a-task-scope\u2460"}],"title":"7.4. Task queueing"},{"refs":[{"id":"ref-for-create-a-task-scope\u2461"}],"title":"7.5. Timers"},{"refs":[{"id":"ref-for-create-a-task-scope\u2462"},{"id":"ref-for-create-a-task-scope\u2463"}],"title":"7.6. Callbacks"},{"refs":[{"id":"ref-for-create-a-task-scope\u2464"}],"title":"7.7.2. HostCallJobCallback"},{"refs":[{"id":"ref-for-create-a-task-scope\u2465"},{"id":"ref-for-create-a-task-scope\u2466"}],"title":"7.8. MessagePorts"},{"refs":[{"id":"ref-for-create-a-task-scope\u2467"}],"title":"7.9. Same-document navigations"}],"url":"#create-a-task-scope"},
+"d0010562": {"dfnID":"d0010562","dfnText":"HostMakeJobCallback","external":true,"refSections":[{"refs":[{"id":"ref-for-hostmakejobcallback"}],"title":"7.7.1. HostMakeJobCallback ##{#sec-hostmakejobcallback}"}],"url":"https://html.spec.whatwg.org/C#hostmakejobcallback"},
+"d0c1b934": {"dfnID":"d0c1b934","dfnText":"traversable navigable","external":true,"refSections":[{"refs":[{"id":"ref-for-traversable-navigable"}],"title":"7.9. Same-document navigations"}],"url":"https://html.spec.whatwg.org/multipage/document-sequences.html#traversable-navigable"},
+"d0c5bc48": {"dfnID":"d0c5bc48","dfnText":"update document for history step application","external":true,"refSections":[{"refs":[{"id":"ref-for-update-document-for-history-step-application"}],"title":"4.2. History"},{"refs":[{"id":"ref-for-update-document-for-history-step-application\u2460"},{"id":"ref-for-update-document-for-history-step-application\u2461"}],"title":"7.9. Same-document navigations"}],"url":"https://html.spec.whatwg.org/C#update-document-for-history-step-application"},
+"d462b34f": {"dfnID":"d462b34f","dfnText":"node","external":true,"refSections":[{"refs":[{"id":"ref-for-boundary-point-node"}],"title":"4.4. Node"}],"url":"https://dom.spec.whatwg.org/#boundary-point-node"},
+"d5434eef": {"dfnID":"d5434eef","dfnText":"contains","external":true,"refSections":[{"refs":[{"id":"ref-for-header-list-contains"}],"title":"6.3. Is ancestor in set"}],"url":"https://fetch.spec.whatwg.org/#header-list-contains"},
+"d5ac3b38": {"dfnID":"d5ac3b38","dfnText":"clean up after running a callback","external":true,"refSections":[{"refs":[{"id":"ref-for-clean-up-after-running-a-callback"}],"title":"7.6. Callbacks"}],"url":"https://html.spec.whatwg.org/multipage/webappapis.html#clean-up-after-running-a-callback"},
+"d8049b98": {"dfnID":"d8049b98","dfnText":"relevant agent","external":true,"refSections":[{"refs":[{"id":"ref-for-relevant-agent"},{"id":"ref-for-relevant-agent\u2460"}],"title":"6.1. Task scope"},{"refs":[{"id":"ref-for-relevant-agent\u2461"}],"title":"6.3.1. Get current task"}],"url":"https://html.spec.whatwg.org/multipage/webappapis.html#relevant-agent"},
+"dd6462cb": {"dfnID":"dd6462cb","dfnText":"script","external":true,"refSections":[{"refs":[{"id":"ref-for-concept-script"}],"title":"7.3. Script execution"}],"url":"https://html.spec.whatwg.org/multipage/webappapis.html#concept-script"},
+"document-interaction-task-id-to-interaction-data": {"dfnID":"document-interaction-task-id-to-interaction-data","dfnText":"interaction task id to interaction data","external":false,"refSections":[{"refs":[{"id":"ref-for-document-interaction-task-id-to-interaction-data"}],"title":"3.1. Soft navigation entry"},{"refs":[{"id":"ref-for-document-interaction-task-id-to-interaction-data\u2460"},{"id":"ref-for-document-interaction-task-id-to-interaction-data\u2461"},{"id":"ref-for-document-interaction-task-id-to-interaction-data\u2462"},{"id":"ref-for-document-interaction-task-id-to-interaction-data\u2463"}],"title":"3.2. Interaction"}],"url":"#document-interaction-task-id-to-interaction-data"},
+"document-last-interaction-task-id": {"dfnID":"document-last-interaction-task-id","dfnText":"last interaction task id","external":false,"refSections":[{"refs":[{"id":"ref-for-document-last-interaction-task-id"}],"title":"3.1. Soft navigation entry"},{"refs":[{"id":"ref-for-document-last-interaction-task-id\u2460"}],"title":"3.2. Interaction"}],"url":"#document-last-interaction-task-id"},
+"document-potential-soft-navigation-task-ids": {"dfnID":"document-potential-soft-navigation-task-ids","dfnText":"potential soft navigation task ids","external":false,"refSections":[{"refs":[{"id":"ref-for-document-potential-soft-navigation-task-ids"}],"title":"3.2. Interaction"},{"refs":[{"id":"ref-for-document-potential-soft-navigation-task-ids\u2460"}],"title":"3.3. Same document commit"},{"refs":[{"id":"ref-for-document-potential-soft-navigation-task-ids\u2461"}],"title":"4.4. Node"}],"url":"#document-potential-soft-navigation-task-ids"},
+"document-task-id-to-interaction-task-id": {"dfnID":"document-task-id-to-interaction-task-id","dfnText":"task id to interaction task id","external":false,"refSections":[{"refs":[{"id":"ref-for-document-task-id-to-interaction-task-id"}],"title":"3.1. Soft navigation entry"},{"refs":[{"id":"ref-for-document-task-id-to-interaction-task-id\u2460"},{"id":"ref-for-document-task-id-to-interaction-task-id\u2461"}],"title":"3.2. Interaction"}],"url":"#document-task-id-to-interaction-task-id"},
+"e270bd2a": {"dfnID":"e270bd2a","dfnText":"task","external":true,"refSections":[{"refs":[{"id":"ref-for-concept-task"},{"id":"ref-for-concept-task\u2460"},{"id":"ref-for-concept-task\u2461"}],"title":"6.1. Task scope"},{"refs":[{"id":"ref-for-concept-task\u2462"},{"id":"ref-for-concept-task\u2463"},{"id":"ref-for-concept-task\u2464"}],"title":"7.1. Task additions"},{"refs":[{"id":"ref-for-concept-task\u2465"}],"title":"7.3. Script execution"},{"refs":[{"id":"ref-for-concept-task\u2466"}],"title":"7.6. Callbacks"},{"refs":[{"id":"ref-for-concept-task\u2467"}],"title":"7.9. Same-document navigations"}],"url":"https://html.spec.whatwg.org/multipage/webappapis.html#concept-task"},
+"e2ab0b9e": {"dfnID":"e2ab0b9e","dfnText":"append session history traversal steps","external":true,"refSections":[{"refs":[{"id":"ref-for-tn-append-session-history-traversal-steps"}],"title":"7.9. Same-document navigations"}],"url":"https://html.spec.whatwg.org/C#tn-append-session-history-traversal-steps"},
+"e9486b7f": {"dfnID":"e9486b7f","dfnText":"equals","external":true,"refSections":[{"refs":[{"id":"ref-for-concept-node-equals"},{"id":"ref-for-concept-node-equals\u2460"},{"id":"ref-for-concept-node-equals\u2461"},{"id":"ref-for-concept-node-equals\u2462"}],"title":"3.2. Interaction"}],"url":"https://dom.spec.whatwg.org/#concept-node-equals"},
+"e99bd18e": {"dfnID":"e99bd18e","dfnText":"relevant global object","external":true,"refSections":[{"refs":[{"id":"ref-for-concept-relevant-global"}],"title":"3. Algorithms"},{"refs":[{"id":"ref-for-concept-relevant-global\u2460"}],"title":"3.2. Interaction"}],"url":"https://html.spec.whatwg.org/multipage/webappapis.html#concept-relevant-global"},
+"ea3a4c2f": {"dfnID":"ea3a4c2f","dfnText":"has dispatched scroll event","external":true,"refSections":[{"refs":[{"id":"ref-for-has-dispatched-scroll-event"}],"title":"3.1. Soft navigation entry"}],"url":"https://w3c.github.io/largest-contentful-paint/#has-dispatched-scroll-event"},
+"ea97efc6": {"dfnID":"ea97efc6","dfnText":"append session history synchronous navigation steps","external":true,"refSections":[{"refs":[{"id":"ref-for-tn-append-session-history-sync-nav-steps"}],"title":"7.9. Same-document navigations"}],"url":"https://html.spec.whatwg.org/C#tn-append-session-history-sync-nav-steps"},
+"emit-soft-navigation-entry": {"dfnID":"emit-soft-navigation-entry","dfnText":"emit soft navigation entry","external":false,"refSections":[{"refs":[{"id":"ref-for-emit-soft-navigation-entry"}],"title":"3. Algorithms"}],"url":"#emit-soft-navigation-entry"},
+"fabd3046": {"dfnID":"fabd3046","dfnText":"duration","external":true,"refSections":[{"refs":[{"id":"ref-for-dom-performanceentry-duration"}],"title":"3.1. Soft navigation entry"}],"url":"https://w3c.github.io/performance-timeline/#dom-performanceentry-duration"},
+"feb93a86": {"dfnID":"feb93a86","dfnText":"call a user object's operation","external":true,"refSections":[{"refs":[{"id":"ref-for-call-a-user-objects-operation"}],"title":"7.6. Callbacks"}],"url":"https://webidl.spec.whatwg.org/#call-a-user-objects-operation"},
+"get-current-interaction-data": {"dfnID":"get-current-interaction-data","dfnText":"get current interaction data","external":false,"refSections":[{"refs":[{"id":"ref-for-get-current-interaction-data"}],"title":"3. Algorithms"},{"refs":[{"id":"ref-for-get-current-interaction-data\u2460"}],"title":"3.3. Same document commit"},{"refs":[{"id":"ref-for-get-current-interaction-data\u2461"}],"title":"3.4. Contentful paint"}],"url":"#get-current-interaction-data"},
+"get-current-task": {"dfnID":"get-current-task","dfnText":"get current task","external":false,"refSections":[{"refs":[{"id":"ref-for-get-current-task"}],"title":"6.2. Is ancestor"},{"refs":[{"id":"ref-for-get-current-task\u2460"}],"title":"6.3. Is ancestor in set"},{"refs":[{"id":"ref-for-get-current-task\u2461"}],"title":"6.3.2. Get current task ID"},{"refs":[{"id":"ref-for-get-current-task\u2462"}],"title":"7.3. Script execution"},{"refs":[{"id":"ref-for-get-current-task\u2463"}],"title":"7.4. Task queueing"},{"refs":[{"id":"ref-for-get-current-task\u2464"}],"title":"7.5. Timers"},{"refs":[{"id":"ref-for-get-current-task\u2465"}],"title":"7.7.1. HostMakeJobCallback ##{#sec-hostmakejobcallback}"},{"refs":[{"id":"ref-for-get-current-task\u2466"}],"title":"7.8. MessagePorts"},{"refs":[{"id":"ref-for-get-current-task\u2467"},{"id":"ref-for-get-current-task\u2468"},{"id":"ref-for-get-current-task\u2460\u24ea"}],"title":"7.9. Same-document navigations"},{"refs":[{"id":"ref-for-get-current-task\u2460\u2460"}],"title":"7.10. View transitions"}],"url":"#get-current-task"},
+"get-current-task-id": {"dfnID":"get-current-task-id","dfnText":"get current task id","external":false,"refSections":[{"refs":[{"id":"ref-for-get-current-task-id"},{"id":"ref-for-get-current-task-id\u2460"}],"title":"3.2. Interaction"},{"refs":[{"id":"ref-for-get-current-task-id\u2461"}],"title":"4.4. Node"}],"url":"#get-current-task-id"},
+"handle-event-callback": {"dfnID":"handle-event-callback","dfnText":"handle event callback","external":false,"refSections":[{"refs":[{"id":"ref-for-handle-event-callback"}],"title":"4.3. Event dispatch"}],"url":"#handle-event-callback"},
+"interaction-data": {"dfnID":"interaction-data","dfnText":"Interaction data","external":false,"refSections":[{"refs":[{"id":"ref-for-interaction-data"},{"id":"ref-for-interaction-data\u2460"}],"title":"3.2. Interaction"}],"url":"#interaction-data"},
+"interaction-data-contentful-paint": {"dfnID":"interaction-data-contentful-paint","dfnText":"contentful paint","external":false,"refSections":[{"refs":[{"id":"ref-for-interaction-data-contentful-paint"}],"title":"3. Algorithms"},{"refs":[{"id":"ref-for-interaction-data-contentful-paint\u2460"}],"title":"3.4. Contentful paint"}],"url":"#interaction-data-contentful-paint"},
+"interaction-data-emitted": {"dfnID":"interaction-data-emitted","dfnText":"emitted","external":false,"refSections":[{"refs":[{"id":"ref-for-interaction-data-emitted"}],"title":"3. Algorithms"},{"refs":[{"id":"ref-for-interaction-data-emitted\u2460"}],"title":"3.4. Contentful paint"}],"url":"#interaction-data-emitted"},
+"interaction-data-same-document-commit": {"dfnID":"interaction-data-same-document-commit","dfnText":"same document commit","external":false,"refSections":[{"refs":[{"id":"ref-for-interaction-data-same-document-commit"}],"title":"3. Algorithms"},{"refs":[{"id":"ref-for-interaction-data-same-document-commit\u2460"}],"title":"3.3. Same document commit"}],"url":"#interaction-data-same-document-commit"},
+"interaction-data-start-time": {"dfnID":"interaction-data-start-time","dfnText":"start time","external":false,"refSections":[{"refs":[{"id":"ref-for-interaction-data-start-time"}],"title":"3. Algorithms"},{"refs":[{"id":"ref-for-interaction-data-start-time\u2460"}],"title":"3.2. Interaction"}],"url":"#interaction-data-start-time"},
+"interaction-data-url": {"dfnID":"interaction-data-url","dfnText":"url","external":false,"refSections":[{"refs":[{"id":"ref-for-interaction-data-url"}],"title":"3. Algorithms"},{"refs":[{"id":"ref-for-interaction-data-url\u2460"}],"title":"3.3. Same document commit"}],"url":"#interaction-data-url"},
+"navigation-task": {"dfnID":"navigation-task","dfnText":"navigation task","external":false,"refSections":[{"refs":[{"id":"ref-for-navigation-task"},{"id":"ref-for-navigation-task\u2460"}],"title":"7.9. Same-document navigations"}],"url":"#navigation-task"},
+"node-appended-by-soft-navigation": {"dfnID":"node-appended-by-soft-navigation","dfnText":"appended by soft navigation","external":false,"refSections":[{"refs":[{"id":"ref-for-node-appended-by-soft-navigation"}],"title":"3.4. Contentful paint"},{"refs":[{"id":"ref-for-node-appended-by-soft-navigation\u2460"}],"title":"4.4. Node"}],"url":"#node-appended-by-soft-navigation"},
+"script-parent-task": {"dfnID":"script-parent-task","dfnText":"parent task","external":false,"refSections":[{"refs":[{"id":"ref-for-script-parent-task"},{"id":"ref-for-script-parent-task\u2460"}],"title":"7.3. Script execution"}],"url":"#script-parent-task"},
+"softnavigationentry": {"dfnID":"softnavigationentry","dfnText":"SoftNavigationEntry","external":false,"refSections":[{"refs":[{"id":"ref-for-softnavigationentry"},{"id":"ref-for-softnavigationentry\u2460"}],"title":"3.1. Soft navigation entry"}],"url":"#softnavigationentry"},
+"task-parent-task": {"dfnID":"task-parent-task","dfnText":"parent task","external":false,"refSections":[{"refs":[{"id":"ref-for-task-parent-task"}],"title":"6.1. Task scope"},{"refs":[{"id":"ref-for-task-parent-task\u2460"}],"title":"6.2. Is ancestor"},{"refs":[{"id":"ref-for-task-parent-task\u2461"}],"title":"6.3. Is ancestor in set"},{"refs":[{"id":"ref-for-task-parent-task\u2462"}],"title":"7.4. Task queueing"}],"url":"#task-parent-task"},
+"task-scope-stack": {"dfnID":"task-scope-stack","dfnText":"task scope stack","external":false,"refSections":[{"refs":[{"id":"ref-for-task-scope-stack"},{"id":"ref-for-task-scope-stack\u2460"}],"title":"6.1. Task scope"},{"refs":[{"id":"ref-for-task-scope-stack\u2461"}],"title":"6.3.1. Get current task"}],"url":"#task-scope-stack"},
+"task-scope-task": {"dfnID":"task-scope-task","dfnText":"task","external":false,"refSections":[{"refs":[{"id":"ref-for-task-scope-task"}],"title":"6.1. Task scope"},{"refs":[{"id":"ref-for-task-scope-task\u2460"}],"title":"6.3.1. Get current task"}],"url":"#task-scope-task"},
+"task-task-attribution-id": {"dfnID":"task-task-attribution-id","dfnText":"task attribution ID","external":false,"refSections":[{"refs":[{"id":"ref-for-task-task-attribution-id"},{"id":"ref-for-task-task-attribution-id\u2460"}],"title":"4.1. Document"},{"refs":[{"id":"ref-for-task-task-attribution-id\u2461"}],"title":"6.1. Task scope"},{"refs":[{"id":"ref-for-task-task-attribution-id\u2462"},{"id":"ref-for-task-task-attribution-id\u2463"}],"title":"6.2. Is ancestor"},{"refs":[{"id":"ref-for-task-task-attribution-id\u2464"},{"id":"ref-for-task-task-attribution-id\u2465"}],"title":"6.3. Is ancestor in set"},{"refs":[{"id":"ref-for-task-task-attribution-id\u2466"}],"title":"6.3.2. Get current task ID"}],"url":"#task-task-attribution-id"},
+"tear-down-a-task-scope": {"dfnID":"tear-down-a-task-scope","dfnText":"tear down a task scope","external":false,"refSections":[{"refs":[{"id":"ref-for-tear-down-a-task-scope"}],"title":"7.3. Script execution"},{"refs":[{"id":"ref-for-tear-down-a-task-scope\u2460"}],"title":"7.4. Task queueing"},{"refs":[{"id":"ref-for-tear-down-a-task-scope\u2461"},{"id":"ref-for-tear-down-a-task-scope\u2462"},{"id":"ref-for-tear-down-a-task-scope\u2463"}],"title":"7.6. Callbacks"},{"refs":[{"id":"ref-for-tear-down-a-task-scope\u2464"}],"title":"7.7.2. HostCallJobCallback"},{"refs":[{"id":"ref-for-tear-down-a-task-scope\u2465"},{"id":"ref-for-tear-down-a-task-scope\u2466"}],"title":"7.8. MessagePorts"},{"refs":[{"id":"ref-for-tear-down-a-task-scope\u2467"}],"title":"7.9. Same-document navigations"}],"url":"#tear-down-a-task-scope"},
+"terminate-event-callback-handling": {"dfnID":"terminate-event-callback-handling","dfnText":"terminate event callback handling","external":false,"refSections":[{"refs":[{"id":"ref-for-terminate-event-callback-handling"}],"title":"4.3. Event dispatch"}],"url":"#terminate-event-callback-handling"},
+};
+
+document.addEventListener("DOMContentLoaded", ()=>{
+    genAllDfnPanels();
+
+    document.body.addEventListener("click", (e) => {
+        // If not handled already, just hide all dfn panels.
+        hideAllDfnPanels();
+    });
+});
+
+window.addEventListener("resize", () => {
+    // Pin any visible dfn panel
+    queryAll(".dfn-panel.on, .dfn-panel.activated").forEach(el=>positionDfnPanel(el));
+});
+
+function genAllDfnPanels() {
+    for(const panelData of Object.values(dfnPanelData)) {
+        const dfnID = panelData.dfnID;
+        const dfn = document.getElementById(dfnID);
+        if(!dfn) {
+            console.log(`Can't find dfn#${dfnID}.`, panelData);
+            continue;
+        }
+        dfn.panelData = panelData;
+        insertDfnPopupAction(dfn);
+    }
+}
+
+function genDfnPanel(dfn, { dfnID, url, dfnText, refSections, external }) {
+    const dfnPanel = mk.aside({
+        class: "dfn-panel on",
+        id: `infopanel-for-${dfnID}`,
+        "data-for": dfnID,
+        "aria-labelled-by":`infopaneltitle-for-${dfnID}`,
+        },
+        mk.span({id:`infopaneltitle-for-${dfnID}`, style:"display:none"},
+            `Info about the '${dfnText}' ${external?"external":""} reference.`),
+        mk.a({href:url, class:"dfn-link"}, url),
+        refSections.length == 0 ? [] :
+            mk.b({}, "Referenced in:"),
+            mk.ul({},
+                ...refSections.map(section=>
+                    mk.li({},
+                        ...section.refs.map((ref, refI)=>
+                            [
+                                mk.a({ href: `#${ref.id}` },
+                                    (refI == 0) ? section.title : `(${refI + 1})`
+                                ),
+                                " ",
+                            ]
+                        ),
+                    ),
+                ),
+            ),
+        genLinkingSyntaxes(dfn),
+    );
+
+    dfnPanel.addEventListener('click', (event) => {
+        if (event.target.nodeName == 'A') {
+            scrollToTargetAndHighlight(event);
+            pinDfnPanel(dfnPanel);
+        }
+        event.stopPropagation();
+        refocusOnTarget(event);
+    });
+    dfnPanel.addEventListener('keydown', (event) => {
+        if(event.keyCode == 27) { // Escape key
+            hideDfnPanel({dfnPanel});
+            event.stopPropagation();
+            event.preventDefault();
+        }
+    });
+
+    dfnPanel.dfn = dfn;
+    dfn.dfnPanel = dfnPanel;
+    return dfnPanel;
+}
+
+
+
+function hideAllDfnPanels() {
+    // Delete the currently-active dfn panel.
+    queryAll(".dfn-panel").forEach(dfnPanel=>hideDfnPanel({dfnPanel}));
+}
+
+function showDfnPanel(dfn) {
+    hideAllDfnPanels(); // Only display one at a time.
+
+    dfn.setAttribute("aria-expanded", "true");
+
+    const dfnPanel = genDfnPanel(dfn, dfn.panelData);
+
+    // Give the dfn a unique tabindex, and then
+    // give all the tabbable panel bits successive indexes.
+    let tabIndex = 100;
+    dfn.tabIndex = tabIndex++;
+    const tabbable = dfnPanel.querySelectorAll(":is(a, button)");
+    for (const el of tabbable) {
+        el.tabIndex = tabIndex++;
+    }
+
+    append(document.body, dfnPanel);
+    positionDfnPanel(dfnPanel);
+}
+
+function positionDfnPanel(dfnPanel) {
+    const dfn = dfnPanel.dfn;
+    const dfnPos = getBounds(dfn);
+    dfnPanel.style.top = dfnPos.bottom + "px";
+    dfnPanel.style.left = dfnPos.left + "px";
+
+    const panelPos = dfnPanel.getBoundingClientRect();
+    const panelMargin = 8;
+    const maxRight = document.body.parentNode.clientWidth - panelMargin;
+    if (panelPos.right > maxRight) {
+        const overflowAmount = panelPos.right - maxRight;
+        const newLeft = Math.max(panelMargin, dfnPos.left - overflowAmount);
+        dfnPanel.style.left = newLeft + "px";
+    }
+}
+
+function pinDfnPanel(dfnPanel) {
+    // Switch it to "activated" state, which pins it.
+    dfnPanel.classList.add("activated");
+    dfnPanel.style.position = "fixed";
+    dfnPanel.style.left = null;
+    dfnPanel.style.top = null;
+}
+
+function hideDfnPanel({dfn, dfnPanel}) {
+    if(!dfnPanel) dfnPanel = dfn.dfnPanel;
+    if(!dfn) dfn = dfnPanel.dfn;
+    dfn.dfnPanel = undefined;
+    dfnPanel.dfn = undefined;
+    dfn.setAttribute("aria-expanded", "false");
+    dfn.tabIndex = undefined;
+    dfnPanel.remove()
+}
+
+function toggleDfnPanel(dfn) {
+    if(dfn.dfnPanel) {
+        hideDfnPanel(dfn);
+    } else {
+        showDfnPanel(dfn);
+    }
+}
+
+function insertDfnPopupAction(dfn) {
+    dfn.setAttribute('role', 'button');
+    dfn.setAttribute('aria-expanded', 'false')
+    dfn.tabIndex = 0;
+    dfn.classList.add('has-dfn-panel');
+    dfn.addEventListener('click', (event) => {
+        toggleDfnPanel(dfn);
+        event.stopPropagation();
+    });
+    dfn.addEventListener('keypress', (event) => {
+        const kc = event.keyCode;
+        // 32->Space, 13->Enter
+        if(kc == 32 || kc == 13) {
+            toggleDfnPanel(dfn);
+            event.stopPropagation();
+            event.preventDefault();
+        }
+    });
+}
+
+function refocusOnTarget(event) {
+    const target = event.target;
+    setTimeout(() => {
+        // Refocus on the event.target element.
+        // This is needed after browser scrolls to the destination.
+        target.focus();
+    });
+}
+
+// TODO: shared util
+// Returns the root-level absolute position {left and top} of element.
+function getBounds(el, relativeTo=document.body) {
+    const relativeRect = relativeTo.getBoundingClientRect();
+    const elRect = el.getBoundingClientRect();
+    const top = elRect.top - relativeRect.top;
+    const left = elRect.left - relativeRect.left;
+    return {
+        top,
+        left,
+        bottom: top + elRect.height,
+        right: left + elRect.width,
+    }
+}
+
+function scrollToTargetAndHighlight(event) {
+    let hash = event.target.hash;
+    if (hash) {
+        hash = decodeURIComponent(hash.substring(1));
+        const dest = document.getElementById(hash);
+        if (dest) {
+            dest.classList.add('highlighted');
+            setTimeout(() => dest.classList.remove('highlighted'), 1000);
+        }
+    }
+}
+
+// Functions, divided by link type, that wrap an autolink's
+// contents with the appropriate outer syntax.
+// Alternately, a string naming another type they format
+// the same as.
+function needsFor(type) {
+    switch(type) {
+        case "descriptor":
+        case "value":
+        case "element-attr":
+        case "attr-value":
+        case "element-state":
+        case "method":
+        case "constructor":
+        case "argument":
+        case "attribute":
+        case "const":
+        case "dict-member":
+        case "event":
+        case "enum-value":
+        case "stringifier":
+        case "serializer":
+        case "iterator":
+        case "maplike":
+        case "setlike":
+        case "state":
+        case "mode":
+        case "context":
+        case "facet": return true;
+
+        default: return false;
+    }
+}
+function refusesFor(type) {
+    switch(type) {
+        case "property":
+        case "element":
+        case "interface":
+        case "namespace":
+        case "callback":
+        case "dictionary":
+        case "enum":
+        case "exception":
+        case "typedef":
+        case "http-header":
+        case "permission": return true;
+
+        default: return false;
+    }
+}
+function linkFormatterFromType(type) {
+    switch(type) {
+        case 'scheme':
+        case 'permission':
+        case 'dfn': return (text) => `[=${text}=]`;
+
+        case 'abstract-op': return (text) => `[\$${text}\$]`;
+
+        case 'function':
+        case 'at-rule':
+        case 'selector':
+        case 'value': return (text) => `''${text}''`;
+
+        case 'http-header': return (text) => `[:${text}:]`;
+
+        case 'interface':
+        case 'constructor':
+        case 'method':
+        case 'argument':
+        case 'attribute':
+        case 'callback':
+        case 'dictionary':
+        case 'dict-member':
+        case 'enum':
+        case 'enum-value':
+        case 'exception':
+        case 'const':
+        case 'typedef':
+        case 'stringifier':
+        case 'serializer':
+        case 'iterator':
+        case 'maplike':
+        case 'setlike':
+        case 'extended-attribute':
+        case 'event':
+        case 'idl': return (text) => `{{${text}}}`;
+
+        case 'element-state':
+        case 'element-attr':
+        case 'attr-value':
+        case 'element': return (element) => `<{${element}}>`;
+
+        case 'grammar': return (text) => `${text} (within a <pre class=prod>)`;
+
+        case 'type': return (text)=> `<<${text}>>`;
+
+        case 'descriptor':
+        case 'property': return (text) => `'${text}'`;
+
+        default: return;
+    };
+};
+
+function genLinkingSyntaxes(dfn) {
+    if(dfn.tagName != "DFN") return;
+
+    const type = dfn.getAttribute('data-dfn-type');
+    if(!type) {
+        console.log(`<dfn> doesn't have a data-dfn-type:`, dfn);
+        return [];
+    }
+
+    // Return a function that wraps link text based on the type
+    const linkFormatter = linkFormatterFromType(type);
+    if(!linkFormatter) {
+        console.log(`<dfn> has an unknown data-dfn-type:`, dfn);
+        return [];
+    }
+
+    let ltAlts;
+    if(dfn.hasAttribute('data-lt')) {
+        ltAlts = dfn.getAttribute('data-lt')
+            .split("|")
+            .map(x=>x.trim());
+    } else {
+        ltAlts = [dfn.textContent.trim()];
+    }
+    if(type == "type") {
+        // lt of "<foo>", but "foo" is the interior;
+        // <<foo/bar>> is how you write it with a for,
+        // not <foo/<bar>> or whatever.
+        for(var i = 0; i < ltAlts.length; i++) {
+            const lt = ltAlts[i];
+            const match = /<(.*)>/.exec(lt);
+            if(match) { ltAlts[i] = match[1]; }
+        }
+    }
+
+    let forAlts;
+    if(dfn.hasAttribute('data-dfn-for')) {
+        forAlts = dfn.getAttribute('data-dfn-for')
+            .split(",")
+            .map(x=>x.trim());
+    } else {
+        forAlts = [''];
+    }
+
+    let linkingSyntaxes = [];
+    if(!needsFor(type)) {
+        for(const lt of ltAlts) {
+            linkingSyntaxes.push(linkFormatter(lt));
+        }
+    }
+    if(!refusesFor(type)) {
+        for(const f of forAlts) {
+            linkingSyntaxes.push(linkFormatter(`${f}/${ltAlts[0]}`))
+        }
+    }
+    return [
+        mk.b({}, 'Possible linking syntaxes:'),
+        mk.ul({},
+            ...linkingSyntaxes.map(link => {
+                const copyLink = async () =>
+                    await navigator.clipboard.writeText(link);
+                return mk.li({},
+                    mk.div({ class: 'link-item' },
+                        mk.button({
+                            class: 'copy-icon', title: 'Copy',
+                            type: 'button',
+                            _onclick: copyLink,
+                            tabindex: 0,
+                        }, mk.span({ class: 'icon' }) ),
+                        mk.span({}, link)
+                    )
+                );
+            })
+        )
+    ];
+}
+}
+</script>
+<script>/* Boilerplate: script-ref-hints */
+"use strict";
+{
+let refsData = {
+"#callback-function-parent-task": {"displayText":"parent task","export":true,"for_":["callback function"],"level":"","normative":true,"shortname":"soft-navigations","spec":"soft-navigations","status":"local","text":"parent task","type":"dfn","url":"#callback-function-parent-task"},
+"#check-ancestor-for-task": {"displayText":"check ancestor for task","export":true,"for_":[],"level":"","normative":true,"shortname":"soft-navigations","spec":"soft-navigations","status":"local","text":"check ancestor for task","type":"dfn","url":"#check-ancestor-for-task"},
+"#check-ancestor-set-for-task": {"displayText":"check ancestor set for task","export":true,"for_":[],"level":"","normative":true,"shortname":"soft-navigations","spec":"soft-navigations","status":"local","text":"check ancestor set for task","type":"dfn","url":"#check-ancestor-set-for-task"},
+"#check-soft-navigation": {"displayText":"check soft navigation","export":true,"for_":[],"level":"","normative":true,"shortname":"soft-navigations","spec":"soft-navigations","status":"local","text":"check soft navigation","type":"dfn","url":"#check-soft-navigation"},
+"#check-soft-navigation-contentful-paint": {"displayText":"check soft navigation contentful paint","export":true,"for_":[],"level":"","normative":true,"shortname":"soft-navigations","spec":"soft-navigations","status":"local","text":"check soft navigation contentful paint","type":"dfn","url":"#check-soft-navigation-contentful-paint"},
+"#check-soft-navigation-same-document-commit": {"displayText":"check soft navigation same document commit","export":true,"for_":[],"level":"","normative":true,"shortname":"soft-navigations","spec":"soft-navigations","status":"local","text":"check soft navigation same document commit","type":"dfn","url":"#check-soft-navigation-same-document-commit"},
+"#concept-task-scope": {"displayText":"task scope","export":true,"for_":[],"level":"","normative":true,"shortname":"soft-navigations","spec":"soft-navigations","status":"local","text":"task scope","type":"dfn","url":"#concept-task-scope"},
+"#create-a-soft-navigation-entry": {"displayText":"create a soft navigation entry","export":true,"for_":[],"level":"","normative":true,"shortname":"soft-navigations","spec":"soft-navigations","status":"local","text":"create a soft navigation entry","type":"dfn","url":"#create-a-soft-navigation-entry"},
+"#create-a-task-scope": {"displayText":"create a task scope","export":true,"for_":[],"level":"","normative":true,"shortname":"soft-navigations","spec":"soft-navigations","status":"local","text":"create a task scope","type":"dfn","url":"#create-a-task-scope"},
+"#document-interaction-task-id-to-interaction-data": {"displayText":"interaction task id to interaction data","export":true,"for_":["document"],"level":"","normative":true,"shortname":"soft-navigations","spec":"soft-navigations","status":"local","text":"interaction task id to interaction data","type":"dfn","url":"#document-interaction-task-id-to-interaction-data"},
+"#document-last-interaction-task-id": {"displayText":"last interaction task id","export":true,"for_":["document"],"level":"","normative":true,"shortname":"soft-navigations","spec":"soft-navigations","status":"local","text":"last interaction task id","type":"dfn","url":"#document-last-interaction-task-id"},
+"#document-potential-soft-navigation-task-ids": {"displayText":"potential soft navigation task ids","export":true,"for_":["document"],"level":"","normative":true,"shortname":"soft-navigations","spec":"soft-navigations","status":"local","text":"potential soft navigation task ids","type":"dfn","url":"#document-potential-soft-navigation-task-ids"},
+"#document-task-id-to-interaction-task-id": {"displayText":"task id to interaction task id","export":true,"for_":["document"],"level":"","normative":true,"shortname":"soft-navigations","spec":"soft-navigations","status":"local","text":"task id to interaction task id","type":"dfn","url":"#document-task-id-to-interaction-task-id"},
+"#emit-soft-navigation-entry": {"displayText":"emit soft navigation entry","export":true,"for_":[],"level":"","normative":true,"shortname":"soft-navigations","spec":"soft-navigations","status":"local","text":"emit soft navigation entry","type":"dfn","url":"#emit-soft-navigation-entry"},
+"#get-current-interaction-data": {"displayText":"get current interaction data","export":true,"for_":[],"level":"","normative":true,"shortname":"soft-navigations","spec":"soft-navigations","status":"local","text":"get current interaction data","type":"dfn","url":"#get-current-interaction-data"},
+"#get-current-task": {"displayText":"get current task","export":true,"for_":[],"level":"","normative":true,"shortname":"soft-navigations","spec":"soft-navigations","status":"local","text":"get current task","type":"dfn","url":"#get-current-task"},
+"#get-current-task-id": {"displayText":"get current task id","export":true,"for_":[],"level":"","normative":true,"shortname":"soft-navigations","spec":"soft-navigations","status":"local","text":"get current task id","type":"dfn","url":"#get-current-task-id"},
+"#handle-event-callback": {"displayText":"handle event callback","export":true,"for_":[],"level":"","normative":true,"shortname":"soft-navigations","spec":"soft-navigations","status":"local","text":"handle event callback","type":"dfn","url":"#handle-event-callback"},
+"#interaction-data": {"displayText":"interaction data","export":true,"for_":[],"level":"","normative":true,"shortname":"soft-navigations","spec":"soft-navigations","status":"local","text":"interaction data","type":"dfn","url":"#interaction-data"},
+"#interaction-data-contentful-paint": {"displayText":"contentful paint","export":true,"for_":["interaction data"],"level":"","normative":true,"shortname":"soft-navigations","spec":"soft-navigations","status":"local","text":"contentful paint","type":"dfn","url":"#interaction-data-contentful-paint"},
+"#interaction-data-emitted": {"displayText":"emitted","export":true,"for_":["interaction data"],"level":"","normative":true,"shortname":"soft-navigations","spec":"soft-navigations","status":"local","text":"emitted","type":"dfn","url":"#interaction-data-emitted"},
+"#interaction-data-same-document-commit": {"displayText":"same document commit","export":true,"for_":["interaction data"],"level":"","normative":true,"shortname":"soft-navigations","spec":"soft-navigations","status":"local","text":"same document commit","type":"dfn","url":"#interaction-data-same-document-commit"},
+"#interaction-data-start-time": {"displayText":"start time","export":true,"for_":["interaction data"],"level":"","normative":true,"shortname":"soft-navigations","spec":"soft-navigations","status":"local","text":"start time","type":"dfn","url":"#interaction-data-start-time"},
+"#interaction-data-url": {"displayText":"url","export":true,"for_":["interaction data"],"level":"","normative":true,"shortname":"soft-navigations","spec":"soft-navigations","status":"local","text":"url","type":"dfn","url":"#interaction-data-url"},
+"#navigation-task": {"displayText":"navigation task","export":true,"for_":[],"level":"","normative":true,"shortname":"soft-navigations","spec":"soft-navigations","status":"local","text":"navigation task","type":"dfn","url":"#navigation-task"},
+"#node-appended-by-soft-navigation": {"displayText":"appended by soft navigation","export":true,"for_":["node"],"level":"","normative":true,"shortname":"soft-navigations","spec":"soft-navigations","status":"local","text":"appended by soft navigation","type":"dfn","url":"#node-appended-by-soft-navigation"},
+"#script-parent-task": {"displayText":"parent task","export":true,"for_":["script"],"level":"","normative":true,"shortname":"soft-navigations","spec":"soft-navigations","status":"local","text":"parent task","type":"dfn","url":"#script-parent-task"},
+"#softnavigationentry": {"displayText":"SoftNavigationEntry","export":true,"for_":[],"level":"","normative":true,"shortname":"soft-navigations","spec":"soft-navigations","status":"local","text":"SoftNavigationEntry","type":"interface","url":"#softnavigationentry"},
+"#task-parent-task": {"displayText":"parent task","export":true,"for_":["task"],"level":"","normative":true,"shortname":"soft-navigations","spec":"soft-navigations","status":"local","text":"parent task","type":"dfn","url":"#task-parent-task"},
+"#task-scope-stack": {"displayText":"task scope stack","export":true,"for_":[],"level":"","normative":true,"shortname":"soft-navigations","spec":"soft-navigations","status":"local","text":"task scope stack","type":"dfn","url":"#task-scope-stack"},
+"#task-scope-task": {"displayText":"task","export":true,"for_":["task scope"],"level":"","normative":true,"shortname":"soft-navigations","spec":"soft-navigations","status":"local","text":"task","type":"dfn","url":"#task-scope-task"},
+"#task-task-attribution-id": {"displayText":"task attribution id","export":true,"for_":["task"],"level":"","normative":true,"shortname":"soft-navigations","spec":"soft-navigations","status":"local","text":"task attribution id","type":"dfn","url":"#task-task-attribution-id"},
+"#tear-down-a-task-scope": {"displayText":"tear down a task scope","export":true,"for_":[],"level":"","normative":true,"shortname":"soft-navigations","spec":"soft-navigations","status":"local","text":"tear down a task scope","type":"dfn","url":"#tear-down-a-task-scope"},
+"#terminate-event-callback-handling": {"displayText":"terminate event callback handling","export":true,"for_":[],"level":"","normative":true,"shortname":"soft-navigations","spec":"soft-navigations","status":"local","text":"terminate event callback handling","type":"dfn","url":"#terminate-event-callback-handling"},
+"https://dom.spec.whatwg.org/#boundary-point-node": {"displayText":"node","export":true,"for_":["boundary point"],"level":"1","normative":true,"shortname":"dom","spec":"dom","status":"current","text":"node","type":"dfn","url":"https://dom.spec.whatwg.org/#boundary-point-node"},
+"https://dom.spec.whatwg.org/#clone-a-node-document": {"displayText":"document","export":true,"for_":["clone a node"],"level":"1","normative":true,"shortname":"dom","spec":"dom","status":"current","text":"document","type":"dfn","url":"https://dom.spec.whatwg.org/#clone-a-node-document"},
+"https://dom.spec.whatwg.org/#concept-element": {"displayText":"element","export":true,"for_":[],"level":"1","normative":true,"shortname":"dom","spec":"dom","status":"current","text":"element","type":"dfn","url":"https://dom.spec.whatwg.org/#concept-element"},
+"https://dom.spec.whatwg.org/#concept-event-dispatch": {"displayText":"event dispatch","export":true,"for_":[],"level":"","normative":true,"shortname":"dom","spec":"dom","status":"anchor-block","text":"event dispatch","type":"dfn","url":"https://dom.spec.whatwg.org/#concept-event-dispatch"},
+"https://dom.spec.whatwg.org/#concept-node-document": {"displayText":"node document","export":true,"for_":["Node"],"level":"1","normative":true,"shortname":"dom","spec":"dom","status":"current","text":"node document","type":"dfn","url":"https://dom.spec.whatwg.org/#concept-node-document"},
+"https://dom.spec.whatwg.org/#concept-node-equals": {"displayText":"equals","export":true,"for_":["Node"],"level":"1","normative":true,"shortname":"dom","spec":"dom","status":"current","text":"equals","type":"dfn","url":"https://dom.spec.whatwg.org/#concept-node-equals"},
+"https://dom.spec.whatwg.org/#concept-node-insert": {"displayText":"node insert","export":true,"for_":[],"level":"","normative":true,"shortname":"dom","spec":"dom","status":"anchor-block","text":"node insert","type":"dfn","url":"https://dom.spec.whatwg.org/#concept-node-insert"},
+"https://dom.spec.whatwg.org/#dom-event-istrusted": {"displayText":"isTrusted","export":true,"for_":[],"level":"","normative":true,"shortname":"dom","spec":"dom","status":"anchor-block","text":"istrusted","type":"dfn","url":"https://dom.spec.whatwg.org/#dom-event-istrusted"},
+"https://dom.spec.whatwg.org/#eventtarget": {"displayText":"EventTarget","export":true,"for_":[],"level":"1","normative":true,"shortname":"dom","spec":"dom","status":"current","text":"EventTarget","type":"interface","url":"https://dom.spec.whatwg.org/#eventtarget"},
+"https://fetch.spec.whatwg.org/#header-list-contains": {"displayText":"contains","export":true,"for_":["header list"],"level":"1","normative":true,"shortname":"fetch","spec":"fetch","status":"current","text":"contains","type":"dfn","url":"https://fetch.spec.whatwg.org/#header-list-contains"},
+"https://html.spec.whatwg.org/C#apply-the-history-step": {"displayText":"apply the history step","export":true,"for_":[],"level":"","normative":true,"shortname":"html","spec":"html","status":"anchor-block","text":"apply the history step","type":"dfn","url":"https://html.spec.whatwg.org/C#apply-the-history-step"},
+"https://html.spec.whatwg.org/C#execute-the-script-element": {"displayText":"execute the script element","export":true,"for_":[],"level":"","normative":true,"shortname":"html","spec":"html","status":"anchor-block","text":"execute the script element","type":"dfn","url":"https://html.spec.whatwg.org/C#execute-the-script-element"},
+"https://html.spec.whatwg.org/C#hostcalljobcallback": {"displayText":"hostcalljobcallback","export":true,"for_":[],"level":"","normative":true,"shortname":"html","spec":"html","status":"anchor-block","text":"hostcalljobcallback","type":"dfn","url":"https://html.spec.whatwg.org/C#hostcalljobcallback"},
+"https://html.spec.whatwg.org/C#hostmakejobcallback": {"displayText":"HostMakeJobCallback","export":true,"for_":[],"level":"","normative":true,"shortname":"html","spec":"html","status":"anchor-block","text":"hostmakejobcallback","type":"dfn","url":"https://html.spec.whatwg.org/C#hostmakejobcallback"},
+"https://html.spec.whatwg.org/C#message-port-post-message-steps": {"displayText":"message port post message steps","export":true,"for_":[],"level":"","normative":true,"shortname":"html","spec":"html","status":"anchor-block","text":"message port post message steps","type":"dfn","url":"https://html.spec.whatwg.org/C#message-port-post-message-steps"},
+"https://html.spec.whatwg.org/C#navigate-fragid": {"displayText":"navigate to a fragment","export":true,"for_":[],"level":"","normative":true,"shortname":"html","spec":"html","status":"anchor-block","text":"navigate to a fragment","type":"dfn","url":"https://html.spec.whatwg.org/C#navigate-fragid"},
+"https://html.spec.whatwg.org/C#prepare-the-script-element": {"displayText":"prepare the script element","export":true,"for_":[],"level":"","normative":true,"shortname":"html","spec":"html","status":"anchor-block","text":"prepare the script element","type":"dfn","url":"https://html.spec.whatwg.org/C#prepare-the-script-element"},
+"https://html.spec.whatwg.org/C#she-url": {"displayText":"session history entry url","export":true,"for_":[],"level":"","normative":true,"shortname":"html","spec":"html","status":"anchor-block","text":"session history entry url","type":"dfn","url":"https://html.spec.whatwg.org/C#she-url"},
+"https://html.spec.whatwg.org/C#timer-initialisation-steps": {"displayText":"timer initialisation steps","export":true,"for_":[],"level":"","normative":true,"shortname":"html","spec":"html","status":"anchor-block","text":"timer initialisation steps","type":"dfn","url":"https://html.spec.whatwg.org/C#timer-initialisation-steps"},
+"https://html.spec.whatwg.org/C#tn-append-session-history-sync-nav-steps": {"displayText":"append session history synchronous navigation steps","export":true,"for_":[],"level":"","normative":true,"shortname":"html","spec":"html","status":"anchor-block","text":"append session history synchronous navigation steps","type":"dfn","url":"https://html.spec.whatwg.org/C#tn-append-session-history-sync-nav-steps"},
+"https://html.spec.whatwg.org/C#tn-append-session-history-traversal-steps": {"displayText":"append session history traversal steps","export":true,"for_":[],"level":"","normative":true,"shortname":"html","spec":"html","status":"anchor-block","text":"append session history traversal steps","type":"dfn","url":"https://html.spec.whatwg.org/C#tn-append-session-history-traversal-steps"},
+"https://html.spec.whatwg.org/C#top-level-traversable": {"displayText":"top-level traversable","export":true,"for_":[],"level":"","normative":true,"shortname":"html","spec":"html","status":"anchor-block","text":"top-level traversable","type":"dfn","url":"https://html.spec.whatwg.org/C#top-level-traversable"},
+"https://html.spec.whatwg.org/C#update-document-for-history-step-application": {"displayText":"update document for history step application","export":true,"for_":[],"level":"","normative":true,"shortname":"html","spec":"html","status":"anchor-block","text":"update document for history step application","type":"dfn","url":"https://html.spec.whatwg.org/C#update-document-for-history-step-application"},
+"https://html.spec.whatwg.org/multipage/document-sequences.html#traversable-navigable": {"displayText":"traversable navigable","export":true,"for_":[],"level":"1","normative":true,"shortname":"html","spec":"html","status":"current","text":"traversable navigable","type":"dfn","url":"https://html.spec.whatwg.org/multipage/document-sequences.html#traversable-navigable"},
+"https://html.spec.whatwg.org/multipage/nav-history-apis.html#concept-document-window": {"displayText":"associated Document","export":true,"for_":[],"level":"1","normative":true,"shortname":"html","spec":"html","status":"current","text":"associated document","type":"dfn","url":"https://html.spec.whatwg.org/multipage/nav-history-apis.html#concept-document-window"},
+"https://html.spec.whatwg.org/multipage/sections.html#htmlbodyelement": {"displayText":"HTMLBodyElement","export":true,"for_":[],"level":"1","normative":true,"shortname":"html","spec":"html","status":"current","text":"HTMLBodyElement","type":"interface","url":"https://html.spec.whatwg.org/multipage/sections.html#htmlbodyelement"},
+"https://html.spec.whatwg.org/multipage/webappapis.html#clean-up-after-running-a-callback": {"displayText":"clean up after running a callback","export":true,"for_":[],"level":"1","normative":true,"shortname":"html","spec":"html","status":"current","text":"clean up after running a callback","type":"dfn","url":"https://html.spec.whatwg.org/multipage/webappapis.html#clean-up-after-running-a-callback"},
+"https://html.spec.whatwg.org/multipage/webappapis.html#concept-agent-event-loop": {"displayText":"event loop","export":true,"for_":["agent"],"level":"1","normative":true,"shortname":"html","spec":"html","status":"current","text":"event loop","type":"dfn","url":"https://html.spec.whatwg.org/multipage/webappapis.html#concept-agent-event-loop"},
+"https://html.spec.whatwg.org/multipage/webappapis.html#concept-global-object-realm": {"displayText":"realm","export":true,"for_":["global object"],"level":"1","normative":true,"shortname":"html","spec":"html","status":"current","text":"realm","type":"dfn","url":"https://html.spec.whatwg.org/multipage/webappapis.html#concept-global-object-realm"},
+"https://html.spec.whatwg.org/multipage/webappapis.html#concept-relevant-global": {"displayText":"relevant global object","export":true,"for_":[],"level":"1","normative":true,"shortname":"html","spec":"html","status":"current","text":"relevant global object","type":"dfn","url":"https://html.spec.whatwg.org/multipage/webappapis.html#concept-relevant-global"},
+"https://html.spec.whatwg.org/multipage/webappapis.html#concept-script": {"displayText":"script","export":true,"for_":[],"level":"1","normative":true,"shortname":"html","spec":"html","status":"current","text":"script","type":"dfn","url":"https://html.spec.whatwg.org/multipage/webappapis.html#concept-script"},
+"https://html.spec.whatwg.org/multipage/webappapis.html#concept-task": {"displayText":"task","export":true,"for_":[],"level":"1","normative":true,"shortname":"html","spec":"html","status":"current","text":"task","type":"dfn","url":"https://html.spec.whatwg.org/multipage/webappapis.html#concept-task"},
+"https://html.spec.whatwg.org/multipage/webappapis.html#event-loop": {"displayText":"event loop","export":true,"for_":[],"level":"1","normative":true,"shortname":"html","spec":"html","status":"current","text":"event loop","type":"dfn","url":"https://html.spec.whatwg.org/multipage/webappapis.html#event-loop"},
+"https://html.spec.whatwg.org/multipage/webappapis.html#global-object": {"displayText":"global object","export":true,"for_":[],"level":"1","normative":true,"shortname":"html","spec":"html","status":"current","text":"global object","type":"dfn","url":"https://html.spec.whatwg.org/multipage/webappapis.html#global-object"},
+"https://html.spec.whatwg.org/multipage/webappapis.html#queue-a-task": {"displayText":"queue a task","export":true,"for_":[],"level":"1","normative":true,"shortname":"html","spec":"html","status":"current","text":"queue a task","type":"dfn","url":"https://html.spec.whatwg.org/multipage/webappapis.html#queue-a-task"},
+"https://html.spec.whatwg.org/multipage/webappapis.html#relevant-agent": {"displayText":"relevant agent","export":true,"for_":[],"level":"1","normative":true,"shortname":"html","spec":"html","status":"current","text":"relevant agent","type":"dfn","url":"https://html.spec.whatwg.org/multipage/webappapis.html#relevant-agent"},
+"https://infra.spec.whatwg.org/#implementation-defined": {"displayText":"implementation-defined","export":true,"for_":[],"level":"1","normative":true,"shortname":"infra","spec":"infra","status":"current","text":"implementation-defined","type":"dfn","url":"https://infra.spec.whatwg.org/#implementation-defined"},
+"https://infra.spec.whatwg.org/#map-exists": {"displayText":"exist","export":true,"for_":["map"],"level":"1","normative":true,"shortname":"infra","spec":"infra","status":"current","text":"exist","type":"dfn","url":"https://infra.spec.whatwg.org/#map-exists"},
+"https://infra.spec.whatwg.org/#map-set": {"displayText":"set","export":true,"for_":["map"],"level":"1","normative":true,"shortname":"infra","spec":"infra","status":"current","text":"set","type":"dfn","url":"https://infra.spec.whatwg.org/#map-set"},
+"https://infra.spec.whatwg.org/#ordered-map": {"displayText":"map","export":true,"for_":[],"level":"1","normative":true,"shortname":"infra","spec":"infra","status":"current","text":"map","type":"dfn","url":"https://infra.spec.whatwg.org/#ordered-map"},
+"https://infra.spec.whatwg.org/#ordered-set": {"displayText":"set","export":true,"for_":[],"level":"1","normative":true,"shortname":"infra","spec":"infra","status":"current","text":"set","type":"dfn","url":"https://infra.spec.whatwg.org/#ordered-set"},
+"https://infra.spec.whatwg.org/#set-append": {"displayText":"append","export":true,"for_":["set"],"level":"1","normative":true,"shortname":"infra","spec":"infra","status":"current","text":"append","type":"dfn","url":"https://infra.spec.whatwg.org/#set-append"},
+"https://infra.spec.whatwg.org/#stack": {"displayText":"stack","export":true,"for_":[],"level":"1","normative":true,"shortname":"infra","spec":"infra","status":"current","text":"stack","type":"dfn","url":"https://infra.spec.whatwg.org/#stack"},
+"https://infra.spec.whatwg.org/#stack-peek": {"displayText":"peek","export":true,"for_":["stack"],"level":"1","normative":true,"shortname":"infra","spec":"infra","status":"current","text":"peek","type":"dfn","url":"https://infra.spec.whatwg.org/#stack-peek"},
+"https://infra.spec.whatwg.org/#string": {"displayText":"string","export":true,"for_":[],"level":"1","normative":true,"shortname":"infra","spec":"infra","status":"current","text":"string","type":"dfn","url":"https://infra.spec.whatwg.org/#string"},
+"https://infra.spec.whatwg.org/#struct": {"displayText":"struct","export":true,"for_":[],"level":"1","normative":true,"shortname":"infra","spec":"infra","status":"current","text":"struct","type":"dfn","url":"https://infra.spec.whatwg.org/#struct"},
+"https://infra.spec.whatwg.org/#struct-item": {"displayText":"item","export":true,"for_":["struct","tuple"],"level":"1","normative":true,"shortname":"infra","spec":"infra","status":"current","text":"item","type":"dfn","url":"https://infra.spec.whatwg.org/#struct-item"},
+"https://w3c.github.io/event-timing/#has-dispatched-input-event": {"displayText":"has dispatched input event","export":true,"for_":[],"level":"","normative":true,"shortname":"soft-navigations","spec":"","status":"anchor-block","text":"has dispatched input event","type":"dfn","url":"https://w3c.github.io/event-timing/#has-dispatched-input-event"},
+"https://w3c.github.io/hr-time/#dfn-current-high-resolution-time": {"displayText":"current high resolution time","export":true,"for_":[],"level":"3","normative":true,"shortname":"hr-time","spec":"hr-time-3","status":"current","text":"current high resolution time","type":"dfn","url":"https://w3c.github.io/hr-time/#dfn-current-high-resolution-time"},
+"https://w3c.github.io/hr-time/#dfn-duration": {"displayText":"duration","export":true,"for_":[],"level":"3","normative":true,"shortname":"hr-time","spec":"hr-time-3","status":"current","text":"duration","type":"dfn","url":"https://w3c.github.io/hr-time/#dfn-duration"},
+"https://w3c.github.io/hr-time/#typedefdef-domhighrestimestamp": {"displayText":"DOMHighResTimeStamp","export":true,"for_":[],"level":"3","normative":true,"shortname":"hr-time","spec":"hr-time-3","status":"current","text":"DOMHighResTimeStamp","type":"typedef","url":"https://w3c.github.io/hr-time/#typedefdef-domhighrestimestamp"},
+"https://w3c.github.io/largest-contentful-paint/#has-dispatched-scroll-event": {"displayText":"has dispatched scroll event","export":true,"for_":[],"level":"","normative":true,"shortname":"soft-navigations","spec":"","status":"anchor-block","text":"has dispatched scroll event","type":"dfn","url":"https://w3c.github.io/largest-contentful-paint/#has-dispatched-scroll-event"},
+"https://w3c.github.io/performance-timeline/#dfn-queue-a-performanceentry": {"displayText":"queue a PerformanceEntry","export":true,"for_":[],"level":"1","normative":true,"shortname":"performance-timeline","spec":"performance-timeline","status":"current","text":"queue a performanceentry","type":"dfn","url":"https://w3c.github.io/performance-timeline/#dfn-queue-a-performanceentry"},
+"https://w3c.github.io/performance-timeline/#dom-performanceentry-duration": {"displayText":"duration","export":true,"for_":["PerformanceEntry"],"level":"1","normative":true,"shortname":"performance-timeline","spec":"performance-timeline","status":"current","text":"duration","type":"attribute","url":"https://w3c.github.io/performance-timeline/#dom-performanceentry-duration"},
+"https://w3c.github.io/performance-timeline/#dom-performanceentry-entrytype": {"displayText":"entryType","export":true,"for_":["PerformanceEntry"],"level":"1","normative":true,"shortname":"performance-timeline","spec":"performance-timeline","status":"current","text":"entryType","type":"attribute","url":"https://w3c.github.io/performance-timeline/#dom-performanceentry-entrytype"},
+"https://w3c.github.io/performance-timeline/#dom-performanceentry-name": {"displayText":"name","export":true,"for_":["PerformanceEntry"],"level":"1","normative":true,"shortname":"performance-timeline","spec":"performance-timeline","status":"current","text":"name","type":"attribute","url":"https://w3c.github.io/performance-timeline/#dom-performanceentry-name"},
+"https://w3c.github.io/performance-timeline/#dom-performanceentry-starttime": {"displayText":"startTime","export":true,"for_":["PerformanceEntry"],"level":"1","normative":true,"shortname":"performance-timeline","spec":"performance-timeline","status":"current","text":"startTime","type":"attribute","url":"https://w3c.github.io/performance-timeline/#dom-performanceentry-starttime"},
+"https://w3c.github.io/performance-timeline/#performance-entry-buffer": {"displayText":"performance entry buffer","export":true,"for_":[],"level":"1","normative":true,"shortname":"performance-timeline","spec":"performance-timeline","status":"current","text":"performance entry buffer","type":"dfn","url":"https://w3c.github.io/performance-timeline/#performance-entry-buffer"},
+"https://w3c.github.io/performance-timeline/#performanceentry": {"displayText":"PerformanceEntry","export":true,"for_":[],"level":"1","normative":true,"shortname":"performance-timeline","spec":"performance-timeline","status":"current","text":"PerformanceEntry","type":"interface","url":"https://w3c.github.io/performance-timeline/#performanceentry"},
+"https://webidl.spec.whatwg.org/#Exposed": {"displayText":"Exposed","export":true,"for_":[],"level":"1","normative":true,"shortname":"webidl","spec":"webidl","status":"current","text":"Exposed","type":"extended-attribute","url":"https://webidl.spec.whatwg.org/#Exposed"},
+"https://webidl.spec.whatwg.org/#call-a-user-objects-operation": {"displayText":"call a user object's operation","export":true,"for_":[],"level":"1","normative":true,"shortname":"webidl","spec":"webidl","status":"current","text":"call a user object's operation","type":"dfn","url":"https://webidl.spec.whatwg.org/#call-a-user-objects-operation"},
+"https://webidl.spec.whatwg.org/#dfn-callback-function": {"displayText":"callback function","export":true,"for_":[],"level":"1","normative":true,"shortname":"webidl","spec":"webidl","status":"current","text":"callback function","type":"dfn","url":"https://webidl.spec.whatwg.org/#dfn-callback-function"},
+"https://webidl.spec.whatwg.org/#invoke-a-callback-function": {"displayText":"invoke","export":true,"for_":[],"level":"1","normative":true,"shortname":"webidl","spec":"webidl","status":"current","text":"invoke","type":"dfn","url":"https://webidl.spec.whatwg.org/#invoke-a-callback-function"},
+"https://www.w3.org/TR/css-view-transitions-1/#dom-document-startviewtransition": {"displayText":"startViewTransition()","export":true,"for_":[],"level":"","normative":true,"shortname":"soft-navigations","spec":"","status":"anchor-block","text":"startviewtransition()","type":"dfn","url":"https://www.w3.org/TR/css-view-transitions-1/#dom-document-startviewtransition"},
+"https://www.w3.org/TR/paint-timing/#previously-reported-paints": {"displayText":"previously reported paints","export":true,"for_":[],"level":"","normative":true,"shortname":"soft-navigations","spec":"","status":"anchor-block","text":"previously reported paints","type":"dfn","url":"https://www.w3.org/TR/paint-timing/#previously-reported-paints"},
+};
+
+function mkRefHint(link, ref) {
+    const linkText = link.textContent;
+    let dfnTextElements = '';
+    if (ref.displayText.toLowerCase() != linkText.toLowerCase()) {
+        // Give the original term if it's being displayed in a different way.
+        // But allow casing differences, they're insignificant.
+        dfnTextElements =
+            mk.li({},
+                mk.b({}, "Term: "),
+                mk.span({}, ref.displayText)
+            );
+    }
+    const forList = ref.for_;
+    let forListElements;
+    if(forList.length == 0) {
+        forListElements = [];
+    } else if(forList.length == 1) {
+        forListElements = mk.li({},
+            mk.b({}, "For: "),
+            mk.span({}, forList[0]),
+        );
+    } else {
+        forListElements = mk.li({},
+            mk.b({}, "For: "),
+            mk.ul({},
+                ...forList.map(forItem =>
+                    mk.li({},
+                        mk.span({}, forItem)
+                    ),
+                ),
+            ),
+        );
+    }
+    const url = ref.url;
+    const safeUrl = encodeURIComponent(url);
+    const hintPanel = mk.aside({
+        class: "ref-hint",
+        id: `ref-hint-for-${safeUrl}`,
+        "data-for": url,
+        "aria-labelled-by": `ref-hint-for-${safeUrl}`,
+    },
+        mk.ul({},
+            dfnTextElements,
+            mk.li({},
+                mk.b({}, "URL: "),
+                mk.a({ href: url, class: "ref" }, url),
+            ),
+            mk.li({},
+                mk.b({}, "Type: "),
+                mk.span({}, `${ref.type}`),
+            ),
+            mk.li({},
+                mk.b({}, "Spec: "),
+                mk.span({}, `${ref.spec ? ref.spec : ''}`),
+            ),
+            forListElements
+        ),
+    );
+    hintPanel.forLink = link;
+    setupRefHintEventListeners(link, hintPanel);
+    return hintPanel;
+}
+
+function hideAllRefHints() {
+    queryAll(".ref-hint").forEach(el=>hideRefHint(el));
+}
+
+function hideRefHint(refHint) {
+    const link = refHint.forLink;
+    link.setAttribute("aria-expanded", "false");
+    if(refHint.teardownEventListeners) {
+        refHint.teardownEventListeners();
+    }
+    refHint.remove();
+}
+
+function showRefHint(link) {
+    if(link.classList.contains("dfn-link")) return;
+    const url = link.getAttribute("href");
+    const refHintKey = link.getAttribute("data-refhint-key");
+    let key = url;
+    if(refHintKey) {
+        key = refHintKey + "_" + url;
+    }
+    const ref = refsData[key];
+    if(!ref) return;
+
+    hideAllRefHints(); // Only display one at this time.
+
+    const refHint = mkRefHint(link, ref);
+    append(document.body, refHint);
+    link.setAttribute("aria-expanded", "true");
+    positionRefHint(refHint);
+}
+
+function setupRefHintEventListeners(link, refHint) {
+    if (refHint.teardownEventListeners) return;
+    // Add event handlers to hide the refHint after the user moves away
+    // from both the link and refHint, if not hovering either within one second.
+    let timeout = null;
+    const startHidingRefHint = (event) => {
+        if (timeout) {
+            clearTimeout(timeout);
+        }
+        timeout = setTimeout(() => {
+            hideRefHint(refHint);
+        }, 1000);
+    }
+    const resetHidingRefHint = (event) => {
+        if (timeout) clearTimeout(timeout);
+        timeout = null;
+    };
+    link.addEventListener("mouseleave", startHidingRefHint);
+    link.addEventListener("mouseenter", resetHidingRefHint);
+    link.addEventListener("blur", startHidingRefHint);
+    link.addEventListener("focus", resetHidingRefHint);
+    refHint.addEventListener("mouseleave", startHidingRefHint);
+    refHint.addEventListener("mouseenter", resetHidingRefHint);
+    refHint.addEventListener("blur", startHidingRefHint);
+    refHint.addEventListener("focus", resetHidingRefHint);
+
+    refHint.teardownEventListeners = () => {
+        // remove event listeners
+        resetHidingRefHint();
+        link.removeEventListener("mouseleave", startHidingRefHint);
+        link.removeEventListener("mouseenter", resetHidingRefHint);
+        link.removeEventListener("blur", startHidingRefHint);
+        link.removeEventListener("focus", resetHidingRefHint);
+        refHint.removeEventListener("mouseleave", startHidingRefHint);
+        refHint.removeEventListener("mouseenter", resetHidingRefHint);
+        refHint.removeEventListener("blur", startHidingRefHint);
+        refHint.removeEventListener("focus", resetHidingRefHint);
+    };
+}
+
+function positionRefHint(refHint) {
+    const link = refHint.forLink;
+    const linkPos = getBounds(link);
+    refHint.style.top = linkPos.bottom + "px";
+    refHint.style.left = linkPos.left + "px";
+
+    const panelPos = refHint.getBoundingClientRect();
+    const panelMargin = 8;
+    const maxRight = document.body.parentNode.clientWidth - panelMargin;
+    if (panelPos.right > maxRight) {
+        const overflowAmount = panelPos.right - maxRight;
+        const newLeft = Math.max(panelMargin, linkPos.left - overflowAmount);
+        refHint.style.left = newLeft + "px";
+    }
+}
+
+// TODO: shared util
+// Returns the root-level absolute position {left and top} of element.
+function getBounds(el, relativeTo=document.body) {
+    const relativeRect = relativeTo.getBoundingClientRect();
+    const elRect = el.getBoundingClientRect();
+    const top = elRect.top - relativeRect.top;
+    const left = elRect.left - relativeRect.left;
+    return {
+        top,
+        left,
+        bottom: top + elRect.height,
+        right: left + elRect.width,
+    }
+}
+
+function showRefHintListener(e) {
+    // If the target isn't in a link (or is a link),
+    // just ignore it.
+    let link = e.target.closest("a");
+    if(!link) return;
+
+    // If the target is in a ref-hint panel
+    // (aka a link in the already-open one),
+    // also just ignore it.
+    if(link.closest(".ref-hint")) return;
+
+    // Otherwise, show the panel for the link.
+    showRefHint(link);
+}
+
+function hideAllHintsListener(e) {
+    // If the click is inside a ref-hint panel, ignore it.
+    if(e.target.closest(".ref-hint")) return;
+    // Otherwise, close all the current panels.
+    hideAllRefHints();
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+    document.body.addEventListener("mousedown", showRefHintListener);
+    document.body.addEventListener("focus", showRefHintListener);
+
+    document.body.addEventListener("click", hideAllHintsListener);
+});
+
+window.addEventListener("resize", () => {
+    // Hide any open ref hint.
+    hideAllRefHints();
+});
 }
 </script>
