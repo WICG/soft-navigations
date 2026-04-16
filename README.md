@@ -1,154 +1,82 @@
-# Soft Navigations
+# Soft Navigations and Interaction Contentful Paint
 
 ## Overview
 
-“Soft navigations” are user-initiated but JS-driven same-document navigations.
+The web performance timeline has an existing rich set of capabilities for measuring the performance of page loads that help developers monitor, understand, and improve user experience.  For example: First Contenful Paint (FCP) and Largest Contentful Paint (LCP) are an interoperable set of metrics for reporting on these experiences across browsers.
 
-The Soft Navigation API considers a "soft navigation" when the following occurs:
+However, modern web applications often dynamically update contents of the document in response to user interactions without performing a full cross-document navigation-- no new page load.  Thus, they do not benefit from many of the existing web performance timeline features, which only report performance of cross-document page loads.
 
-- A user-initiated interaction occurs,
-- … which results in DOM modifications that lead to sufficiently contentful paints,
-- … and a URL update occurs, which changes the history state.
+This is especially true for apps built using JavaScript driven, client-side component rendering frameworks.
 
-(Notice: URL updates without a user interaction, or without content updates, aren't measured.)
+This repository hosts a specification for two new PerformanceEntry types:
 
-[PerformanceTimeline#168](https://github.com/w3c/performance-timeline/issues/168) outlines the desire to be able to better report performance metrics on soft navigation. Heuristics for detecting soft navigations can ensure that developers can measure their SPA’s performance metrics, and optimize them to benefit their users.
+1. **`InteractionContentfulPaint`**: Reports contentful paint updates within the same document that are initiated by user interactions (similar to LCP).
+
+2. **`SoftNavigationEntry`**: Reports user-initiated same-document navigations (an alternative to the Navigation Timing API).
+
+...as well as modifications to existing specifications to support these use cases, such as adding a `navigationId` to all PerformanceEntry types.
 
 ## Motivation
 
-Why would we want to web-expose soft navigation at all, you ask?
+Existing web performance metrics like **Largest Contentful Paint (LCP)**, **Interaction to Next Paint (INP)** and **Cumulative Layout Shift (CLS)** leave a gap in measuring dynamic page updates:
 
-Well, a few reasons:
+- **LCP** only measures the initial page load. Subsequent "soft" navigations in an SPA do not currently trigger new LCP entries.
+- **CLS** measures layout instability across the entire page lifespan. However, without soft navigation boundaries, it is difficult to attribute layout shifts to specific user journeys based on specific interactions and resulting URL changes.
+- **INP** measures the latency of the immediate visual feedback of user interactions, but does not capture any asynchrnously scheduled subsequent rendering of rich content updates (e.g., a product page loading after network response), which is an equally important part of user experience.  Similar to CLS, INP also measures across the entire page lifespan, but does not typically attribute interactions to specific URLs.
 
-- Developers would like to attribute various performance entries to specific “soft navigation” URLs. For example, layout shifts caused in one URL can currently be attributed to the corresponding landing page, resulting in mis-attribution and trouble finding the real cause and fixing it.
-- Developers would like to receive various “load” performance entries for soft navigations. Specifically, paint timing entries seem desired for such navigations.
+**Example Scenario:** A user clicks a product link in a Single Page Application (SPA). A `click` handler initiates a network `fetch()`. When the response arrives, a callback dynamically injects the new content into the DOM and updates the URL.
+- To the user, this is a navigation.
+- To existing metrics, the "paint" happens long after the interaction is "over."
+- To the performance timeline, the new URL is irrelevant, and many RUM products continue to beacont to the initial page.
 
-From a user's perspective, while they don't necessarily care about the architecture of the site they're visiting, they likely care about it being fast. This specification would enable alignment of the measurements with the user experience, improving the chances of SPA sites being perceived as fast by their users.
+The InteractionContentfulPaint specification bridges that gap by attributing the late-arriving paint back to the initiating click, and the SoftNavigation specification assists group existing performance entries for improved URL attribution.
 
-## Goals
+## How it Works
 
-- Enable measurement of Single-Page app performance in the wild for today's apps.
-- Enable such measurement at scale - allowing the team that owns the measurement to be decoupled from the team that owns the app's logic.
-- Not rely on developers annotating soft navigations themselves.
+This specification brings together several web platform capabilities to measure dynamic page updates:
 
-## Processing Model
+- **Event Timing**: User interactions (like clicks) are identified and assigned an `interactionId`.  We also extend Event Timing to add support for `navigate`, `popstate`, and `hashchange` events.
+- **AsyncContext**: Each interaction is assigned a new `InteractionContext`. This context is automatically propagated through asynchronous operations (like `fetch()` or `setTimeout`), ensuring that the eventual effects can be attributed back to the original user interaction.
+- **Container Timing**: This specification leverages some parts of the experimental Container Timing specification to help track contentful paints within the DOM subtrees that are marked as "container roots" and are attributed to an interaction context.
+- **Navigation API**: Although the use of the new Navigation API is not required by developers, it provides a more robust and consistent way to define same document navigations, and their attributes.
 
-1. A User _initiates_ a soft navigation via an Interaction with the page.
+Leveraging these primitives:
 
-   - For example: clicking on a `<a href>` link, button, submitting a `<form>`, clicking the browser back button (or using gestures), or using keyboard shortcuts.
-   - Note: Navigations without Interactions are explicitly not considered.
-
-1. That operation results in an event handler firing.
-
-   - For example: `“click”`, `“navigate”`, `"keydown"` events, etc.
-
-1. We establish an Interaction "Context", wrapping those event handlers, and which also _persists across the scheduling of new tasks_.
-
-   - For example: `setTimeout()` or `fetch()` calls, `await` keyword, etc.
-   - See related proposal for explicit `AsyncContext` API.
-
-1. We observe certain direct modifications to the document structure.
-
-   - For example, via `history.pushState()`.
-   - For example, via `element.appendChild()`, or changes to attributes i.e. `<img src="...">`.
-
-1. When such effects happen, if the actively running Task was scheduled with an active Interaction "Context", we can _attribute effects_ to that context.
-
-   - Thus, each Context is assigned the set of effects it caused. The "Soft navigation heuristics" is really just a small set of necessary effects that a single Context must have.
-
-1. We also _attribute contentful paints_ for the parts of the dom that were directly modified with the context, and report them to the performance timeline.
-
-   - `InteractionContentfulPaint` entries are reported, for any Element that was directly modified, or was _part of a Container_ that was directly modified by the Interaction.
-
-1. When all criteria are met-- A real user Interaction leads to a document location change and a substantial contentful paint update-- that becomes a Soft Navigation.
-
-   - `SoftNavigation` entries are reported.
-
-### Task Attribution
-
-The above heuristics rely on the ability to keep track of tasks and their provenance. We need to be able to tell that a certain task was posted by another, and be able to create a causality chain between DOM dirtying and URL modifications to the event handler that triggered the soft navigation.
-
-- TC39 [AsyncContext API proposal](https://github.com/tc39/proposal-async-context)
-- In Chromium: [Task Attribution v2 Design](https://docs.google.com/document/d/1hZ1FdFtHoPk7h9mwTPJSlF83T7YnTpmfa0CEQbPn8Ks/edit?usp=sharing)
-  - Historical: [Task Attribution v1 Design](https://bit.ly/task-attribution)
-
-## Proposed API shape
-
-### `SoftNavigationEntry`
-
-```
-interface SoftNavigationEntry : PerformanceEntry {
-}
-
-SoftNavigationEntry includes PaintTimingMixin;
-```
-
-Note: The inheritance from `PerformanceEntry` means that the entry will have `startTime`, `name`, `entryType`, `duration`, and `navigationId`.
-
-- `startTime` is a recomended new timeOrigin for this navigation. It is the earlier value of:
-  - the user's interaction event's `processingEnd`, or
-  - the URL was explicitly changed.
-- `name` is the URL of the history entry representing the soft navigation.
-- `entryType` is `"soft-navigation"`.
-- `duration` is the time difference between the point in which a soft navigation is detected and the `startTime`.
-- `navigationId` is a new pseudo-random number identifying this navigation.
-- `SoftNavigationEntry` also includes `PaintTimingMixin` which exposed `paintTime` and `presentationTime` and which represent the First Contentful Paint (FCP) for this navigation.
-
-### `InteractionContentfulPaint`
-
-```
-interface InteractionContentfulPaint : PerformanceEntry {
-    readonly attribute DOMHighResTimeStamp renderTime;
-    readonly attribute DOMHighResTimeStamp loadTime;
-    readonly attribute unsigned long long size;
-    readonly attribute DOMString id;
-    readonly attribute DOMString url;
-    readonly attribute Element? element;
-}
-```
-
-- The `InteractionContentfulPaint` entries report any new Element paint that _belongs to a Container_ that was modified by the Interaction.
-  - See related proposal for explicit `ContainerTiming` API.
-- `InteractionContentfulPaint` entries act as Largest Contentful Paint (LCP) candidates for the navigation.
-  - Note: this entry currently perfectly mirrors the shape of `LargestContenfulPaint`, but might change to extend it.
-  - For example: `InteractionContentfulPaint` currently reports only new largest element paint candidates, like LCP, but it might change to also report each updated paint area via `size`, like `PerformanceContainerTiming`.
-
-## Required spec changes
-
-### `PerformanceEntry`
-
-```
-interface PerformanceEntry {
-    readonly attribute unsigned long long navigationId;
-}
-```
-
-- Extend `PerformanceEntry` to add `navigationId`.
-  - This is a pseudorandom number which increments with each new navigation.
-  - It is exposed to many different entry types and helps group (or slice) the single performance timeline by navigations.
-
-### `PerformanceObserverInit` options
-
-```
-dictionary PerformanceObserverInit {
-  boolean includeSoftNavigationObservations;
-};
-```
-
-- We need to add a `PerformanceObserverInit` option named `"includeSoftNavigationObservations"`.
-  - This flag is used to mark that `PerformanceEntry` should be reported with a `navigationId`.
-  - This is required for `InteractionContentfulPaint` entries.
+- Whenever Event Timing observes a new Event dispatch that is considered an Interaction, we create an `InteractionContext`.
+- We save this `InteractionContext` into an internal `AsyncContext.Variable` which propogates across asynchronous task scheduling.
+- We observe structural modifications to the current document (such as adding new child nodes to an existing node, or updating existing node content or attributes).
+  - If an `InteractionContext` is available for the current task when this happens, we mark the modified DOM subtree as belonging to a "container" which is specific to this `InteractionContext`.
+  - We do so as sparsely and lazily as possible, such that only new unique DOM tree roots are marked, and only visible parts of the DOM tree are processed.
+  - Later, contentful paints for elements inside these container trees will be observed (using Container Timing semantics), and will become candidates for emitting new `InteractionContentfulPaint` entries (using LCP semantics).
+- We also observe all same document navigations (such as `pushState` or `navigate` event interceptions).
+  - If an `InteractionContext` is available for the current task, we store a link between this same document navigation and the `InteractionContext`.
+  - If this is the first same document navigation for this interaction, and all other criteria are met, we emit a `SoftNavigationEntry`.
+- For these new entries, we expose the `interactionId` of the interaction that initiated it, and for all existing performance entries, we expose a `navigationId` to allow developers to group them by navigation.
 
 ## Examples
 
 ### Observing Soft Navigations
 
-To observe the stream of new soft-navigations, you can use a `PerformanceObserver`:
+To observe the stream of new soft navigations, you can use a `PerformanceObserver`:
 
 ```js
 new PerformanceObserver((list) => {
-  for (let entry of list.getEntries()) {
-    // ...
+  for (const entry of list.getEntries()) {
+    const {
+      startTime,
+      renderTime,
+      duration,
+      interactionId,
+      navigationId,
+    } = entry;
+    const url = entry.name;
+
+    console.log(
+      "[SoftNav] interactionId:", interactionId,
+      "startTime:", startTime,
+      "duration:", duration,
+      "url:", url
+    );
   }
 }).observe({
   type: "soft-navigation",
@@ -156,110 +84,101 @@ new PerformanceObserver((list) => {
 });
 ```
 
-To list all the existing (buffered) entries so far, you can use `getEntriesByType`:
+Or, to list all the existing (buffered) entries so far, you can use `getEntriesByType`:
 
 ```js
 const soft_navs = performance.getEntriesByType("soft-navigation");
 ```
 
-### Correlating performance entries with a soft navigation
+Together with navigation timing (for the initial page load) you can map any Performance Entry to a navigation:
 
-For each `PerformanceEntry` (which can be `(first|largest|interaction)-contentful-paint`, `layout-shift`, `event-timing`, etc), find its corresponding soft navigation, and report a duration relative to that navigation `timeOrigin`. For example:
+```js
+function getNav(navigationId) {
+    const navs = [
+        performance.getEntriesByType('navigation')[0],
+        ...performance.getEntriesByType('soft-navigation'),
+    ];
+    return navs.find(entry => entry.navigationId == navigationId);
+}
+```
 
-```javascript
-const soft_navs = [];
-const observer = new PerformanceObserver((list) => {
-  for (navEntry of list.getEntriesByType("soft-navigation")) {
-    soft_navs.push(navEntry);
-    // console.log("[SN]", navEntry);
+### Observing InteractionContentfulPaint
+
+```js
+new PerformanceObserver((list) => {
+  for (const entry of list.getEntries()) {
+    const {
+      startTime,
+      renderTime,
+      duration,
+      interactionId,
+      element,
+    } = entry;
+
+    console.log(
+      "[ICP] interactionId:", interactionId,
+      "startTime:", startTime,
+      "duration:", duration,
+      "element:", element
+    );
   }
-
-  for (icpEntry of list.getEntriesByType("interaction-contentful-paint")) {
-
-    // Find the soft navigaton entry matching on `navigationId`:
-    const navEntry = soft_navs.filter(
-      (navEntry) => navEntry.navigationId == icpEntry.navigationId
-    )[0];
-
-    console.assert(navEntry);
-
-    // Compute a duration value relative to the soft nav "timeOrigin"
-    const relative_duration = icpEntry.startTime - navEntry.startTime;
-
-    console.log("New Contentful Paint for Soft Navigation:", relative_duration);
-  }
-});
-observer.observe({
-  type: "soft-navigation",
-  includeSoftNavigationObservations: true,
-  buffered: true,
-});
-observer.observe({
+}).observe({
   type: "interaction-contentful-paint",
-  includeSoftNavigationObservations: true,
-  buffered: true,
+  buffered: true // Optional
 });
 ```
 
-## Privacy and security considerations
+### Observing PerformanceEntrys sliced by Soft Navigations
 
-This API exposes a few novel paint timestamps that are not available today, after a soft navigation is detected: the first paint, the first contentful paint and the largest contentful paint.
-It is already possible to get some of that data through Element Timing and requestAnimationFrame, but this proposal will expose that data without the need to craft specific elements with the `elementtiming` attribute.
+```js
+let currentNav = performance.getEntriesByType('navigation')[0];
 
-### Mitigations
+const entryTypes = [
+  "soft-navigation",
+  "interaction-contentful-paint",
+  // ... consider adding "event", "layout-shift", "resource", etc
+];
 
-- The LCP timestamp is subject to the same constraints as current LCP entries, and doesn't expose cross-origin rendering times without an explicit opt-in.
-- The FCP timestamp doesn't necessary waits until a cross-origin image is fully loaded in order to fire, minimizing the cross-origin information exposed.
-- Soft navigations detected are inherently user-driven, preventing programatic scanning of markup permutations and their impact on paint timestamps.
-- Soft Navigation detection can be time limited, further limiting the scalability of information exposure.
+function getEntriesByNavigation(entries, navigationId) {
+  return entries.filter(
+    entry => entry.navigationId === navigationId
+  );
+}
 
-Given the above mitigations, attacks such as [history sniffing attacks](https://krebsonsecurity.com/2010/12/what-you-should-know-about-history-sniffing/) are not feasible, given that `:visited` information is not exposed.
-`:visited` only modifications are not counting as DOM modifications, so soft navigations are not detected. Whenever other DOM modifications are included alongside visited changes, the next paint would include both modifications, and hence won't expose visited state.
+const observer = new PerformanceObserver((list) => {
+  const entries = list.getEntries();
 
-Furthermore, cross-origin imformation about images or font resources is not exposed by Soft Navigation LCP, similarly to regular LCP.
+  for (const nav of [currentNav, ...list.getEntriesByType('soft-navigation')]) {
+    currentNav = nav;
+    const entriesForNav = getEntriesByNavigation(entries, nav.navigationId).filter(entry => entry.entryType !== "soft-navigation");
+    if (!entriesForNav.length) continue;
 
-## Open Questions for future enhancements
+    console.group(nav.navigationId, nav.name);
+    for (const entry of entriesForNav) {
+      console.log(entry.entryType, entry);
+    }
+    console.groupEnd();
+  }
+});
 
-- Do we need to define FCP/LCP as contentful paints that are the result of the soft navigation?
-- Could we augment the heuristic to take both DOM additions and removals into account?
-  - Currently, interactions such as Twitter/Gmail's "compose" button would be considered soft navigations, where one could argue they are really interactions.
-  - A heuristic that requires either a modification of existing DOM nodes or addition _and_ removal of nodes may be able to catch that, without increasing the rate of false negatives.
-- `<your questions here>`
+entryTypes.forEach(type => {
+  observer.observe({ type, durationThreshold: 0, buffered: true });
+});
+```
+
+## Privacy and Security
+
+Exposing these entries does not introduce significant novel privacy risks.
+- InteractionContentfulPaint timings follow the same security constraints as Container Timing and/or LCP (e.g., cross-origin image opt-in).
+- Detection conditions are limited to trusted user interactions, preventing programmatic scanning of document updates.
+- The use of `AsyncContext` ensures that attribution is strictly causal.
+
+For a detailed analysis, see the [Security & Privacy section](https://wicg.github.io/soft-navigations/#priv-sec) of the specification.
 
 ## Considered alternatives
 
-A few notes regarding heuristic alternatives:
+A few notes regarding alternative approaches:
 
 - We considered using only semantic elements, but it seems to not match current real-world practices.
-- We considered limiting DOM modifications to specific DOM elements or some other heuristic regarding "meaningful" DOM modifications. We haven't seen a necessity for this in practice.
-- Finally, we could consider limiting the amount of soft navigation detected in a certain timeframe (e.g. X per Y seconds), if we'd see that some web applications detect an excessive amount of soft navigations that don't correspond to the user experience.
-
-## I want to take this for a spin!!
-
-I like how you're thinking!
-
-You can do that by:
-
-- Joining the [Origin Trial](https://developer.chrome.com/origintrials/#/trials/active), and [enabling it on your site](https://developer.chrome.com/en/docs/web-platform/origin-trials/).
-- Alternatively, you can:
-  - [enable "Experimental Web Platform features"](chrome://flags/#enable-experimental-web-platform-features) in Chrome
-  - Browsing to the site you want to test!
-  - Opening the devtools' console
-  - Looking for "A soft navigation has been detected" in the console logs
-  - Alternatively, running the example code above in your console to observe `SoftNavigationEntry` entries
-
-The Chrome team [have published an article about its implementation](https://developer.chrome.com/blog/soft-navigations-experiment/), and how developers can use this to try out the proposed API to see how it fits your needs.
-
-And remember, if you find bugs, https://crbug.com is the best way to get them fixed!
-
-# FAQs
-
-## Should this rely on the Navigation API)?
-
-The [Navigation API](https://html.spec.whatwg.org/multipage/nav-history-apis.html#navigation-api) consolidates the many methods to initiate or observe same document history navigations. It also provides a mechanism to `intercept()` semantic navigations (such as `<a href>` clicks or `<form action>` submits) and provide custom behaviours.
-
-However, if this effort were to _require_ that websites opt to use this new `intercept()` feature in order to receive Soft Navigation measurement, that would mean that it would only cover future web apps, or require web apps to completely rewrite their routing libraries.
-
-That would go against the goal of being able to measure such navigations at scale.
-
-On top of that, the Navigation API does not make any distinction between "real" navigations and interactions. So although the Navigation API does provide useful mechanisms and simplications for observing same document history changes, extra heuristics are still needed.
+- We considered limiting DOM modifications to specific DOM elements or some other criteria regarding "meaningful" DOM modifications. We haven't seen a necessity for this in practice.
+- Finally, we could consider limiting the amount of soft navigations detected in a certain timeframe (e.g. X per Y seconds), if we'd see that some web applications detect an excessive amount of soft navigations that don't correspond to the user experience.
