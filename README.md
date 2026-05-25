@@ -1,5 +1,9 @@
 # Soft Navigations and Interaction Contentful Paint
 
+## Spec link
+
+https://wicg.github.io/soft-navigations/
+
 ## Overview
 
 The web performance timeline has an existing rich set of capabilities for measuring the performance of page loads that help developers monitor, understand, and improve user experience.  For example: First Contenful Paint (FCP) and Largest Contentful Paint (LCP) are an interoperable set of metrics for reporting on these experiences across browsers.
