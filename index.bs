@@ -425,23 +425,20 @@ The {{PerformanceEntry/duration}} attribute's getter must return the difference 
 
 </div>
 
-<div class="note">
-  In practice, {{getLargestInteractionContentfulPaint()}} is expected to return a non-null entry, as
-  a confirmed soft navigation requires at least one detected interaction contentful paint to trigger
-  its emission.
-
-  However, future iterations could evaluate whether a soft navigation could be considered committed
-  immediately upon URL modification, prior to the first paint. In such a model, this method might
-  return null at the time of emission.
-
-  The primary design consideration for this timing is the attribution of other timeline entries
-  (e.g., `LayoutShift`, `PerformanceResourceTiming`, `LongAnimationFrameTiming`, etc) that occur in
-  the interval between the URL modification and the first paint.  Many sites commit the new URL
-  immediately upon initiating a fetch request, for example, even while the current page remains in
-  the previous navigation state.  To ensure consistent timeline slicing, this specification
-  attributes all such entries to the *previous* navigation identifier until the first paint confirms
-  the transition.
-</div>
+Note: In practice, {{getLargestInteractionContentfulPaint()}} is expected to return a non-null
+entry, as a confirmed soft navigation requires at least one detected interaction contentful paint to
+trigger its emission.
+<br><br>
+However, future iterations could evaluate whether a soft navigation could be considered committed
+immediately upon URL modification, prior to the first paint. In such a model, this method might
+return null at the time of emission.
+<br><br>
+The primary design consideration for this timing is the attribution of other timeline entries (e.g.,
+`LayoutShift`, `PerformanceResourceTiming`, `LongAnimationFrameTiming`, etc) that occur in the
+interval between the URL modification and the first paint.  Many sites commit the new URL
+immediately upon initiating a fetch request, for example, even while the current page remains in the
+previous navigation state.  To ensure consistent timeline slicing, this specification attributes all
+such entries to the *previous* navigation identifier until the first paint confirms the transition.
 
 Soft Navigation Algorithms {#sec-soft-nav-algos}
 -----------------
@@ -583,36 +580,28 @@ a unique [=interaction id=] obtained by running the steps to [=get the next inte
 document's [=relevant global object=]. If an event is triggered by a previous interaction that
 already has an assigned [=interaction id=], the user agent should reuse that same identifier.
 
-<div class="note">
-  These events are only reported as primary interactions when they are the initiating event from a
-  user action (e.g., clicking the browser UI's back button). In most other scenarios—such as a `click`
-  handler manually manipulating history—the subsequent `popstate` or `navigate` events are not
-  considered independent user interactions.
+Note:These events are only reported as primary interactions when they are the initiating event from
+a user action (e.g., clicking the browser UI's back button). In most other scenarios—such as a
+`click` handler manually manipulating history—the subsequent `popstate` or `navigate` events are not
+considered independent user interactions.
+<br><br>
+While these programmatically triggered events might not have the `isTrusted` flag set, they are
+correctly attributed back to the original interaction via [[ASYNC-CONTEXT]], as the history and
+navigation APIs are treated as asynchronous continuations of the initiating task.
 
-  While these programmatically triggered events might not have the `isTrusted` flag set, they are
-  correctly attributed back to the original interaction via [[ASYNC-CONTEXT]], as the history and
-  navigation APIs are treated as asynchronous continuations of the initiating task.
-</div>
+Note: The events `navigate`, `popstate`, and `hashchange` are used as internal signals for
+tracking soft navigations and assigning `interactionId`. This specification does not require these
+event types to be exposed as `PerformanceEventTiming` entries to the performance timeline, leaving
+that determination to the [[EVENT-TIMING]] specification.
 
-<div class="note">
-  Note: The events `navigate`, `popstate`, and `hashchange` are used as internal signals for
-  tracking soft navigations and assigning `interactionId`. This specification does not require these
-  event types to be exposed as `PerformanceEventTiming` entries to the performance timeline, leaving
-  that determination to the [[EVENT-TIMING]] specification.
-</div>
+Note: The [[EVENT-TIMING]] specification is expected to be updated to explicitly define
+`processingStart` and `processingEnd` hooks, and to ensure `interactionId` assignment happens early
+enough for this integration. Today, `interactionId` assignment is typically deferred until the end
+of the event processing.
 
-<div class="note">
-  The [[EVENT-TIMING]] specification is expected to be updated to explicitly define
-  `processingStart` and `processingEnd` hooks, and to ensure `interactionId` assignment happens
-  early enough for this integration. Today, `interactionId` assignment is typically deferred until
-  the end of the event processing.
-
-  <div class="note">
-    **TODO/Bugfix**: This specification uses `unsigned long long` for **interactionId** to ensure a
-    safe global counter, while [[EVENT-TIMING]] currently defines it as `unsigned long`. This
-    mismatch is expected to be resolved in future versions of both specifications.
-  </div>
-</div>
+Issue: This specification uses `unsigned long long` for **interactionId** to ensure a safe global
+counter, while [[EVENT-TIMING]] currently defines it as `unsigned long`. This mismatch is expected
+to be resolved in future versions of both specifications.
 
 <div algorithm="get the next interactionId">
   To <dfn>get the next interactionId</dfn> for a {{Window}} |window|:
@@ -704,18 +693,16 @@ new elements to the document structure (e.g., `appendChild`, `innerHTML` updates
 to the user agent to map these to internal implementation hooks that track document structure
 modifications.
 
-<div class="note">
-  The user agent is encouraged to maintain a sparse tree of container roots. If a node is modified
-  that is already a descendant of an existing container root associated with the same interaction
-  context, the user agent might choose not to create a new redundant root.
-
-  Furthermore, to avoid expensive main-thread work during large DOM modifications, user agents are
-  encouraged to optimize the removal of descendants from **previously reported paints**. Instead of
-  an immediate exhaustive traversal, the user agent can mark the modified root as "dirty" and lazily
-  propagate this state during subsequent tree walks (e.g., during layout or paint). Subtrees that
-  are known to be non-visible or skipped by existing mechanisms like `content-visibility` or CSS
-  containment could also be skipped during this reset process.
-</div>
+Note: The user agent is encouraged to maintain a sparse tree of container roots. If a node is
+modified that is already a descendant of an existing container root associated with the same
+interaction context, the user agent might choose not to create a new redundant root.
+<br><br>
+Furthermore, to avoid expensive main-thread work during large DOM modifications, user agents are
+encouraged to optimize the removal of descendants from **previously reported paints**. Instead of an
+immediate exhaustive traversal, the user agent can mark the modified root as "dirty" and lazily
+propagate this state during subsequent tree walks (e.g., during layout or paint). Subtrees that are
+known to be non-visible or skipped by existing mechanisms like `content-visibility` or CSS
+containment could also be skipped during this reset process.
 
 Performance Timeline integration {#sec-performance-timeline-integration}
 -----------------
