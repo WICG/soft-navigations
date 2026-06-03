@@ -6,7 +6,7 @@
   <link href="https://www.w3.org/StyleSheets/TR/2021/cg-draft" rel="stylesheet">
   <meta content="Bikeshed version cfb78d9c0, updated Tue Jun 2 16:21:00 2026 -0700" name="generator">
   <link href="https://wicg.github.io/soft-navigations/" rel="canonical">
-  <meta content="5b5989bc48b9afd8e7a88b147edcbafb73661db3" name="revision">
+  <meta content="121945063b8cab714df64f745db3517e731990ac" name="revision">
   <meta content="dark light" name="color-scheme">
   <link href="https://www.w3.org/StyleSheets/TR/2021/dark.css" media="(prefers-color-scheme: dark)" rel="stylesheet" type="text/css">
 <style>/* Boilerplate: style-autolinks */
@@ -974,9 +974,9 @@ tracked internally to ensure accurate attribution of effects back to the final s
 interaction, even if only the <strong>first URL value</strong> is currently exposed in the
 <code class="idl"><a data-link-type="idl" href="#performancesoftnavigation" id="ref-for-performancesoftnavigation">PerformanceSoftNavigation</a></code>’s name.</p>
    <h3 class="heading settled" data-level="2.4" id="sec-infra-algos"><span class="secno">2.4. </span><span class="content">Infrastructure Algorithms</span><a class="self-link" href="#sec-infra-algos"></a></h3>
-   <div class="algorithm" data-algorithm="get current interaction context">
+   <div class="algorithm" data-algorithm="get the current interaction context">
     
-  To <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport id="get-current-interaction-context">get current interaction context</dfn> for a <a data-link-type="dfn" href="https://dom.spec.whatwg.org/#concept-document" id="ref-for-concept-document③">Document</a> <var>document</var>, run the following steps:
+  To <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport id="get-the-current-interaction-context">get the current interaction context</dfn> given a <a data-link-type="dfn" href="https://dom.spec.whatwg.org/#concept-document" id="ref-for-concept-document③">Document</a> <var>document</var>:
 
 
     <ol>
@@ -990,10 +990,10 @@ interaction, even if only the <strong>first URL value</strong> is currently expo
       <p>Return <var>context</var>.</p>
     </ol>
    </div>
-   <div class="algorithm" data-algorithm="get or create context for interaction">
+   <div class="algorithm" data-algorithm="get the context for an interaction">
     
-  To <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport id="get-or-create-context-for-interaction">get or create context for interaction</dfn>, given a <a data-link-type="dfn" href="https://dom.spec.whatwg.org/#concept-document" id="ref-for-concept-document④">Document</a> <var>document</var>, an
-  <var>interaction id</var>, and an <a data-link-type="dfn" href="https://dom.spec.whatwg.org/#concept-event" id="ref-for-concept-event">Event</a> <var>event</var>, run the following steps:
+  To <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport id="get-the-context-for-an-interaction">get the context for an interaction</dfn> given a <a data-link-type="dfn" href="https://dom.spec.whatwg.org/#concept-document" id="ref-for-concept-document④">Document</a> <var>document</var>, an
+  <var>interaction id</var>, and an <a data-link-type="dfn" href="https://dom.spec.whatwg.org/#concept-event" id="ref-for-concept-event">Event</a> <var>event</var>:
 
 
     <ol>
@@ -1015,10 +1015,10 @@ interaction, even if only the <strong>first URL value</strong> is currently expo
       <p>Return <var>interaction context</var>.</p>
     </ol>
    </div>
-   <div class="algorithm" data-algorithm="update interaction contexts for event">
+   <div class="algorithm" data-algorithm="update the interaction contexts for an event">
     
-  To <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport id="update-interaction-contexts-for-event">update interaction contexts for event</dfn>, given a <a data-link-type="dfn" href="https://dom.spec.whatwg.org/#concept-document" id="ref-for-concept-document⑤">Document</a> <var>document</var> and an
-  <a data-link-type="dfn" href="https://dom.spec.whatwg.org/#concept-event" id="ref-for-concept-event①">Event</a> <var>event</var>, run the following steps:
+  To <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport id="update-the-interaction-contexts-for-an-event">update the interaction contexts for an event</dfn> given a <a data-link-type="dfn" href="https://dom.spec.whatwg.org/#concept-document" id="ref-for-concept-document⑤">Document</a> <var>document</var> and an
+  <a data-link-type="dfn" href="https://dom.spec.whatwg.org/#concept-event" id="ref-for-concept-event①">Event</a> <var>event</var>:
 
 
     <ol>
@@ -1052,10 +1052,10 @@ interaction, even if only the <strong>first URL value</strong> is currently expo
       </ol>
     </ol>
    </div>
-   <div class="algorithm" data-algorithm="set current interaction context for event dispatch">
+   <div class="algorithm" data-algorithm="set the current interaction context for event dispatch">
     
-  To <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport id="set-current-interaction-context-for-event-dispatch">set current interaction context for event dispatch</dfn>, given null or a
-  <code class="idl"><a data-link-type="idl" href="https://w3c.github.io/event-timing/#performanceeventtiming" id="ref-for-performanceeventtiming">PerformanceEventTiming</a></code> object <var>timingEntry</var>, run the following steps:
+  To <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport id="set-the-current-interaction-context-for-event-dispatch">set the current interaction context for event dispatch</dfn> given null or a
+  <code class="idl"><a data-link-type="idl" href="https://w3c.github.io/event-timing/#performanceeventtiming" id="ref-for-performanceeventtiming">PerformanceEventTiming</a></code> object <var>timingEntry</var>:
 
 
     <ol>
@@ -1070,9 +1070,9 @@ interaction, even if only the <strong>first URL value</strong> is currently expo
      <li data-md>
       <p>Let <var>document</var> be <var>event</var>’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-relevant-global" id="ref-for-concept-relevant-global①">relevant global object</a>’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/nav-history-apis.html#concept-document-window" id="ref-for-concept-document-window">associated Document</a>.</p>
      <li data-md>
-      <p><a data-link-type="dfn" href="#update-interaction-contexts-for-event" id="ref-for-update-interaction-contexts-for-event">update interaction contexts for event</a> given <var>document</var> and <var>event</var>.</p>
+      <p><a data-link-type="dfn" href="#update-the-interaction-contexts-for-an-event" id="ref-for-update-the-interaction-contexts-for-an-event">Update the interaction contexts for an event</a> given <var>document</var> and <var>event</var>.</p>
      <li data-md>
-      <p>Let <var>interaction context</var> be the result of <a data-link-type="dfn" href="#get-or-create-context-for-interaction" id="ref-for-get-or-create-context-for-interaction">get or create context for interaction</a> given
+      <p>Let <var>interaction context</var> be the result of <a data-link-type="dfn" href="#get-the-context-for-an-interaction" id="ref-for-get-the-context-for-an-interaction">geting the context for an interaction</a> given
  <var>document</var>, <var>interaction id</var>, and <var>event</var>.</p>
      <li data-md>
       <p>Set the value of the internal <code class="highlight">AsyncContext<c- p>.</c->Variable</code> <code class="highlight"><c- p>[[</c->ActiveInteractionContext<c- p>]]</c-></code> to
@@ -1081,9 +1081,9 @@ interaction, even if only the <strong>first URL value</strong> is currently expo
       <p>Return <var>interaction context</var>.</p>
     </ol>
    </div>
-   <div class="algorithm" data-algorithm="unset current interaction context after event dispatch">
+   <div class="algorithm" data-algorithm="unset the current interaction context after event dispatch">
     
-  To <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport id="unset-current-interaction-context-after-event-dispatch">unset current interaction context after event dispatch</dfn>, run the following steps:
+  To <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport id="unset-the-current-interaction-context-after-event-dispatch">unset the current interaction context after event dispatch</dfn>:
 
 
     <ol>
@@ -1132,9 +1132,9 @@ ensure these metrics reflect the exact state of that visual update.</p>
    <h3 class="heading settled" data-level="3.2" id="sec-interaction-contentful-paint-algos"><span class="secno">3.2. </span><span class="content">Interaction Contentful Paint Algorithms</span><a class="self-link" href="#sec-interaction-contentful-paint-algos"></a></h3>
    <div class="algorithm" data-algorithm="create an interaction contentful paint entry">
     
-  To <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport id="create-an-interaction-contentful-paint-entry">create an interaction contentful paint entry</dfn>, with a <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#global-object" id="ref-for-global-object②">global object</a> <var>global</var>, an
+  To <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport id="create-an-interaction-contentful-paint-entry">create an interaction contentful paint entry</dfn>, given a <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#global-object" id="ref-for-global-object②">global object</a> <var>global</var>, an
   <a data-link-type="dfn" href="#interactioncontext-interactioncontext" id="ref-for-interactioncontext-interactioncontext③">InteractionContext</a> <var>interaction context</var>, a <code class="idl"><a data-link-type="idl" href="https://w3c.github.io/largest-contentful-paint/#largestcontentfulpaint" id="ref-for-largestcontentfulpaint③">LargestContentfulPaint</a></code> <var>lcpEntry</var>, and a
-  <a data-link-type="dfn" href="https://w3c.github.io/paint-timing/#paint-timing-info" id="ref-for-paint-timing-info③">paint timing info</a> <var>paintTimingInfo</var>, run the following steps:
+  <a data-link-type="dfn" href="https://w3c.github.io/paint-timing/#paint-timing-info" id="ref-for-paint-timing-info③">paint timing info</a> <var>paintTimingInfo</var>:
 
 
     <ol>
@@ -1152,9 +1152,9 @@ ensure these metrics reflect the exact state of that visual update.</p>
    </div>
    <div class="algorithm" data-algorithm="process a new attributed contentful paint candidate">
     
-  To <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport id="process-a-new-attributed-contentful-paint-candidate">process a new attributed contentful paint candidate</dfn>, given a
+  To <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport id="process-a-new-attributed-contentful-paint-candidate">process a new attributed contentful paint candidate</dfn> given a
   <code class="idl"><a data-link-type="idl" href="https://w3c.github.io/largest-contentful-paint/#largestcontentfulpaint" id="ref-for-largestcontentfulpaint④">LargestContentfulPaint</a></code> <var>lcpEntry</var>, a <a data-link-type="dfn" href="https://dom.spec.whatwg.org/#concept-document" id="ref-for-concept-document⑥">Document</a> <var>document</var>, and an <a data-link-type="dfn" href="#interactioncontext-interactioncontext" id="ref-for-interactioncontext-interactioncontext④">InteractionContext</a>
-  <var>interaction context</var>, run the following steps:
+  <var>interaction context</var>:
 
 
     <ol>
@@ -1249,8 +1249,8 @@ conditions:</p>
    </ul>
    <div class="algorithm" data-algorithm="evaluate soft navigation emission">
     
-  To <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport id="evaluate-soft-navigation-emission">evaluate soft navigation emission</dfn>, given a <a data-link-type="dfn" href="https://dom.spec.whatwg.org/#concept-document" id="ref-for-concept-document⑦">Document</a> <var>document</var> and an
-  <a data-link-type="dfn" href="#interactioncontext-interactioncontext" id="ref-for-interactioncontext-interactioncontext⑧">InteractionContext</a> <var>interaction context</var>, run the following steps:
+  To <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport id="evaluate-soft-navigation-emission">evaluate soft navigation emission</dfn> given a <a data-link-type="dfn" href="https://dom.spec.whatwg.org/#concept-document" id="ref-for-concept-document⑦">Document</a> <var>document</var> and an
+  <a data-link-type="dfn" href="#interactioncontext-interactioncontext" id="ref-for-interactioncontext-interactioncontext⑧">InteractionContext</a> <var>interaction context</var>:
 
 
     <ol>
@@ -1267,15 +1267,15 @@ conditions:</p>
      <li data-md>
       <p>Let <var>entry</var> be the result of <a data-link-type="dfn" href="#create-a-soft-navigation-entry" id="ref-for-create-a-soft-navigation-entry">create a soft navigation entry</a> given <var>global</var> and <var>interaction context</var>.</p>
      <li data-md>
-      <p><a data-link-type="dfn" href="#emit-soft-navigation-entry" id="ref-for-emit-soft-navigation-entry">emit soft navigation entry</a> given <var>global</var> and <var>entry</var>.</p>
+      <p><a data-link-type="dfn" href="#emit-a-soft-navigation-entry" id="ref-for-emit-a-soft-navigation-entry">Emit a soft navigation entry</a> given <var>global</var> and <var>entry</var>.</p>
      <li data-md>
       <p>Set <var>interaction context</var>’s <a data-link-type="dfn" href="#interactioncontext-emitted" id="ref-for-interactioncontext-emitted①">emitted</a> to true.</p>
     </ol>
    </div>
    <div class="algorithm" data-algorithm="create a soft navigation entry">
     
-  To <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport id="create-a-soft-navigation-entry">create a soft navigation entry</dfn>, with a <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#global-object" id="ref-for-global-object③">global object</a> <var>global</var>, and an
-  <a data-link-type="dfn" href="#interactioncontext-interactioncontext" id="ref-for-interactioncontext-interactioncontext⑨">InteractionContext</a> <var>interaction context</var>, run the following steps:
+  To <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport id="create-a-soft-navigation-entry">create a soft navigation entry</dfn> given a <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#global-object" id="ref-for-global-object③">global object</a> <var>global</var>, and an
+  <a data-link-type="dfn" href="#interactioncontext-interactioncontext" id="ref-for-interactioncontext-interactioncontext⑨">InteractionContext</a> <var>interaction context</var>:
 
 
     <ol>
@@ -1296,10 +1296,10 @@ conditions:</p>
     </ol>
    </div>
    <p class="note" role="note"><span class="marker">Note:</span> <code class="highlight">navigationId</code> is set further down, in <a data-link-type="dfn" href="https://w3c.github.io/performance-timeline/#dfn-queue-a-performanceentry" id="ref-for-dfn-queue-a-performanceentry①">queue a PerformanceEntry</a>.</p>
-   <div class="algorithm" data-algorithm="emit soft navigation entry">
+   <div class="algorithm" data-algorithm="emit a soft navigation entry">
     
-  To <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport id="emit-soft-navigation-entry">emit soft navigation entry</dfn>, with a <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#global-object" id="ref-for-global-object④">global object</a> <var>global</var>, and a
-  <code class="idl"><a data-link-type="idl" href="#performancesoftnavigation" id="ref-for-performancesoftnavigation④">PerformanceSoftNavigation</a></code> <var>entry</var>, run the following steps:
+  To <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport id="emit-a-soft-navigation-entry">emit a soft navigation entry</dfn> given a <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#global-object" id="ref-for-global-object④">global object</a> <var>global</var> and a
+  <code class="idl"><a data-link-type="idl" href="#performancesoftnavigation" id="ref-for-performancesoftnavigation④">PerformanceSoftNavigation</a></code> <var>entry</var>:
 
 
     <ol>
@@ -1313,17 +1313,18 @@ conditions:</p>
       <p>Add <var>entry</var> to <var>global</var>’s <a data-link-type="dfn" href="https://w3c.github.io/performance-timeline/#performance-entry-buffer" id="ref-for-performance-entry-buffer①">performance entry buffer</a>.</p>
     </ol>
    </div>
-   <div class="algorithm" data-algorithm="process same document commit">
+   <div class="algorithm" data-algorithm="process a same document commit">
     
-  To <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport id="process-same-document-commit">process same document commit</dfn>, with a <a data-link-type="dfn" href="https://dom.spec.whatwg.org/#concept-document" id="ref-for-concept-document⑧">Document</a> <var>document</var>, <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#string" id="ref-for-string">string</a> <var>url</var>,
-  and <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#string" id="ref-for-string①">string</a> <var>navigation type</var>, run the following steps:
+  To <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport id="process-a-same-document-commit">process a same document commit</dfn> given a <a data-link-type="dfn" href="https://dom.spec.whatwg.org/#concept-document" id="ref-for-concept-document⑧">Document</a> <var>document</var>, <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#string" id="ref-for-string">string</a> <var>url</var>,
+  and <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#string" id="ref-for-string①">string</a> <var>navigation type</var>:
 
 
     <ol>
      <li data-md>
       <p>If <var>url</var> is equal to <var>document</var>’s <a data-link-type="dfn" href="https://dom.spec.whatwg.org/#concept-document-url" id="ref-for-concept-document-url">url</a>, return.</p>
      <li data-md>
-      <p>Let <var>interaction context</var> be the result of <a data-link-type="dfn" href="#get-current-interaction-context" id="ref-for-get-current-interaction-context">get current interaction context</a> given <var>document</var>.</p>
+      <p>Let <var>interaction context</var> be the result of <a data-link-type="dfn" href="#get-the-current-interaction-context" id="ref-for-get-the-current-interaction-context">getting the current interaction context</a> given
+ <var>document</var>.</p>
      <li data-md>
       <p>If <var>interaction context</var> is null, return.</p>
      <li data-md>
@@ -1342,7 +1343,7 @@ conditions:</p>
      <li data-md>
       <p>Set <var>document</var>’s <a data-link-type="dfn" href="#document-active-soft-navigation-candidate" id="ref-for-document-active-soft-navigation-candidate①">active soft navigation candidate</a> to <var>interaction context</var>.</p>
      <li data-md>
-      <p><a data-link-type="dfn" href="#evaluate-soft-navigation-emission" id="ref-for-evaluate-soft-navigation-emission">evaluate soft navigation emission</a> given <var>document</var> and <var>interaction context</var>.</p>
+      <p><a data-link-type="dfn" href="#evaluate-soft-navigation-emission" id="ref-for-evaluate-soft-navigation-emission">Evaluate soft navigation emission</a> given <var>document</var> and <var>interaction context</var>.</p>
     </ol>
    </div>
    <h2 class="heading settled" data-level="5" id="sec-pe-extension"><span class="secno">5. </span><span class="content">The <code class="highlight">PerformanceEntry</code> extension</span><a class="self-link" href="#sec-pe-extension"></a></h2>
@@ -1368,12 +1369,12 @@ initially empty.</p>
    <h4 class="heading settled" data-level="6.1.2" id="sec-html-history"><span class="secno">6.1.2. </span><span class="content">History</span><a class="self-link" href="#sec-html-history"></a></h4>
    <div class="algorithm" data-algorithm="additions to history step application">
   In <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/browsing-the-web.html#update-document-for-history-step-application" id="ref-for-update-document-for-history-step-application">update document for history step application</a>, before 5.5.1 (if <code class="highlight">documentsEntryChanged</code> is
-  true and if <code class="highlight">documentIsNew</code> is false), <a data-link-type="dfn" href="#process-same-document-commit" id="ref-for-process-same-document-commit">process same document commit</a> given the <a data-link-type="dfn" href="https://dom.spec.whatwg.org/#concept-document" id="ref-for-concept-document①①">Document</a>,
+  true and if <code class="highlight">documentIsNew</code> is false), <a data-link-type="dfn" href="#process-a-same-document-commit" id="ref-for-process-a-same-document-commit">process a same document commit</a> given the <a data-link-type="dfn" href="https://dom.spec.whatwg.org/#concept-document" id="ref-for-concept-document①①">Document</a>,
   the target entry’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/browsing-the-web.html#she-url" id="ref-for-she-url">url</a>, and "traverse".
 </div>
    <div class="algorithm" data-algorithm="additions to shared history push/replace steps">
   In the <a href="https://html.spec.whatwg.org/multipage/nav-history-apis.html#shared-history-push/replace-steps">shared history push/replace steps</a>
-  (as defined in <a data-link-type="biblio" href="#biblio-html" title="HTML Standard">[HTML]</a>), after the URL is updated, <a data-link-type="dfn" href="#process-same-document-commit" id="ref-for-process-same-document-commit①">process same document commit</a> given the
+  (as defined in <a data-link-type="biblio" href="#biblio-html" title="HTML Standard">[HTML]</a>), after the URL is updated, <a data-link-type="dfn" href="#process-a-same-document-commit" id="ref-for-process-a-same-document-commit①">process a same document commit</a> given the
   <a data-link-type="dfn" href="https://dom.spec.whatwg.org/#concept-document" id="ref-for-concept-document①②">Document</a>, the new URL, and the operation type (either "push" or "replace").
 </div>
    <h4 class="heading settled" data-level="6.1.3" id="sec-html-node"><span class="secno">6.1.3. </span><span class="content">Node</span><a class="self-link" href="#sec-html-node"></a></h4>
@@ -1398,9 +1399,9 @@ event types that are relevant for modern web applications and Single Page Applic
      <p><code class="highlight">hashchange</code></p>
    </ul>
    <p>When these events are dispatched as a result of a user interaction, the user agent must assign them
-a unique <a data-link-type="dfn" href="https://w3c.github.io/event-timing/#interaction-id" id="ref-for-interaction-id①">interaction id</a> obtained by running the steps to <a data-link-type="dfn" href="#get-the-next-interactionid" id="ref-for-get-the-next-interactionid">get the next interactionId</a> for the
-document’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-relevant-global" id="ref-for-concept-relevant-global⑤">relevant global object</a>. If an event is triggered by a previous interaction that
-already has an assigned <a data-link-type="dfn" href="https://w3c.github.io/event-timing/#interaction-id" id="ref-for-interaction-id②">interaction id</a>, the user agent should reuse that same identifier.</p>
+a unique <a data-link-type="dfn" href="https://w3c.github.io/event-timing/#interaction-id" id="ref-for-interaction-id①">interaction id</a> obtained by <a data-link-type="dfn" href="#get-the-next-interactionid" id="ref-for-get-the-next-interactionid">getting the next interactionId</a> for the document’s
+<a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-relevant-global" id="ref-for-concept-relevant-global⑤">relevant global object</a>. If an event is triggered by a previous interaction that already has an
+assigned <a data-link-type="dfn" href="https://w3c.github.io/event-timing/#interaction-id" id="ref-for-interaction-id②">interaction id</a>, the user agent should reuse that same identifier.</p>
    <p class="note" role="note"><span class="marker">Note:</span>These events are only reported as primary interactions when they are the initiating event from
 a user action (e.g., clicking the browser UI’s back button). In most other scenarios—such as a
 <code class="highlight">click</code> handler manually manipulating history—the subsequent <code class="highlight">popstate</code> or <code class="highlight">navigate</code> events are not
@@ -1443,13 +1444,13 @@ to be resolved in future versions of both specifications.</p>
       <p>Right after the step that sets <var>timingEntry</var> to the result of <a data-link-type="dfn" href="https://pr-preview.s3.amazonaws.com/mmocny/event-timing/pull/165.html#initialize-and-record-event-timing-processing-start" id="ref-for-initialize-and-record-event-timing-processing-start">initialize and record event timing processing start</a>, run the following step:</p>
       <ol>
        <li data-md>
-        <p><a data-link-type="dfn" href="#set-current-interaction-context-for-event-dispatch" id="ref-for-set-current-interaction-context-for-event-dispatch">set current interaction context for event dispatch</a> given <var>timingEntry</var>.</p>
+        <p><a data-link-type="dfn" href="#set-the-current-interaction-context-for-event-dispatch" id="ref-for-set-the-current-interaction-context-for-event-dispatch">Set the current interaction context for event dispatch</a> given <var>timingEntry</var>.</p>
       </ol>
      <li data-md>
       <p>Right before the step that calls <a data-link-type="dfn" href="https://pr-preview.s3.amazonaws.com/mmocny/event-timing/pull/165.html#record-event-timing-processing-end" id="ref-for-record-event-timing-processing-end">record event timing processing end</a>, run the following step:</p>
       <ol>
        <li data-md>
-        <p><a data-link-type="dfn" href="#unset-current-interaction-context-after-event-dispatch" id="ref-for-unset-current-interaction-context-after-event-dispatch">unset current interaction context after event dispatch</a>.</p>
+        <p><a data-link-type="dfn" href="#unset-the-current-interaction-context-after-event-dispatch" id="ref-for-unset-the-current-interaction-context-after-event-dispatch">Unset the current interaction context after event dispatch</a>.</p>
       </ol>
     </ol>
    </div>
@@ -1495,10 +1496,10 @@ to be resolved in future versions of both specifications.</p>
        <li data-md>
         <p>Let <var>newLcpEntry</var> be the <code class="idl"><a data-link-type="idl" href="https://w3c.github.io/largest-contentful-paint/#largestcontentfulpaint" id="ref-for-largestcontentfulpaint⑤">LargestContentfulPaint</a></code> entry representing <var>newLcpCandidate</var>.</p>
        <li data-md>
-        <p><a data-link-type="dfn" href="#process-a-new-attributed-contentful-paint-candidate" id="ref-for-process-a-new-attributed-contentful-paint-candidate">process a new attributed contentful paint candidate</a> given <var>newLcpEntry</var>, <var>document</var>, and
+        <p><a data-link-type="dfn" href="#process-a-new-attributed-contentful-paint-candidate" id="ref-for-process-a-new-attributed-contentful-paint-candidate">Process a new attributed contentful paint candidate</a> given <var>newLcpEntry</var>, <var>document</var>, and
  <var>interaction context</var>.</p>
        <li data-md>
-        <p><a data-link-type="dfn" href="#evaluate-soft-navigation-emission" id="ref-for-evaluate-soft-navigation-emission①">evaluate soft navigation emission</a> given <var>document</var> and <var>interaction context</var>.</p>
+        <p><a data-link-type="dfn" href="#evaluate-soft-navigation-emission" id="ref-for-evaluate-soft-navigation-emission①">Evaluate soft navigation emission</a> given <var>document</var> and <var>interaction context</var>.</p>
       </ol>
     </ol>
    </div>
@@ -1528,7 +1529,8 @@ user interactions.</p>
      <li data-md>
       <p>Let <var>document</var> be the node’s <a data-link-type="dfn" href="https://dom.spec.whatwg.org/#concept-node-document" id="ref-for-concept-node-document">node document</a>.</p>
      <li data-md>
-      <p>Let <var>interaction context</var> be the result of <a data-link-type="dfn" href="#get-current-interaction-context" id="ref-for-get-current-interaction-context①">get current interaction context</a> given <var>document</var>.</p>
+      <p>Let <var>interaction context</var> be the result of <a data-link-type="dfn" href="#get-the-current-interaction-context" id="ref-for-get-the-current-interaction-context①">getting the current interaction context</a> given
+ <var>document</var>.</p>
      <li data-md>
       <p>If <var>interaction context</var> is not null:</p>
       <ol>
@@ -1630,7 +1632,7 @@ handles such overlapping interactions through the following model:</p>
    <li><a href="#create-an-interaction-contentful-paint-entry">create an interaction contentful paint entry</a><span>, in § 3.2</span>
    <li><a href="#create-a-soft-navigation-entry">create a soft navigation entry</a><span>, in § 4.2</span>
    <li><a href="#global-object-current-navigation-id">current navigation id</a><span>, in § 2.1</span>
-   <li><a href="#emit-soft-navigation-entry">emit soft navigation entry</a><span>, in § 4.2</span>
+   <li><a href="#emit-a-soft-navigation-entry">emit a soft navigation entry</a><span>, in § 4.2</span>
    <li><a href="#interactioncontext-emitted">emitted</a><span>, in § 2.3</span>
    <li><a href="#evaluate-soft-navigation-emission">evaluate soft navigation emission</a><span>, in § 4.2</span>
    <li><a href="#interactioncontext-first-contentful-paint">first contentful paint</a><span>, in § 2.3</span>
@@ -1638,9 +1640,9 @@ handles such overlapping interactions through the following model:</p>
    <li><a href="#interactioncontext-first-scroll-timestamp">first scroll timestamp</a><span>, in § 2.3</span>
    <li><a href="#interactioncontext-first-url-update-timestamp">first URL update timestamp</a><span>, in § 2.3</span>
    <li><a href="#interactioncontext-first-url-value">first URL value</a><span>, in § 2.3</span>
-   <li><a href="#get-current-interaction-context">get current interaction context</a><span>, in § 2.4</span>
    <li><a href="#dom-performancesoftnavigation-getlargestinteractioncontentfulpaint">getLargestInteractionContentfulPaint()</a><span>, in § 4.1</span>
-   <li><a href="#get-or-create-context-for-interaction">get or create context for interaction</a><span>, in § 2.4</span>
+   <li><a href="#get-the-context-for-an-interaction">get the context for an interaction</a><span>, in § 2.4</span>
+   <li><a href="#get-the-current-interaction-context">get the current interaction context</a><span>, in § 2.4</span>
    <li><a href="#get-the-next-interactionid">get the next interactionId</a><span>, in § 6.2</span>
    <li><a href="#interactioncontext-id">id</a><span>, in § 2.3</span>
    <li><a href="#interactioncontentfulpaint">InteractionContentfulPaint</a><span>, in § 3.1</span>
@@ -1671,13 +1673,13 @@ handles such overlapping interactions through the following model:</p>
    <li><a href="#dom-performancesoftnavigation-navigationtype">navigationType</a><span>, in § 4.1</span>
    <li><a href="#performancesoftnavigation">PerformanceSoftNavigation</a><span>, in § 4.1</span>
    <li><a href="#process-a-new-attributed-contentful-paint-candidate">process a new attributed contentful paint candidate</a><span>, in § 3.2</span>
-   <li><a href="#process-same-document-commit">process same document commit</a><span>, in § 4.2</span>
-   <li><a href="#set-current-interaction-context-for-event-dispatch">set current interaction context for event dispatch</a><span>, in § 2.4</span>
+   <li><a href="#process-a-same-document-commit">process a same document commit</a><span>, in § 4.2</span>
+   <li><a href="#set-the-current-interaction-context-for-event-dispatch">set the current interaction context for event dispatch</a><span>, in § 2.4</span>
    <li><a href="#soft-navigation">soft navigation</a><span>, in § 4.2</span>
    <li><a href="#interactioncontext-start-time">start time</a><span>, in § 2.3</span>
    <li><a href="#dom-interactioncontentfulpaint-tojson">toJSON()</a><span>, in § 3.1</span>
-   <li><a href="#unset-current-interaction-context-after-event-dispatch">unset current interaction context after event dispatch</a><span>, in § 2.4</span>
-   <li><a href="#update-interaction-contexts-for-event">update interaction contexts for event</a><span>, in § 2.4</span>
+   <li><a href="#unset-the-current-interaction-context-after-event-dispatch">unset the current interaction context after event dispatch</a><span>, in § 2.4</span>
+   <li><a href="#update-the-interaction-contexts-for-an-event">update the interaction contexts for an event</a><span>, in § 2.4</span>
   </ul>
   <h3 class="heading no-num no-ref settled" id="index-defined-elsewhere"><span class="content">Terms defined by reference</span><a class="self-link" href="#index-defined-elsewhere"></a></h3>
   <ul class="index">
@@ -2106,14 +2108,14 @@ let dfnPanelData = {
 "e952c64d": {"dfnID":"e952c64d","dfnText":"record event timing processing end","external":true,"refSections":[{"refs":[{"id":"ref-for-record-event-timing-processing-end"}],"title":"6.2. Event Timing integration"}],"url":"https://pr-preview.s3.amazonaws.com/mmocny/event-timing/pull/165.html#record-event-timing-processing-end"},
 "e99bd18e": {"dfnID":"e99bd18e","dfnText":"relevant global object","external":true,"refSections":[{"refs":[{"id":"ref-for-concept-relevant-global"},{"id":"ref-for-concept-relevant-global\u2460"}],"title":"2.4. Infrastructure Algorithms"},{"refs":[{"id":"ref-for-concept-relevant-global\u2461"}],"title":"3.2. Interaction Contentful Paint Algorithms"},{"refs":[{"id":"ref-for-concept-relevant-global\u2462"},{"id":"ref-for-concept-relevant-global\u2463"}],"title":"4.2. Soft Navigation Algorithms"},{"refs":[{"id":"ref-for-concept-relevant-global\u2464"}],"title":"6.2. Event Timing integration"}],"url":"https://html.spec.whatwg.org/multipage/webappapis.html#concept-relevant-global"},
 "efd1ec5d": {"dfnID":"efd1ec5d","dfnText":"object","external":true,"refSections":[{"refs":[{"id":"ref-for-idl-object"}],"title":"3.1. The InteractionContentfulPaint interface"}],"url":"https://webidl.spec.whatwg.org/#idl-object"},
-"emit-soft-navigation-entry": {"dfnID":"emit-soft-navigation-entry","dfnText":"emit soft navigation entry","external":false,"refSections":[{"refs":[{"id":"ref-for-emit-soft-navigation-entry"}],"title":"4.2. Soft Navigation Algorithms"}],"url":"#emit-soft-navigation-entry"},
+"emit-a-soft-navigation-entry": {"dfnID":"emit-a-soft-navigation-entry","dfnText":"emit a soft navigation entry","external":false,"refSections":[{"refs":[{"id":"ref-for-emit-a-soft-navigation-entry"}],"title":"4.2. Soft Navigation Algorithms"}],"url":"#emit-a-soft-navigation-entry"},
 "evaluate-soft-navigation-emission": {"dfnID":"evaluate-soft-navigation-emission","dfnText":"evaluate soft navigation emission","external":false,"refSections":[{"refs":[{"id":"ref-for-evaluate-soft-navigation-emission"}],"title":"4.2. Soft Navigation Algorithms"},{"refs":[{"id":"ref-for-evaluate-soft-navigation-emission\u2460"}],"title":"6.3. Largest Contentful Paint (LCP) integration"}],"url":"#evaluate-soft-navigation-emission"},
 "f05d368d": {"dfnID":"f05d368d","dfnText":"PerformanceNavigationTiming","external":true,"refSections":[{"refs":[{"id":"ref-for-performancenavigationtiming"}],"title":"6.1.4. Hard Navigation"}],"url":"https://w3c.github.io/navigation-timing/#performancenavigationtiming"},
 "f14b47b8": {"dfnID":"f14b47b8","dfnText":"unsigned long long","external":true,"refSections":[{"refs":[{"id":"ref-for-idl-unsigned-long-long"}],"title":"3.1. The InteractionContentfulPaint interface"},{"refs":[{"id":"ref-for-idl-unsigned-long-long\u2460"}],"title":"4.1. The PerformanceSoftNavigation interface"},{"refs":[{"id":"ref-for-idl-unsigned-long-long\u2461"}],"title":"5. The PerformanceEntry extension"}],"url":"https://webidl.spec.whatwg.org/#idl-unsigned-long-long"},
 "f710aefb": {"dfnID":"f710aefb","dfnText":"session history entry url","external":true,"refSections":[{"refs":[{"id":"ref-for-she-url"}],"title":"6.1.2. History"}],"url":"https://html.spec.whatwg.org/multipage/browsing-the-web.html#she-url"},
 "fabd3046": {"dfnID":"fabd3046","dfnText":"duration","external":true,"refSections":[{"refs":[{"id":"ref-for-dom-performanceentry-duration"}],"title":"3.1. The InteractionContentfulPaint interface"},{"refs":[{"id":"ref-for-dom-performanceentry-duration\u2460"}],"title":"4.1. The PerformanceSoftNavigation interface"}],"url":"https://w3c.github.io/performance-timeline/#dom-performanceentry-duration"},
-"get-current-interaction-context": {"dfnID":"get-current-interaction-context","dfnText":"get current interaction context","external":false,"refSections":[{"refs":[{"id":"ref-for-get-current-interaction-context"}],"title":"4.2. Soft Navigation Algorithms"},{"refs":[{"id":"ref-for-get-current-interaction-context\u2460"}],"title":"6.4. Container Timing integration"}],"url":"#get-current-interaction-context"},
-"get-or-create-context-for-interaction": {"dfnID":"get-or-create-context-for-interaction","dfnText":"get or create context for interaction","external":false,"refSections":[{"refs":[{"id":"ref-for-get-or-create-context-for-interaction"}],"title":"2.4. Infrastructure Algorithms"}],"url":"#get-or-create-context-for-interaction"},
+"get-the-context-for-an-interaction": {"dfnID":"get-the-context-for-an-interaction","dfnText":"get the context for an interaction","external":false,"refSections":[{"refs":[{"id":"ref-for-get-the-context-for-an-interaction"}],"title":"2.4. Infrastructure Algorithms"}],"url":"#get-the-context-for-an-interaction"},
+"get-the-current-interaction-context": {"dfnID":"get-the-current-interaction-context","dfnText":"get the current interaction context","external":false,"refSections":[{"refs":[{"id":"ref-for-get-the-current-interaction-context"}],"title":"4.2. Soft Navigation Algorithms"},{"refs":[{"id":"ref-for-get-the-current-interaction-context\u2460"}],"title":"6.4. Container Timing integration"}],"url":"#get-the-current-interaction-context"},
 "get-the-next-interactionid": {"dfnID":"get-the-next-interactionid","dfnText":"get the next interactionId","external":false,"refSections":[{"refs":[{"id":"ref-for-get-the-next-interactionid"}],"title":"6.2. Event Timing integration"}],"url":"#get-the-next-interactionid"},
 "global-object-current-navigation-id": {"dfnID":"global-object-current-navigation-id","dfnText":"current navigation id","external":false,"refSections":[{"refs":[{"id":"ref-for-global-object-current-navigation-id"}],"title":"4.2. Soft Navigation Algorithms"},{"refs":[{"id":"ref-for-global-object-current-navigation-id\u2460"},{"id":"ref-for-global-object-current-navigation-id\u2461"}],"title":"6.1.4. Hard Navigation"},{"refs":[{"id":"ref-for-global-object-current-navigation-id\u2462"}],"title":"6.5. Performance Timeline integration"}],"url":"#global-object-current-navigation-id"},
 "interactioncontentfulpaint": {"dfnID":"interactioncontentfulpaint","dfnText":"InteractionContentfulPaint","external":false,"refSections":[{"refs":[{"id":"ref-for-interactioncontentfulpaint"},{"id":"ref-for-interactioncontentfulpaint\u2460"}],"title":"2.3. The InteractionContext struct"},{"refs":[{"id":"ref-for-interactioncontentfulpaint\u2461"},{"id":"ref-for-interactioncontentfulpaint\u2462"}],"title":"3.1. The InteractionContentfulPaint interface"},{"refs":[{"id":"ref-for-interactioncontentfulpaint\u2463"}],"title":"3.2. Interaction Contentful Paint Algorithms"},{"refs":[{"id":"ref-for-interactioncontentfulpaint\u2464"}],"title":"4.1. The PerformanceSoftNavigation interface"},{"refs":[{"id":"ref-for-interactioncontentfulpaint\u2465"}],"title":"8. Appendix: Overlapping Interactions and Race Conditions"}],"url":"#interactioncontentfulpaint"},
@@ -2138,11 +2140,11 @@ let dfnPanelData = {
 "performancesoftnavigation": {"dfnID":"performancesoftnavigation","dfnText":"PerformanceSoftNavigation","external":false,"refSections":[{"refs":[{"id":"ref-for-performancesoftnavigation"}],"title":"2.3. The InteractionContext struct"},{"refs":[{"id":"ref-for-performancesoftnavigation\u2460"},{"id":"ref-for-performancesoftnavigation\u2461"}],"title":"4.1. The PerformanceSoftNavigation interface"},{"refs":[{"id":"ref-for-performancesoftnavigation\u2462"},{"id":"ref-for-performancesoftnavigation\u2463"}],"title":"4.2. Soft Navigation Algorithms"},{"refs":[{"id":"ref-for-performancesoftnavigation\u2464"}],"title":"8. Appendix: Overlapping Interactions and Race Conditions"}],"url":"#performancesoftnavigation"},
 "performancesoftnavigation-context": {"dfnID":"performancesoftnavigation-context","dfnText":"context","external":false,"refSections":[{"refs":[{"id":"ref-for-performancesoftnavigation-context"},{"id":"ref-for-performancesoftnavigation-context\u2460"},{"id":"ref-for-performancesoftnavigation-context\u2461"},{"id":"ref-for-performancesoftnavigation-context\u2462"},{"id":"ref-for-performancesoftnavigation-context\u2463"},{"id":"ref-for-performancesoftnavigation-context\u2464"}],"title":"4.1. The PerformanceSoftNavigation interface"},{"refs":[{"id":"ref-for-performancesoftnavigation-context\u2465"}],"title":"4.2. Soft Navigation Algorithms"}],"url":"#performancesoftnavigation-context"},
 "process-a-new-attributed-contentful-paint-candidate": {"dfnID":"process-a-new-attributed-contentful-paint-candidate","dfnText":"process a new attributed contentful paint candidate","external":false,"refSections":[{"refs":[{"id":"ref-for-process-a-new-attributed-contentful-paint-candidate"}],"title":"6.3. Largest Contentful Paint (LCP) integration"}],"url":"#process-a-new-attributed-contentful-paint-candidate"},
-"process-same-document-commit": {"dfnID":"process-same-document-commit","dfnText":"process same document commit","external":false,"refSections":[{"refs":[{"id":"ref-for-process-same-document-commit"},{"id":"ref-for-process-same-document-commit\u2460"}],"title":"6.1.2. History"}],"url":"#process-same-document-commit"},
-"set-current-interaction-context-for-event-dispatch": {"dfnID":"set-current-interaction-context-for-event-dispatch","dfnText":"set current interaction context for event dispatch","external":false,"refSections":[{"refs":[{"id":"ref-for-set-current-interaction-context-for-event-dispatch"}],"title":"6.2. Event Timing integration"}],"url":"#set-current-interaction-context-for-event-dispatch"},
+"process-a-same-document-commit": {"dfnID":"process-a-same-document-commit","dfnText":"process a same document commit","external":false,"refSections":[{"refs":[{"id":"ref-for-process-a-same-document-commit"},{"id":"ref-for-process-a-same-document-commit\u2460"}],"title":"6.1.2. History"}],"url":"#process-a-same-document-commit"},
+"set-the-current-interaction-context-for-event-dispatch": {"dfnID":"set-the-current-interaction-context-for-event-dispatch","dfnText":"set the current interaction context for event dispatch","external":false,"refSections":[{"refs":[{"id":"ref-for-set-the-current-interaction-context-for-event-dispatch"}],"title":"6.2. Event Timing integration"}],"url":"#set-the-current-interaction-context-for-event-dispatch"},
 "soft-navigation": {"dfnID":"soft-navigation","dfnText":"soft navigation","external":false,"refSections":[],"url":"#soft-navigation"},
-"unset-current-interaction-context-after-event-dispatch": {"dfnID":"unset-current-interaction-context-after-event-dispatch","dfnText":"unset current interaction context after event dispatch","external":false,"refSections":[{"refs":[{"id":"ref-for-unset-current-interaction-context-after-event-dispatch"}],"title":"6.2. Event Timing integration"}],"url":"#unset-current-interaction-context-after-event-dispatch"},
-"update-interaction-contexts-for-event": {"dfnID":"update-interaction-contexts-for-event","dfnText":"update interaction contexts for event","external":false,"refSections":[{"refs":[{"id":"ref-for-update-interaction-contexts-for-event"}],"title":"2.4. Infrastructure Algorithms"}],"url":"#update-interaction-contexts-for-event"},
+"unset-the-current-interaction-context-after-event-dispatch": {"dfnID":"unset-the-current-interaction-context-after-event-dispatch","dfnText":"unset the current interaction context after event dispatch","external":false,"refSections":[{"refs":[{"id":"ref-for-unset-the-current-interaction-context-after-event-dispatch"}],"title":"6.2. Event Timing integration"}],"url":"#unset-the-current-interaction-context-after-event-dispatch"},
+"update-the-interaction-contexts-for-an-event": {"dfnID":"update-the-interaction-contexts-for-an-event","dfnText":"update the interaction contexts for an event","external":false,"refSections":[{"refs":[{"id":"ref-for-update-the-interaction-contexts-for-an-event"}],"title":"2.4. Infrastructure Algorithms"}],"url":"#update-the-interaction-contexts-for-an-event"},
 };
 
 document.addEventListener("DOMContentLoaded", ()=>{
@@ -2541,10 +2543,10 @@ let refsData = {
 "#dom-performancesoftnavigation-getlargestinteractioncontentfulpaint": {"displayText":"getLargestInteractionContentfulPaint()","export":true,"for_":["PerformanceSoftNavigation"],"level":"","normative":true,"shortname":"soft-navigations","spec":"soft-navigations","status":"local","text":"getLargestInteractionContentfulPaint()","type":"method","url":"#dom-performancesoftnavigation-getlargestinteractioncontentfulpaint"},
 "#dom-performancesoftnavigation-interactionid": {"displayText":"interactionId","export":true,"for_":["PerformanceSoftNavigation"],"level":"","normative":true,"shortname":"soft-navigations","spec":"soft-navigations","status":"local","text":"interactionId","type":"attribute","url":"#dom-performancesoftnavigation-interactionid"},
 "#dom-performancesoftnavigation-navigationtype": {"displayText":"navigationType","export":true,"for_":["PerformanceSoftNavigation"],"level":"","normative":true,"shortname":"soft-navigations","spec":"soft-navigations","status":"local","text":"navigationType","type":"attribute","url":"#dom-performancesoftnavigation-navigationtype"},
-"#emit-soft-navigation-entry": {"displayText":"emit soft navigation entry","export":true,"for_":[],"level":"","normative":true,"shortname":"soft-navigations","spec":"soft-navigations","status":"local","text":"emit soft navigation entry","type":"dfn","url":"#emit-soft-navigation-entry"},
+"#emit-a-soft-navigation-entry": {"displayText":"emit a soft navigation entry","export":true,"for_":[],"level":"","normative":true,"shortname":"soft-navigations","spec":"soft-navigations","status":"local","text":"emit a soft navigation entry","type":"dfn","url":"#emit-a-soft-navigation-entry"},
 "#evaluate-soft-navigation-emission": {"displayText":"evaluate soft navigation emission","export":true,"for_":[],"level":"","normative":true,"shortname":"soft-navigations","spec":"soft-navigations","status":"local","text":"evaluate soft navigation emission","type":"dfn","url":"#evaluate-soft-navigation-emission"},
-"#get-current-interaction-context": {"displayText":"get current interaction context","export":true,"for_":[],"level":"","normative":true,"shortname":"soft-navigations","spec":"soft-navigations","status":"local","text":"get current interaction context","type":"dfn","url":"#get-current-interaction-context"},
-"#get-or-create-context-for-interaction": {"displayText":"get or create context for interaction","export":true,"for_":[],"level":"","normative":true,"shortname":"soft-navigations","spec":"soft-navigations","status":"local","text":"get or create context for interaction","type":"dfn","url":"#get-or-create-context-for-interaction"},
+"#get-the-context-for-an-interaction": {"displayText":"get the context for an interaction","export":true,"for_":[],"level":"","normative":true,"shortname":"soft-navigations","spec":"soft-navigations","status":"local","text":"get the context for an interaction","type":"dfn","url":"#get-the-context-for-an-interaction"},
+"#get-the-current-interaction-context": {"displayText":"get the current interaction context","export":true,"for_":[],"level":"","normative":true,"shortname":"soft-navigations","spec":"soft-navigations","status":"local","text":"get the current interaction context","type":"dfn","url":"#get-the-current-interaction-context"},
 "#get-the-next-interactionid": {"displayText":"get the next interactionid","export":true,"for_":[],"level":"","normative":true,"shortname":"soft-navigations","spec":"soft-navigations","status":"local","text":"get the next interactionid","type":"dfn","url":"#get-the-next-interactionid"},
 "#global-object-current-navigation-id": {"displayText":"current navigation id","export":true,"for_":["global object"],"level":"","normative":true,"shortname":"soft-navigations","spec":"soft-navigations","status":"local","text":"current navigation id","type":"dfn","url":"#global-object-current-navigation-id"},
 "#interactioncontentfulpaint": {"displayText":"InteractionContentfulPaint","export":true,"for_":[],"level":"","normative":true,"shortname":"soft-navigations","spec":"soft-navigations","status":"local","text":"InteractionContentfulPaint","type":"interface","url":"#interactioncontentfulpaint"},
@@ -2568,10 +2570,10 @@ let refsData = {
 "#performancesoftnavigation": {"displayText":"PerformanceSoftNavigation","export":true,"for_":[],"level":"","normative":true,"shortname":"soft-navigations","spec":"soft-navigations","status":"local","text":"PerformanceSoftNavigation","type":"interface","url":"#performancesoftnavigation"},
 "#performancesoftnavigation-context": {"displayText":"context","export":true,"for_":["PerformanceSoftNavigation"],"level":"","normative":true,"shortname":"soft-navigations","spec":"soft-navigations","status":"local","text":"context","type":"dfn","url":"#performancesoftnavigation-context"},
 "#process-a-new-attributed-contentful-paint-candidate": {"displayText":"process a new attributed contentful paint candidate","export":true,"for_":[],"level":"","normative":true,"shortname":"soft-navigations","spec":"soft-navigations","status":"local","text":"process a new attributed contentful paint candidate","type":"dfn","url":"#process-a-new-attributed-contentful-paint-candidate"},
-"#process-same-document-commit": {"displayText":"process same document commit","export":true,"for_":[],"level":"","normative":true,"shortname":"soft-navigations","spec":"soft-navigations","status":"local","text":"process same document commit","type":"dfn","url":"#process-same-document-commit"},
-"#set-current-interaction-context-for-event-dispatch": {"displayText":"set current interaction context for event dispatch","export":true,"for_":[],"level":"","normative":true,"shortname":"soft-navigations","spec":"soft-navigations","status":"local","text":"set current interaction context for event dispatch","type":"dfn","url":"#set-current-interaction-context-for-event-dispatch"},
-"#unset-current-interaction-context-after-event-dispatch": {"displayText":"unset current interaction context after event dispatch","export":true,"for_":[],"level":"","normative":true,"shortname":"soft-navigations","spec":"soft-navigations","status":"local","text":"unset current interaction context after event dispatch","type":"dfn","url":"#unset-current-interaction-context-after-event-dispatch"},
-"#update-interaction-contexts-for-event": {"displayText":"update interaction contexts for event","export":true,"for_":[],"level":"","normative":true,"shortname":"soft-navigations","spec":"soft-navigations","status":"local","text":"update interaction contexts for event","type":"dfn","url":"#update-interaction-contexts-for-event"},
+"#process-a-same-document-commit": {"displayText":"process a same document commit","export":true,"for_":[],"level":"","normative":true,"shortname":"soft-navigations","spec":"soft-navigations","status":"local","text":"process a same document commit","type":"dfn","url":"#process-a-same-document-commit"},
+"#set-the-current-interaction-context-for-event-dispatch": {"displayText":"set the current interaction context for event dispatch","export":true,"for_":[],"level":"","normative":true,"shortname":"soft-navigations","spec":"soft-navigations","status":"local","text":"set the current interaction context for event dispatch","type":"dfn","url":"#set-the-current-interaction-context-for-event-dispatch"},
+"#unset-the-current-interaction-context-after-event-dispatch": {"displayText":"unset the current interaction context after event dispatch","export":true,"for_":[],"level":"","normative":true,"shortname":"soft-navigations","spec":"soft-navigations","status":"local","text":"unset the current interaction context after event dispatch","type":"dfn","url":"#unset-the-current-interaction-context-after-event-dispatch"},
+"#update-the-interaction-contexts-for-an-event": {"displayText":"update the interaction contexts for an event","export":true,"for_":[],"level":"","normative":true,"shortname":"soft-navigations","spec":"soft-navigations","status":"local","text":"update the interaction contexts for an event","type":"dfn","url":"#update-the-interaction-contexts-for-an-event"},
 "https://dom.spec.whatwg.org/#boundary-point-node": {"displayText":"node","export":true,"for_":["boundary point"],"level":"1","normative":true,"shortname":"dom","spec":"dom","status":"current","text":"node","type":"dfn","url":"https://dom.spec.whatwg.org/#boundary-point-node"},
 "https://dom.spec.whatwg.org/#concept-document": {"displayText":"document","export":true,"for_":[],"level":"1","normative":true,"shortname":"dom","spec":"dom","status":"current","text":"document","type":"dfn","url":"https://dom.spec.whatwg.org/#concept-document"},
 "https://dom.spec.whatwg.org/#concept-document-url": {"displayText":"URL","export":true,"for_":["Document"],"level":"1","normative":true,"shortname":"dom","spec":"dom","status":"current","text":"url","type":"dfn","url":"https://dom.spec.whatwg.org/#concept-document-url"},
