@@ -1,3 +1,4 @@
+<!-- max-line-length: 100 -->
 <pre class=metadata>
 Title: Soft Navigations and Interaction Contentful Paint
 Status: CG-DRAFT
@@ -143,18 +144,94 @@ which are then traced back to the original interaction. This allows for efficien
 measurement of rich, dynamic page updates that occur far after the initial event dispatch.
 </div>
 
-Interaction Infrastructure {#sec-infrastructure}
-=====================
+Performance Timeline Slicing {#sec-timeline-slicing}
+====================================================
+
+<div class="non-normative">
+<em>This section is non-normative.</em>
+
+To attribute performance metrics (such as event timings, layout shifts, resource loads, or
+long animation frames) to their initiating navigation, the performance timeline is sliced into
+segments using a `navigationId` attribute on {{PerformanceEntry}}.
+
+Determining the exact slice point for a transition that spans time is complex. To ensure
+consistent attribution, this specification adopts a model where the timeline is not sliced
+immediately upon every URL modification; instead, the transition is deferred until a
+[=soft navigation=] is ready to be emitted to the performance timeline.
+
+For a detailed discussion of the design trade-offs, attribution rules, and edge cases, see
+the [[PERFORMANCE-TIMELINE]] issue
+[comment](https://github.com/w3c/performance-timeline/issues/182#issuecomment-4460611895).
+</div>
+
 
 Navigation ID {#sec-nav-id}
------------------
+---------------------------
 
 A <dfn export>navigation id</dfn> is a unique identifier assigned to each navigation (both hard and
 soft) within a [=global object=]'s lifetime.
 
-Each [=/global object=] has a <dfn for="global object">current navigation id</dfn>, an `unsigned
-long long`, initially set to the same value that initializes the [=Document=]'s [=initial
-interactionId value=] and the initial `navigationId` for Navigation Timing.
+Each {{Window}} has:
+ * a <dfn for="Window">current navigation id</dfn>, a [=64-bit unsigned integer=],
+   initially set to the {{Window}}'s [=Window/initial navigation id value=].
+ * a <dfn for="Window">navigation count</dfn>, a [=64-bit unsigned integer=], initially 0.
+ * a <dfn for="Window">initial navigation id value</dfn>, a [=64-bit unsigned integer=],
+   initially set to a random integer between 100 and 10000.
+ * a <dfn for="Window">navigation id increment</dfn>, a [=64-bit unsigned integer=],
+   initially set to a small positive integer chosen by the user agent.
+
+Note: The [=Window/initial navigation id value=] and [=Window/navigation id increment=] are
+used to calculate {{PerformanceEntry/navigationId}} values (see
+[=increment the current navigation id=]).
+This discourages developers from relying on it to count the exact number of navigations or
+assuming it starts at zero.
+User agents are expected not to use shared global navigation values across different {{Window}}
+objects to prevent cross-origin leaks.
+
+<div algorithm="increment the current navigation id">
+  To <dfn>increment the current navigation id</dfn> given a {{Window}} |window|:
+
+  1. Set |window|'s [=Window/navigation count=] to |window|'s
+     [=Window/navigation count=] plus 1.
+  1. Let |newId| be |window|'s [=Window/initial navigation id value=] plus
+     (|window|'s [=Window/navigation count=] times
+     |window|'s [=Window/navigation id increment=]).
+  1. Set |window|'s [=Window/current navigation id=] to |newId|.
+</div>
+
+
+The `PerformanceEntry` extension {#sec-pe-extension}
+----------------------------------------------------
+
+<pre class=idl>
+[Exposed=(Window,Worker)]
+partial interface PerformanceEntry {
+    readonly attribute unsigned long long navigationId;
+};
+</pre>
+
+<div dfn-for="PerformanceEntry">
+  Each {{PerformanceEntry}} has an associated <dfn for="PerformanceEntry">navigation id</dfn>,
+  a [=64-bit unsigned integer=], initially 0.
+
+  The {{navigationId}} attribute's getter must return [=this=]'s [=PerformanceEntry/navigation id=].
+</div>
+
+
+Performance Timeline Integration {#sec-performance-timeline-integration}
+------------------------------------------------------------------------
+
+In [=queue a PerformanceEntry=], after step 1 (initializing the entry), add the following steps:
+
+  1. If |newEntry|'s [=PerformanceEntry/navigation id=] is 0:
+    1. If |global| is a {{Window}} object:
+      1. Set |newEntry|'s [=PerformanceEntry/navigation id=] to
+         |global|'s [=Window/current navigation id=].
+
+
+Interaction Infrastructure {#sec-infrastructure}
+=====================
+
 
 
 Interaction Context Intro {#sec-interaction-context-intro}
@@ -341,11 +418,12 @@ Interaction Contentful Paint Algorithms {#sec-interaction-contentful-paint-algos
 -----------------
 
 <div algorithm>
-  To <dfn>create an interaction contentful paint entry</dfn>, given a [=/global object=] |global|, an
+  To <dfn>create an interaction contentful paint entry</dfn>, given a {{Window}} |window|, an
   [=InteractionContext=] |interaction context|, a {{LargestContentfulPaint}} |lcpEntry|, and a
   [=paint timing info=] |paintTimingInfo|:
 
-  1. Let |entry| be a new {{InteractionContentfulPaint}} object in |global|'s [=global object/realm=].
+  1. Let |entry| be a new {{InteractionContentfulPaint}} object in |window|'s
+     [=global object/realm=].
   1. Set |entry|'s [=InteractionContentfulPaint/context=] to |interaction context|.
   1. Set |entry|'s [=InteractionContentfulPaint/largest contentful paint=] to |lcpEntry|.
   1. Set |entry|'s associated [=paint timing info=] to |paintTimingInfo|.
@@ -456,17 +534,19 @@ conditions:
   1. If |document|'s [=document/active soft navigation candidate=] is not |interaction context|, return.
   1. If |interaction context|'s [=InteractionContext/first URL value=] is unset, return.
   1. If |interaction context|'s [=InteractionContext/first contentful paint=] is null, return.
-  1. Let |global| be |document|'s [=relevant global object=].
-  1. Let |entry| be the result of [=create a soft navigation entry=] given |global| and |interaction context|.
-  1. [=Emit a soft navigation entry=] given |global| and |entry|.
+  1. Let |window| be |document|'s [=relevant global object=].
+  1. Let |entry| be the result of [=create a soft navigation entry=] given |window| and
+     |interaction context|.
+  1. [=Emit a soft navigation entry=] given |window| and |entry|.
   1. Set |interaction context|'s [=InteractionContext/emitted=] to true.
 </div>
 
 <div algorithm>
-  To <dfn>create a soft navigation entry</dfn> given a [=/global object=] |global|, and an
+  To <dfn>create a soft navigation entry</dfn> given a {{Window}} |window|, and an
   [=InteractionContext=] |interaction context|:
 
-  1. Let |entry| be a new {{PerformanceSoftNavigation}} object in |global|'s [=global object/realm=].
+  1. Let |entry| be a new {{PerformanceSoftNavigation}} object in |window|'s
+     [=global object/realm=].
   1. Set |entry|'s [=PerformanceSoftNavigation/context=] to |interaction context|.
   1. Let |first paint| be |interaction context|'s [=InteractionContext/first contentful paint=].
   1. If |first paint| is not null:
@@ -474,17 +554,18 @@ conditions:
   1. Return |entry|.
 </div>
 
-Note: `navigationId` is set further down, in [=queue a PerformanceEntry=].
-
 <div algorithm>
-  To <dfn>emit a soft navigation entry</dfn> given a [=/global object=] |global| and a
+  To <dfn>emit a soft navigation entry</dfn> given a {{Window}} |window| and a
   {{PerformanceSoftNavigation}} |entry|:
 
-  1. Set |entry|'s [=PerformanceEntry/navigation id=] to |entry|'s {{PerformanceSoftNavigation/interactionId}}.
-  1. Set |global|'s [=global object/current navigation id=] to |entry|'s {{PerformanceSoftNavigation/interactionId}}.
+  1. [=Increment the current navigation id=] given |window|.
   1. [=queue a performanceentry|Queue=] |entry|.
-  1. Add |entry| to |global|'s [=performance entry buffer=].
+  1. Add |entry| to |window|'s [=performance entry buffer=].
 </div>
+
+Note: The `navigationId` for this {{PerformanceSoftNavigation}} entry is set automatically as
+part of queuing it to the performance timeline, matching the behavior of other
+{{PerformanceEntry}} types.
 
 <div algorithm>
   To <dfn>process a same document commit</dfn> given a [=Document=] |document|, [=string=] |url|,
@@ -502,23 +583,6 @@ Note: `navigationId` is set further down, in [=queue a PerformanceEntry=].
     1. Set |interaction context|'s [=InteractionContext/navigation type=] to |navigation type|.
   1. Set |document|'s [=document/active soft navigation candidate=] to |interaction context|.
   1. [=Evaluate soft navigation emission=] given |document| and |interaction context|.
-</div>
-
-
-The `PerformanceEntry` extension {#sec-pe-extension}
-==================================
-
-<pre class=idl>
-[Exposed=(Window,Worker)]
-partial interface PerformanceEntry {
-    readonly attribute unsigned long long navigationId;
-};
-</pre>
-
-<div dfn-for="PerformanceEntry">
-  Each {{PerformanceEntry}} has an associated <dfn for="PerformanceEntry">navigation id</dfn>, an `unsigned long long`, initially 0.
-
-  The {{navigationId}} attribute's getter must return [=this=]'s [=PerformanceEntry/navigation id=].
 </div>
 
 
@@ -556,13 +620,13 @@ Each [=node=] has an <dfn for=node>associated interaction context</dfn>, initial
 
 ### Hard Navigation ### {#sec-html-hard-nav}
 
-When a new [=global object=] |global| is created (e.g., during a "hard" navigation), its [=global
-object/current navigation id=] is initialized as specified in [[#sec-nav-id]].
+When a new {{Window}} is created (e.g., during a "hard" navigation), its
+[=Window/current navigation id=] is initialized as specified in [[#sec-nav-id]].
 
 <div algorithm="additions to Navigation Timing">
-  In [[NAVIGATION-TIMING]], when creating the {{PerformanceNavigationTiming}} entry for the initial
-  navigation, the user agent must set its `navigationId` to the [=global object=]'s
-  [=global object/current navigation id=].
+  In [[NAVIGATION-TIMING]], when creating the {{PerformanceNavigationTiming}} entry for the
+  initial navigation, the user agent must set its `navigationId` to the {{Window}}'s
+  [=Window/current navigation id=].
 </div>
 
 Event Timing integration {#sec-event-timing-integration}
@@ -706,13 +770,6 @@ propagate this state during subsequent tree walks (e.g., during layout or paint)
 known to be non-visible or skipped by existing mechanisms like `content-visibility` or CSS
 containment could also be skipped during this reset process.
 
-Performance Timeline integration {#sec-performance-timeline-integration}
------------------
-
-In [=queue a PerformanceEntry=], after step 1 (initializing the entry), add the following steps:
-
-  1. If |newEntry|'s [=PerformanceEntry/navigation id=] is 0:
-    1. Set |newEntry|'s [=PerformanceEntry/navigation id=] to |global|'s [=global object/current navigation id=].
 
 
 Security & privacy considerations {#priv-sec}
