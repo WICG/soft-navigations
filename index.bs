@@ -5,12 +5,12 @@ Shortname: soft-navigations
 Group: wicg
 Level: none
 Editor: Michal Mocny, Google https://google.com, mmocny@chromium.org, w3cid 110398
-        Scott Haseley, Google https://google.com, shaseley@google.com
+        Scott Haseley, Google https://google.com, shaseley@google.com, w3cid 122093
 Former Editor: Yoav Weiss, Shopify https://shopify.com, yoav@yoav.ws, w3cid 58673
 URL: https://wicg.github.io/soft-navigations/
 Repository: https://github.com/WICG/soft-navigations
 Test Suite: https://github.com/web-platform-tests/wpt/tree/master/soft-navigation-heuristics
-Abstract: This document defines a mechanism for measuring interaction-initiated effects, enabling user agents to attribute page modifications and performance entries back to the user interactions that triggered them.
+Abstract: This document defines a set of APIs that web page authors can use to detect same-document ("soft") navigations, and attribute subsequent page modifications and contentful paints back to the user interactions that triggered them.
 Boilerplate: omit conformance
 Default Highlight: js
 Complain About: accidental-2119 yes
