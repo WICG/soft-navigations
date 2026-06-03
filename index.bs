@@ -713,8 +713,19 @@ In [=queue a PerformanceEntry=], after step 1 (initializing the entry), add the 
     1. Set |newEntry|'s [=PerformanceEntry/navigation id=] to |global|'s [=global object/current navigation id=].
 
 
-Overlapping Interactions and Race Conditions {#sec-overlapping-interactions}
-=================
+Security & privacy considerations {#priv-sec}
+===============================================
+Exposing Soft Navigations to the performance timeline doesn't have security and privacy implications
+on its own.  However, resetting the various paint timing entries as a result of a detected soft
+navigation can have implications, especially before [visited links are
+partitioned](https://github.com/kyraseevers/Partitioning-visited-links-history).  As such, exposing
+such paint operations without partitioning the :visited cache needs to only be done after careful
+analysis of the paint operations in question, to make sure they don't expose the user's history
+across origins.
+
+
+Appendix: Overlapping Interactions and Race Conditions {#sec-overlapping-interactions}
+===========================================================================
 
 <div class="non-normative">
 <em>This section is non-normative.</em>
@@ -741,12 +752,3 @@ handles such overlapping interactions through the following model:
 
 </div>
 
-Security & privacy considerations {#priv-sec}
-===============================================
-Exposing Soft Navigations to the performance timeline doesn't have security and privacy implications
-on its own.  However, resetting the various paint timing entries as a result of a detected soft
-navigation can have implications, especially before [visited links are
-partitioned](https://github.com/kyraseevers/Partitioning-visited-links-history).  As such, exposing
-such paint operations without partitioning the :visited cache needs to only be done after careful
-analysis of the paint operations in question, to make sure they don't expose the user's history
-across origins.
