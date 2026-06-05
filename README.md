@@ -6,80 +6,98 @@ https://wicg.github.io/soft-navigations/
 
 ## Overview
 
-The web performance timeline has an existing rich set of capabilities for measuring the performance of page loads that help developers monitor, understand, and improve user experience.  For example: First Contenful Paint (FCP) and Largest Contentful Paint (LCP) are an interoperable set of metrics for reporting on these experiences across browsers.
+This repository hosts a specification for two new `PerformanceEntry` types:
 
-However, modern web applications often dynamically update contents of the document in response to user interactions without performing a full cross-document navigation-- no new page load.  Thus, they do not benefit from many of the existing web performance timeline features, which only report performance of cross-document page loads.
+1. **`InteractionContentfulPaint`**: Reports on new contentful paints that are initiated by, and attributed to, user interactions.
+    - This entry represents all contentful updates to the page, modeled on concepts from [Container Timing](https://github.com/WICG/container-timing).
+    - This entry also reports a nested `LargestContentfulPaint` entry, representing the single largest element rendered as a result of that interaction.
+    - Note: This measures all interactions, even if they do not also result in soft navigations, and so is useful for general UI responsiveness measures.
 
-This is especially true for apps built using JavaScript driven, client-side component rendering frameworks.
+2. **`PerformanceSoftNavigation`**: Reports on user-initiated same-document navigations.
+    - This entry primarily serves to help "slice" the performance timeline, group existing `PerformanceEntry` entries, and give them a URL to attribute to.
+    - This entry reports the First Contentful Paint of the soft navigation (via `PaintTimingMixin`), and defines a new `timeOrigin` for subsequent entries (via its `startTime`).
+    - Note: Unlike the Navigation API, this API is designed to associate the initial interaction with a same-document navigation and a first contentful paint. All pieces are required.
 
-This repository hosts a specification for two new PerformanceEntry types:
+This specification also defines an extension to all existing `PerformanceEntry` types:
 
-1. **`InteractionContentfulPaint`**: Reports contentful paint updates within the same document that are initiated by user interactions (similar to LCP).
+- Add a `navigationId` attribute, which can be used to "slice" the performance timeline data into useful sub-parts.
+- A `PerformanceSoftNavigation` would become one mechanism for slicing, though other page lifecycle events (i.e., `pageshow` for bfcache restorations, etc.) are also common reasons.
 
-2. **`SoftNavigationEntry`**: Reports user-initiated same-document navigations (an alternative to the Navigation Timing API).
-
-...as well as modifications to existing specifications to support these use cases, such as adding a `navigationId` to all PerformanceEntry types.
+Finally, this specification also proposes several modifications to existing specifications to support these new APIs.
 
 ## Motivation
 
-Existing web performance metrics like **Largest Contentful Paint (LCP)**, **Interaction to Next Paint (INP)** and **Cumulative Layout Shift (CLS)** leave a gap in measuring dynamic page updates:
+The web [Performance Timeline](https://www.w3.org/TR/performance-timeline/) and [related specifications](https://www.w3.org/groups/wg/webperf/publications/) define a rich set of capabilities for measuring the performance of pages. These help developers monitor, understand, and improve user experience.
 
-- **LCP** only measures the initial page load. Subsequent "soft" navigations in an SPA do not currently trigger new LCP entries.
-- **CLS** measures layout instability across the entire page lifespan. However, without soft navigation boundaries, it is difficult to attribute layout shifts to specific user journeys based on specific interactions and resulting URL changes.
-- **INP** measures the latency of the immediate visual feedback of user interactions, but does not capture any asynchrnously scheduled subsequent rendering of rich content updates (e.g., a product page loading after network response), which is an equally important part of user experience.  Similar to CLS, INP also measures across the entire page lifespan, but does not typically attribute interactions to specific URLs.
+From these primitives, an interoperable set of metrics is defined, such as [First Contentful Paint (FCP)](https://developer.mozilla.org/en-US/docs/Glossary/First_contentful_paint), [Largest Contentful Paint (LCP)](https://developer.mozilla.org/en-US/docs/Glossary/Largest_contentful_paint), and [Interaction to Next Paint (INP)](https://developer.mozilla.org/en-US/docs/Glossary/Interaction_to_next_paint).
 
-**Example Scenario:** A user clicks a product link in a Single Page Application (SPA). A `click` handler initiates a network `fetch()`. When the response arrives, a callback dynamically injects the new content into the DOM and updates the URL.
-- To the user, this is a navigation.
-- To existing metrics, the "paint" happens long after the interaction is "over."
-- To the performance timeline, the new URL is irrelevant, and many RUM products continue to beacont to the initial page.
+However, those specifications, and the metrics defined in terms of them, are currently defined in terms of cross-document navigations, aka "hard" page loads.
 
-The InteractionContentfulPaint specification bridges that gap by attributing the late-arriving paint back to the initiating click, and the SoftNavigation specification assists group existing performance entries for improved URL attribution.
+Yet, many modern web applications will not always choose to "hard" navigate between distinct pages on every interaction. Sites might instead only partially update existing page contents in response to user interactions. Some sites might even be designed as [Single Page Applications](https://developer.mozilla.org/en-US/docs/Glossary/SPA), though modern practice is to leverage a mixture of cross-document and same-document interactions/navigations.
 
-## How it Works
+**Problem:** Such sites currently do not fully benefit from the existing Performance Timeline APIs.
 
-This specification brings together several web platform capabilities to measure dynamic page updates:
+**Example Scenario:**
+- A user clicks a product link.
+- A `click` handler initiates a network `fetch()`.
+- The fetch response triggers a callback that:
+  - Dynamically injects new content into the DOM, and
+  - Updates the URL using history APIs.
 
-- **Event Timing**: User interactions (like clicks) are identified and assigned an `interactionId`.  We also extend Event Timing to add support for `navigate`, `popstate`, and `hashchange` events.
-- **AsyncContext**: Each interaction is assigned a new `InteractionContext`. This context is automatically propagated through asynchronous operations (like `fetch()` or `setTimeout`), ensuring that the eventual effects can be attributed back to the original user interaction.
-- **Container Timing**: This specification leverages some parts of the experimental Container Timing specification to help track contentful paints within the DOM subtrees that are marked as "container roots" and are attributed to an interaction context.
-- **Navigation API**: Although the use of the new Navigation API is not required by developers, it provides a more robust and consistent way to define same document navigations, and their attributes.
+To the user, this feels exactly like a "navigation."
 
-Leveraging these primitives:
+To the performance timeline, the new URL is irrelevant, and the eventual paint updates are unmeasured.
 
-- Whenever Event Timing observes a new Event dispatch that is considered an Interaction, we create an `InteractionContext`.
-- We save this `InteractionContext` into an internal `AsyncContext.Variable` which propogates across asynchronous task scheduling.
-- We observe structural modifications to the current document (such as adding new child nodes to an existing node, or updating existing node content or attributes).
-  - If an `InteractionContext` is available for the current task when this happens, we mark the modified DOM subtree as belonging to a "container" which is specific to this `InteractionContext`.
-  - We do so as sparsely and lazily as possible, such that only new unique DOM tree roots are marked, and only visible parts of the DOM tree are processed.
-  - Later, contentful paints for elements inside these container trees will be observed (using Container Timing semantics), and will become candidates for emitting new `InteractionContentfulPaint` entries (using LCP semantics).
-- We also observe all same document navigations (such as `pushState` or `navigate` event interceptions).
-  - If an `InteractionContext` is available for the current task, we store a link between this same document navigation and the `InteractionContext`.
-  - If this is the first same document navigation for this interaction, and all other criteria are met, we emit a `SoftNavigationEntry`.
-- For these new entries, we expose the `interactionId` of the interaction that initiated it, and for all existing performance entries, we expose a `navigationId` to allow developers to group them by navigation.
+## Proposed Solution
+
+The APIs proposed in the specifications contained within the repository create an elegant mechanism to address this existing gap:
+
+- Same-document navigations are just interactions that:
+  - Dynamically update the contents of the page, and
+  - Update the application's same-document history entry.
+
+By measuring the "loading performance" of all interactions, summarized into a single nested "LCP" for each interaction, and by observing same-document history changes initiated by those same interactions — we can define and measure soft navigations and their subsequent loading performance (i.e., "soft" LCP).
+
+### How it Works
+
+This specification mostly leverages and brings together several existing web platform capabilities, as well as a few new nascent feature incubations:
+
+- **Event Timing**: User interactions (like clicks) are already identified and assigned an `interactionId`. We extend Event Timing to add support for `navigate`, `popstate`, and `hashchange` events.
+- **AsyncContext**: Each observed interaction creates a unique `InteractionContext`, which is stored in an internal `AsyncContext.Variable`. This gets propagated through asynchronous operations (like `fetch()` or `setTimeout`), ensuring that the eventual effects of that interaction can be attributed back to the original user interaction.
+- **HTML** and **DOM**: Whenever DOM modifications occur (e.g., `appendChild`, `innerHTML`, `style` or `src` attributes, etc.), and the modification is from a task that is associated with an `InteractionContext` (via `AsyncContext`), we "mark" that part of the DOM as being associated with that interaction.
+- **Paint Timing** and **Largest Contentful Paint**: We extend these APIs to define how to "reset" paint timings (after DOM modifications) and how to map specific element paints to interactions.
+- **Container Timing**: The concept of "marking" nodes in the DOM, then later mapping element paints to these, borrows from concepts that are part of the proposed Container Timing API. (Directly integrating with and exposing Container Timing IDL attributes on the `InteractionContentfulPaint` is an aspirational future goal).
+- **Navigation API**: Although the use of the new Navigation API is not required by developers, it provides a more robust and consistent way to define same-document navigations, and their attributes.
+
 
 ## Examples
 
-### Observing Soft Navigations
+### Observing `PerformanceSoftNavigation`
 
-To observe the stream of new soft navigations, you can use a `PerformanceObserver`:
+To observe the stream of new soft navigations, you can either use a `PerformanceObserver`:
 
 ```js
 new PerformanceObserver((list) => {
   for (const entry of list.getEntries()) {
     const {
       startTime,
-      renderTime,
       duration,
       interactionId,
       navigationId,
     } = entry;
     const url = entry.name;
 
+    // Optional: Retrieve the largest ICP for this soft navigation so far.
+    // Note: This keeps updating as the page loads beyond FCP, so you can read the final value when you are ready to report/beacon.
+    const icpEntry = entry.getLargestInteractionContentfulPaint();
+    const lcpElement = icpEntry?.largestContentfulPaint?.element;
+
     console.log(
       "[SoftNav] interactionId:", interactionId,
       "startTime:", startTime,
-      "duration:", duration,
-      "url:", url
+      "url:", url,
+      "fcp:", duration,
+      "lcp element (so far):", lcpElement
     );
   }
 }).observe({
@@ -88,42 +106,32 @@ new PerformanceObserver((list) => {
 });
 ```
 
-Or, to list all the existing (buffered) entries so far, you can use `getEntriesByType`:
+Or, use `performance.getEntriesByType()`:
 
 ```js
 const soft_navs = performance.getEntriesByType("soft-navigation");
 ```
 
-Together with navigation timing (for the initial page load) you can map any Performance Entry to a navigation:
+Note: The latter is limited by the global buffer size for this entry type, so using a `PerformanceObserver` is recommended.
 
-```js
-function getNav(navigationId) {
-    const navs = [
-        performance.getEntriesByType('navigation')[0],
-        ...performance.getEntriesByType('soft-navigation'),
-    ];
-    return navs.find(entry => entry.navigationId == navigationId);
-}
-```
-
-### Observing InteractionContentfulPaint
+### Observing `InteractionContentfulPaint`
 
 ```js
 new PerformanceObserver((list) => {
   for (const entry of list.getEntries()) {
     const {
       startTime,
-      renderTime,
       duration,
       interactionId,
-      element,
+      largestContentfulPaint,
     } = entry;
 
     console.log(
       "[ICP] interactionId:", interactionId,
       "startTime:", startTime,
       "duration:", duration,
-      "element:", element
+      "LCP element (so far):", largestContentfulPaint.element,
+      "LCP size (so far):", largestContentfulPaint.size
     );
   }
 }).observe({
@@ -132,56 +140,43 @@ new PerformanceObserver((list) => {
 });
 ```
 
-### Observing PerformanceEntrys sliced by Soft Navigations
+### Mapping existing entries to navigations
+
+All `PerformanceEntry` types can be mapped to a navigation using a `navigationId` value.
+
+From this, you can extract:
+- a "timeOrigin", via `startTime` (or `activationStart`)
+- the initial URL, via `name`
 
 ```js
-let currentNav = performance.getEntriesByType('navigation')[0];
-
-const entryTypes = [
-  "soft-navigation",
-  "interaction-contentful-paint",
-  // ... consider adding "event", "layout-shift", "resource", etc
-];
-
-function getEntriesByNavigation(entries, navigationId) {
-  return entries.filter(
-    entry => entry.navigationId === navigationId
-  );
+function getNavigationEntry(navigationId) {
+    const navs = [
+        performance.getEntriesByType('navigation')[0],
+        ...performance.getEntriesByType('soft-navigation'),
+    ];
+    return navs.find(entry => entry.navigationId === navigationId);
 }
-
-const observer = new PerformanceObserver((list) => {
-  const entries = list.getEntries();
-
-  for (const nav of [currentNav, ...list.getEntriesByType('soft-navigation')]) {
-    currentNav = nav;
-    const entriesForNav = getEntriesByNavigation(entries, nav.navigationId).filter(entry => entry.entryType !== "soft-navigation");
-    if (!entriesForNav.length) continue;
-
-    console.group(nav.navigationId, nav.name);
-    for (const entry of entriesForNav) {
-      console.log(entry.entryType, entry);
-    }
-    console.groupEnd();
-  }
-});
-
-entryTypes.forEach(type => {
-  observer.observe({ type, durationThreshold: 0, buffered: true });
-});
 ```
+
+Note: This specification does not define it, but it would be a useful future extension to also add (e.g., bfcache restorations) to this list.
+
+### Putting it all together and making it pretty
+
+Try [this example JS snippet](https://github.com/mmocny/mmocny.github.io/blob/main/snippets/InteractionsAndNavigations.js).
 
 ## Privacy and Security
 
 Exposing these entries does not introduce significant novel privacy risks.
-- InteractionContentfulPaint timings follow the same security constraints as Container Timing and/or LCP (e.g., cross-origin image opt-in).
-- Detection conditions are limited to trusted user interactions, preventing programmatic scanning of document updates.
-- The use of `AsyncContext` ensures that attribution is strictly causal.
+
+- Interactions are "observed" and reported using the same criteria and conditions as existing ones (via Event Timing).
+- Interaction-attributed paint timings follow the same security constraints as existing Paint Timing and LCP (e.g., cross-origin image opt-in).
+- Observation conditions are limited to trusted user interactions, preventing programmatic observation of document updates.
 
 For a detailed analysis, see the [Security & Privacy section](https://wicg.github.io/soft-navigations/#priv-sec) of the specification.
 
 ## Considered alternatives
 
-A few notes regarding alternative approaches:
+(Note: This section is incomplete. Leaving the original text from an initial explainer, below; however, many alternatives were explored over the life of the feature development.)
 
 - We considered using only semantic elements, but it seems to not match current real-world practices.
 - We considered limiting DOM modifications to specific DOM elements or some other criteria regarding "meaningful" DOM modifications. We haven't seen a necessity for this in practice.
