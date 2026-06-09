@@ -53,12 +53,13 @@ urlPrefix: https://www.w3.org/TR/css-view-transitions-1/
   type: dfn; text: startViewTransition(); url: #dom-document-startviewtransition;
 urlPrefix: https://w3c.github.io/performance-timeline/; spec: PERFORMANCE-TIMELINE
   type: dfn; text: queue a PerformanceEntry; url: #dfn-queue-a-performanceentry;
-urlPrefix: https://w3c.github.io/largest-contentful-paint/; spec: LARGEST-CONTENTFUL-PAINT
+urlPrefix: https://pr-preview.s3.amazonaws.com/shaseley/largest-contentful-paint/pull/171.html; spec: LARGEST-CONTENTFUL-PAINT
   type: dfn;
     text: has dispatched scroll event; url: #has-dispatched-scroll-event;
     text: report largest contentful paint; url: #report-largest-contentful-paint;
-    text: list of painted images; url: #list-of-painted-images;
-    text: list of painted text; url: #list-of-painted-text;
+    text: largest contentful paint candidate; url: #largest-contentful-paint-candidate;
+    text: compute a new largest contentful paint candidate; url: #compute-a-new-largest-contentful-paint-candidate;
+    text: create a LargestContentfulPaint entry; url: #create-a-largestcontentfulpaint-entry;
 urlPrefix: https://w3c.github.io/event-timing/
   type: dfn;
     text: has dispatched input event; url: #has-dispatched-input-event;
@@ -279,6 +280,9 @@ The InteractionContext struct {#sec-interaction}
     entry for this interaction.
   * <dfn>largest contentful paint</dfn>, initially null - The largest {{InteractionContentfulPaint}}
     entry for this interaction so far.
+  * <dfn>current largest contentful paint candidate</dfn>, initially null - The
+    [=largest contentful paint candidate=] associated with the
+    [=InteractionContext/largest contentful paint=].
   * <dfn>last URL value</dfn>, initially unset - Represents the value of the most recent URL
     modification during this interaction.
   * <dfn>emitted</dfn> flag, initially false  - Indicates that a soft navigation entry was emitted
@@ -431,8 +435,8 @@ Interaction Contentful Paint Algorithms {#sec-interaction-contentful-paint-algos
 
 <div algorithm>
   To <dfn>process a new attributed contentful paint candidate</dfn> given a
-  {{LargestContentfulPaint}} |lcpEntry|, a [=Document=] |document|, and an [=InteractionContext=]
-  |interaction context|:
+  [=largest contentful paint candidate=] |lcpCandidate|, a [=Document=] |document|, an
+  [=InteractionContext=] |interaction context|, and a [=paint timing info=] |paintTimingInfo|:
 
   1. If |interaction context|'s [=InteractionContext/first scroll timestamp=] is set and
      |lcpEntry|'s {{LargestContentfulPaint/renderTime}} is greater than |interaction context|'s
@@ -440,6 +444,8 @@ Interaction Contentful Paint Algorithms {#sec-interaction-contentful-paint-algos
   1. If |interaction context|'s [=InteractionContext/first input timestamp=] is set and |lcpEntry|'s
      {{LargestContentfulPaint/renderTime}} is greater than |interaction context|'s
      [=InteractionContext/first input timestamp=], return.
+  1. Let |lcpEntry| be the result of [=creating a LargestContentfulPaint entry=] with
+     |lcpCandidate|, |paintTimingInfo|, and |document|.
   1. Let |global| be |document|'s [=relevant global object=].
   1. Let |paint timing info| be |lcpEntry|'s associated [=paint timing info=].
   1. Let |icpEntry| be the result of [=create an interaction contentful paint entry=] given
@@ -449,11 +455,45 @@ Interaction Contentful Paint Algorithms {#sec-interaction-contentful-paint-algos
   1. If |interaction context|'s [=InteractionContext/first contentful paint=] is null:
     1. Set |interaction context|'s [=InteractionContext/first contentful paint=] to |icpEntry|.
   1. Set |interaction context|'s [=InteractionContext/largest contentful paint=] to |icpEntry|.
+  1. Set |interaction context|'s [=InteractionContext/current largest contentful paint candidate=]
+     to |lcpCandidate|.
 </div>
 
 Note: `InteractionContentfulPaint` entries are emitted to the performance timeline as they are
 detected, independently of whether the interaction eventually results in a soft navigation. This
 allows developers to monitor rendering updates for all interactions.
+
+<div algorithm>
+  To <dfn>report interaction contentful paints and soft navigations</dfn> given a {{Document}}
+  |document|, a [=paint timing info=] |paintTimingInfo|, an [=ordered set=] of
+  [=pending image records=] |paintedImages|, and an [=ordered set=] of [=/elements=]
+  |paintedTextNodes|:
+
+  1. Let |contextToCandidateSets| be a new [=/map=].
+  1. [=set/For each=] |record| of |paintedImages|:
+    1. Let |element| be |record|'s [=pending image record element|element=].
+    1. Let |interaction context| be the result of [=getting the paint attribution interaction context=]
+       for |element|.
+    1. If |interaction context| is not null:
+      1. If |contextToCandidateSets| does not [=map/contain=] |interaction context|, then set
+         |contextToCandidateSets|[|interaction context|] to « «», «» ».
+      1. [=set/Append=] |record| to |contextToCandidateSets|[|interaction context|][0].
+  1. [=set/For each=] |element| of |paintedTextNodes|:
+    1. Let |interaction context| be the result of [=getting the paint attribution interaction context=]
+       for |element|.
+    1. If |interaction context| is not null:
+      1. If |contextToCandidateSets| does not [=map/contain=] |interaction context|, then set
+         |contextToCandidateSets|[|interaction context|] to « «», «» ».
+      1. [=set/Append=] |element| to |contextToCandidateSets|[|interaction context|][1].
+  1. [=map/For each=] |interaction context| → |candidateSets| in |contextToCandidateSets|:
+    1. Let |newCandidate| be the result of [=computing a new largest contentful paint candidate=]
+       given |document|, |candidateSets|[0], |candidateSets|[1], and |interaction context|'s
+       [=InteractionContext/current largest contentful paint candidate=].
+    1. If |newCandidate| is not null:
+      1. [=Process a new attributed contentful paint candidate=] given |newCandidate|, |document|,
+         and |interaction context|, and |paintTimingInfo|.
+      1. [=Evaluate soft navigation emission=] given |document| and |interaction context|.
+</div>
 
 
 Interaction Contentful Paint Attribution {#sec-interaction-contentful-paint-attribution}
@@ -842,8 +882,8 @@ Paint Timing integration {#sec-paint-timing-integration}
 This specification extends the [[PAINT-TIMING]] specification to reset paint tracking for elements
 that have been modified by interactions and to trigger paint attribution for rendered documents.
 
-<div algorithm="mark paint timing changes">
-  Change [=mark paint timing=] to add the following step after step 1, given a [=Document=]
+<div algorithm="mark paint timing changes 1">
+  Change [=mark paint timing=] to add the following step after step 1, given a {{Document}}
   |document|:
 
   1. [=Update the interaction context for a document and its descendants=] given |document|.
@@ -851,6 +891,16 @@ that have been modified by interactions and to trigger paint attribution for ren
 
 Issue(w3c/paint-timing#126): [=Mark paint time=] mixes together steps that should come before and
 after the UA paints the document. The step added here is expected to occur before paint.
+
+<div algorithm="mark paint timing changes 2">
+  Change [=mark paint timing=] to add the following step after step 10.3 ([=report largest
+  contentful paint=]), given a {{Document}} |document|, a [=paint timing info=] |paintTimingInfo|,
+  an [=ordered set=] of [=pending image records=] |paintedImages|, and an [=ordered set=] of
+  [=/elements=] |paintedTextNodes|:
+
+  1. [=Report interaction contentful paints and soft navigations=] given |document|,
+     |paintTimingInfo|, |paintedImages|, and |paintedTextNodes|.
+</div>
 
 Add the following algorithm:
 
@@ -877,35 +927,6 @@ Add the following algorithm:
 
 Largest Contentful Paint (LCP) integration {#sec-lcp-integration}
 -----------------
-
-This specification hooks into the [[LARGEST-CONTENTFUL-PAINT]] algorithm to attribute paints to interactions.
-
-<div algorithm="additions to report largest contentful paint">
-  In [=report largest contentful paint=], let |candidates| be the union of the [=list of painted images=]
-  and the [=list of painted text=]:
-
-  1. Let |contextToNewLargestCandidate| be a new [=/map=].
-  1. For each |candidate| in |candidates|:
-    1. Let |element| be |candidate|'s element.
-    1. If |element| is null, continue.
-    1. Let |interaction context| be the result of [=getting the paint attribution interaction context=]
-       for |element|.
-    1. If |interaction context| is null, continue.
-    1. Let |size| be |candidate|'s size.
-    1. If |interaction context|'s [=InteractionContext/largest contentful paint=] is not null and
-       |size| is less than or equal to |interaction context|'s [=InteractionContext/largest contentful
-       paint=]'s {{InteractionContentfulPaint/largestContentfulPaint}}'s
-       {{LargestContentfulPaint/size}}, continue.
-    1. Let |current candidate| be |contextToNewLargestCandidate|[|interaction context|]
-       [=map/with default=] null.
-    1. If |current candidate| is null or |size| is greater than |current candidate|'s size:
-      1. [=map/Set=] |contextToNewLargestCandidate|[|interaction context|] to |candidate|.
-  1. For each |interaction context| → |newLcpCandidate| in |contextToNewLargestCandidate|:
-    1. Let |newLcpEntry| be the {{LargestContentfulPaint}} entry representing |newLcpCandidate|.
-    1. [=Process a new attributed contentful paint candidate=] given |newLcpEntry|, |document|, and
-       |interaction context|.
-    1. [=Evaluate soft navigation emission=] given |document| and |interaction context|.
-</div>
 
 
 Security & privacy considerations {#priv-sec}
