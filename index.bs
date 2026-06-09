@@ -469,46 +469,52 @@ Interaction Contentful Paint Attribution {#sec-interaction-contentful-paint-attr
 <br>
 
 <div algorithm>
-  To <dfn>get the node interaction context</dfn> for a given [=Node=] |node|:
+  To determine if an [=InteractionPaintTimingNodeState=] |node state| is <dfn>more recent than</dfn>
+  an [=InteractionPaintTimingNodeState=] or null |other node state|:
+
+  1. Return true if |other node state| is null or |node state|'s
+     [=InteractionPaintTimingNodeState/modification id=] is greater than |other node state|'s
+     [=InteractionPaintTimingNodeState/modification id=], and false otherwise.
+</div>
+
+<div algorithm>
+  To <dfn>get the paint attribution interaction context</dfn> for a given [=Node=] |node|:
 
   1. Let |document| be |node|'s [=Node/node document=].
-  1. Let |node state| be |document|'s [=document/node to interaction paint state=][|node|]
+  1. Let |node state| be |document|'s [=document/propagated node state=][|node|]
      [=map/with default=] null.
   1. If |node state| is null return null, otherwise return |node state|'s
      [=InteractionPaintTimingNodeState/context=].
 </div>
 
 <div algorithm>
-  To <dfn>report a node as modified for interaction paint timing</dfn> given a [=Node=]
+  To <dfn>record a node as modified for interaction paint timing</dfn> given a [=Node=]
   |target node|:
 
-  1. If |target node| is not [=connected=], return.
   1. Let |document| be |node|'s [=Node/node document=].
+  1. If |target node| is not [=exposed for paint timing=] given |document|, return.
   1. Let |interaction context| be the result of [=getting the current interaction context=] given
      |document|.
   1. If |interaction context| is null, return.
-  1. Let |target container| be the {{Element}} which determines the [=containing block=] of
-     |target node|.
-     <div class="note">For text nodes and inline elements, this will be the nearest block element.
-     For block elements, this will be the element itself.</div>
   1. If |document|'s [=document/last modification context=] is not equal to |interaction context|:
     1. Set |document|'s [=document/last modification context=] to |interaction context|.
     1. Increment |document|'s [=document/current modification generation id=] by 1.
-  1. Let |node state| be |document|'s [=document/node to interaction paint state=][|target container|]
+  1. Let |previous node state| be |document|'s [=document/marked node state=][|target node|]
      [=map/with default=] null.
-  1. If |node state| is not null and |node state|'s [=InteractionPaintTimingNodeState/modification id=]
-     equals |document|'s [=document/current modification generation id=], return.
-  1. Set |node state| to a new [=InteractionPaintTimingNodeState=].
-  1. Set |node state|'s [=InteractionPaintTimingNodeState/context=] to |context|.
+  1. If |previous node state| is not null and |previous node state|'s
+     [=InteractionPaintTimingNodeState/modification id=] equals |document|'s
+     [=document/current modification generation id=], return.
+  1. Let |node state| to a new [=InteractionPaintTimingNodeState=].
+  1. Set |node state|'s [=InteractionPaintTimingNodeState/context=] to |interaction context|.
   1. Set |node state|'s [=InteractionPaintTimingNodeState/modification id=] to
      |document|'s [=document/current modification generation id=].
-  1. [=map/Set=] |document|'s [=document/node to interaction paint state=][|node|] to |context|.
+  1. [=map/Set=] |document|'s [=document/marked node state=][|node|] to |node state|.
   1. Set |document|'s [=document/is interaction paint timing dirty=] to true.
-  1. [=Reset paint tracking=] for |node|.
 </div>
 
 <div algorithm>
-  To <dfn >update the interaction paint tracking</dfn> for a given [=Document=] |document|:
+  To <dfn>update the interaction context for a document and its descendants</dfn> given a
+  [=Document=] |document|:
 
   1. If |document|'s [=document/is interaction paint timing dirty=] is false, return.
   1. [=Update the interaction context for a node and its descendants=] given |document| and null.
@@ -520,44 +526,46 @@ Interaction Contentful Paint Attribution {#sec-interaction-contentful-paint-attr
   |node| and an [=InteractionPaintTimingNodeState=] |inherited node state| or null:
 
   1. Let |document| be |node|'s [=Node/node document=].
-  1. Let |node state| be |document|'s [=document/node to interaction paint state=][|node|]
-     [=map/with default=] null.
-  1. If |inherited node state| is null:
-    1. Set |inherited node state| to |node state|.
-  1. Otherwise if |node state| is not null and |node state|'s
-     [=InteractionPaintTimingNodeState/modification id=] is greater than or equal to
-     |inherited node state|'s [=InteractionPaintTimingNodeState/modification id=]:
-    1. Set |inherited node state| to |node state|.
-  1. Otherwise:
-    1. Set [=document/node to interaction paint state=][|node|] to |inherited node state|.
-    1. If |node state| is null or |node state|'s [=InteractionPaintTimingNodeState/context=] is
-       not equal to |inherited node state|'s [=InteractionPaintTimingNodeState/context=], then
-       [=reset paint tracking=] for |node|.
+  1. Let |node state| be |document|'s [=document/marked node state=][|node|] [=map/with default=] null.
+  1. If |node state| is not null:
+    1. If |node state| is [=more recent than=] |inherited node state|:
+        1. Set |inherited node state| to |node state|.
+        1. If |node| is a {{Text}} [=node=], then [=map/Remove=] |document|'s
+           [=document/marked node state=][|node|].
+    1. Otherwise, [=map/Remove=] |document|'s [=document/marked node state=][|node|].
+  1. If |inherited node state| is not null and |node| is [=timing-eligible=]:
+    1. Let |attribution element| be the result of [=getting the attribution element=] for |node|.
+    1. Let |previous propagated state| be [=document/propagated node state=][|attribution element|]
+       [=map/with default=] null.
+    1. If |inherited node state| is [=more recent than=] |previous propagated state|:
+        1. Set [=document/propagated node state=][|attribution element|] to |inherited node state|.
+        1. If |previous propagated state| is null or |previous propagated state|'s
+           [=InteractionPaintTimingNodeState/context=] is not equal to |inherited node state|'s
+           [=InteractionPaintTimingNodeState/context=], then [=reset paint tracking=] for
+           |attribution element|.
   1. [=set/For each=] [=tree/child=] |child node| of |node|,
      [=update the interaction context for a node and its descendants=] given |child node| and
      |inherited node state|.
 </div>
 
-Note: For simplicity, this algorithm stores all nodes that inherit an [=InteractionContext=] from an
-ancestor in a [=Document=]'s [=document/node to interaction paint state=]. But this map can be made
-sparser by storing only nodes that can be considered contentful paint candidates, i.e. nodes
-associated with an image and nodes that are text aggregators (see [[PAINT-TIMING]], which would
-reduce the memory footprint. Also, subtrees that are known to be non-visible or skipped by existing
-mechanisms like `content-visibility` or CSS containment could also be skipped during this process,
-as long as they are updated before the next time they are painted. Also note that this can be
-further optimized by merging these steps with another (pre-paint) tree walk, as long as the relevant
-state is updated before paint.
+Note: For simplicity, this algorithm walks the entire DOM whenever the propagated state needs to to
+be reprocessed. This can be optimized to only process parts of the DOM that are paintable, e.g.
+subtrees that are known to be non-visible or skipped by existing mechanisms like
+`content-visibility` or CSS containment could also be skipped during this process, as long as they
+are updated before the next time they are painted. Also note that this can be further optimized by
+merging these steps with another (pre-paint) tree walk, as long as the relevant state is updated
+before paint.
 
 Note: The [[CONTAINER-TIMING]] API provides a mechanism for grouping rendering effects by their
 common DOM ancestor and report aggregated paint information to the performance timeline. In a future
 version of this specification, we plan to expand Container Timing to support multiple clients for a
 single container (i.e. the global "containertiming" attribute and per-interaction timing) to allow
-implementing interaction paint timing in terms of Container Timing. Each
-[=report a node as modified for interaction paint timing|reported=] node would be considered a
-container, and this specification would track the largest contentful paint across all containers.
-Furthermore, the aggregated paint information could be aggregated across all marked nodes and
-emitted in {{InteractionContentfulPaint}} entries.
-
+implementing interaction paint timing in terms of Container Timing. Each [=record a node as modified
+for interaction paint timing|recorded=] node would be considered a container for the interaction
+that modified it, so that each interaction is associated with a set of containers. Then, this
+specification would track the largest contentful paint that occurs in a marked container, for each
+interaction.  Furthermore, we could expose other useful information that Container Timing tracks,
+e.g. the aggregated total painted area of containers for each interaction.
 
 Soft Navigations {#sec-soft-navs}
 =====================
@@ -705,11 +713,19 @@ Each [=document=] has an <dfn for=document>active soft navigation candidate</dfn
 Each [=document=] has a <dfn for=document>current modification generation id</dfn>, a
 [=64-bit unsigned integer=] initilized to 0.
 
+Note: The [=document/current modification generation id=] changes when a relevant DOM modification
+occurs with a different [=InteractionContext=] from the previous modification. This allows grouping
+together related modifications, which enables comparing [=InteractionPaintTimingNodeState=] objects
+in terms of recency and optimizing which nodes need to be tracked.
+
 Each [=document=] has a <dfn for=document>last modification context</dfn>, an [=InteractionContext=]
 or null, initially null.
 
-Each [=document=] has a <dfn for=document>node to interaction paint state</dfn>, a [=map=] of
-[=Node=] to [=InteractionPaintTimingNodeState=], initially empty.
+Each [=document=] has a <dfn for=document>marked node state</dfn>, a [=map=] of [=Node=] to
+[=InteractionPaintTimingNodeState=], initially empty.
+
+Each [=document=] has a <dfn for=document>propagated node state</dfn>, a [=map=] of [=Node=] to
+[=InteractionPaintTimingNodeState=], initially empty.
 
 Each [=document=] has an <dfn for=document>is interaction paint timing dirty</dfn>, a boolean,
 initially false.
@@ -724,7 +740,7 @@ initially false.
 
   Run the following steps:
 
-  1. [=Report a node as modified for interaction paint timing=] given |node|.
+  1. [=Record a node as modified for interaction paint timing=] given |node|.
 </div>
 
 Note: The reference to "node insert" is a high-level description covering all operations that add
@@ -760,22 +776,6 @@ When a new {{Window}} is created (e.g., during a "hard" navigation), its
   initial navigation, the user agent must set its `navigationId` to the {{Window}}'s
   [=Window/current navigation id=].
 </div>
-
-
-### Rendering ### {#sec-html-rendering}
-
-<div algorithm="additions to update the rendering">
-  In [=update the rendering=], after step 19, add the following steps given |docs|:
-
-  1. For each |doc| of |docs|:
-    1. [=Update the interaction paint tracking=] for |doc|.
-</div>
-
-Issue: The "paint" operation, which [[PAINT-TIMING]] relies on, is not specified in [=update the
-rendering=]. After step 19 is approximately where browsers implement it, which is where this
-specification hooks into. The HTML-in-Canvas effort is working towards [adding the relevant paint
-steps](https://whatpr.org/html/11588/webappapis.html#update-the-rendering), in which case this
-addition should come <em>just before</em> those steps.
 
 
 Event Timing integration {#sec-event-timing-integration}
@@ -839,8 +839,18 @@ to be resolved in future versions of both specifications.
 Paint Timing integration {#sec-paint-timing-integration}
 -----------------
 
-This specification hooks into the [[PAINT-TIMING]] specification to reset paint tracking for
-elements that have been modified by interactions.
+This specification extends the [[PAINT-TIMING]] specification to reset paint tracking for elements
+that have been modified by interactions and to trigger paint attribution for rendered documents.
+
+<div alorithm="mark paint timing changes">
+  Change [=mark paint timing=] to add the following step after step 1, given a [=Document=]
+  |document|:
+
+  1. [=Update the interaction context for a document and its descendants=] given |document|.
+</div>
+
+Issue(w3c/paint-timing#126): [=Mark paint time=] mixes together steps that should come before and
+after the UA paints the document. The step added here is expected to occur before paint.
 
 Add the following algorithm:
 
@@ -851,9 +861,19 @@ Add the following algorithm:
   1. Reset the image element tracking |node|.
 </div>
 
-Issue: This is a placeholder algorithm. For text, we need to allow repaints for relevant elements,
-but these repaints cannot affect Element Timing or LCP. For images, we need to ensure elements are
-considered "reloaded" when reattached to the DOM (since image paints are only tracked after load).
+Issue: This is a placeholder algorithm. We need to allow repaints for relevant elements, but the
+repaints should not affect Element Timing or LCP. Text and images have different mechanisms for
+detecting when a relevant paint has occurred, and both will need to be updated to support repaints.
+
+Add the following algorithm:
+
+<div algorithm>
+  To <dfn>get the attribution element</dfn> for a [=Node=] |node|:
+
+  1. If |node| is a {{Text}} [=node=], then return the {{Element}} that determines the
+     [=containing block=] of |node|.
+  1. Otherwise, return [=node=].
+</div>
 
 Largest Contentful Paint (LCP) integration {#sec-lcp-integration}
 -----------------
@@ -868,8 +888,8 @@ This specification hooks into the [[LARGEST-CONTENTFUL-PAINT]] algorithm to attr
   1. For each |candidate| in |candidates|:
     1. Let |element| be |candidate|'s element.
     1. If |element| is null, continue.
-    1. Let |interaction context| be the result of [=getting the node interaction context=] for
-       |element|.
+    1. Let |interaction context| be the result of [=getting the paint attribution interaction context=]
+       for |element|.
     1. If |interaction context| is null, continue.
     1. Let |size| be |candidate|'s size.
     1. If |interaction context|'s [=InteractionContext/largest contentful paint=] is not null and
@@ -886,17 +906,6 @@ This specification hooks into the [[LARGEST-CONTENTFUL-PAINT]] algorithm to attr
        |interaction context|.
     1. [=Evaluate soft navigation emission=] given |document| and |interaction context|.
 </div>
-
-Issue: The [[LARGEST-CONTENTFUL-PAINT]] algorithm is expected to ignore any paint for element that
-has an associated interaction context, as these are handled by this specification's
-[[#sec-interaction-contentful-paint-interface]].
-
-Issue: [[LARGEST-CONTENTFUL-PAINT]] only creates (at most) a single {{LargestContentfulPaint}}
-object in this algorithm, not a list of candidates for each potential painted image and text
-element. As such, the lists referenced in this algorithm do not exist. Furthermore, the referenced
-algorithm returns early after the first interaction, which is problematic since this specification
-tracks paint effects of interactions.
-
 
 
 Security & privacy considerations {#priv-sec}
