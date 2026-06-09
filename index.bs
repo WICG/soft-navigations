@@ -842,7 +842,7 @@ Paint Timing integration {#sec-paint-timing-integration}
 This specification extends the [[PAINT-TIMING]] specification to reset paint tracking for elements
 that have been modified by interactions and to trigger paint attribution for rendered documents.
 
-<div alorithm="mark paint timing changes">
+<div algorithm="mark paint timing changes">
   Change [=mark paint timing=] to add the following step after step 1, given a [=Document=]
   |document|:
 
