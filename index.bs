@@ -11,7 +11,7 @@ Former Editor: Yoav Weiss, Shopify https://shopify.com, yoav@yoav.ws, w3cid 5867
 URL: https://wicg.github.io/soft-navigations/
 Repository: https://github.com/WICG/soft-navigations
 Test Suite: https://github.com/web-platform-tests/wpt/tree/master/soft-navigation-heuristics
-Abstract: This document defines a set of APIs that web page authors can use to detect same-document ("soft") navigations, and attribute subsequent page modifications and contentful paints back to the user interactions that triggered them.
+Abstract: This document defines a set of APIs that web page authors can use to detect same-document ("soft") navigations and attribute subsequent page modifications and contentful paints back to the user interactions that triggered them.
 Boilerplate: omit conformance
 Default Highlight: js
 Complain About: accidental-2119 yes
@@ -151,7 +151,7 @@ Performance Timeline Slicing {#sec-timeline-slicing}
 
 To attribute performance metrics (such as event timings, layout shifts, resource loads, or
 long animation frames) to their initiating navigation, the performance timeline is sliced into
-segments using a `navigationId` attribute on {{PerformanceEntry}}.
+segments using a {{PerformanceEntry/navigationId}} attribute on {{PerformanceEntry}}.
 
 Determining the exact slice point for a transition that spans time is complex. To ensure
 consistent attribution, this specification adopts a model where the timeline is not sliced
@@ -250,9 +250,10 @@ attached to asynchronous continuations (e.g., `setTimeout`, `fetch`, `await`), a
 to attribute later effects back to the original interaction.
 
 In addition to script propagation, this specification defines how user interactions that modify the
-DOM establish **container roots** (via [[CONTAINER-TIMING]]). These roots allow subsequent rendering
-effects, like contentful paints, to be traced back to the initiating interaction context even when
-no asynchronous script is currently active.
+DOM [=record a node as modified for interaction paint timing|establish=] a set of modified nodes
+associated with the interaction, allowing subsequent rendering effects, like contentful paints, to
+be traced back to the initiating interaction context even when no asynchronous script is currently
+running.
 </div>
 
 
@@ -400,7 +401,7 @@ The {{InteractionContentfulPaint/interactionId}} attribute's getter must return 
 
 The {{PerformanceEntry/name}} attribute's getter must return the empty string.
 
-The {{PerformanceEntry/entryType}} attribute's getter must return "interaction-contentful-paint".
+The {{PerformanceEntry/entryType}} attribute's getter must return `"interaction-contentful-paint"`.
 
 The {{PerformanceEntry/startTime}} attribute's getter must return [=this=]'s
 [=InteractionContentfulPaint/context=]'s [=InteractionContext/start time=].
@@ -448,7 +449,7 @@ Interaction Contentful Paint Algorithms {#sec-interaction-contentful-paint-algos
      |lcpCandidate|, |paintTimingInfo|, and |document|.
   1. Let |global| be |document|'s [=relevant global object=].
   1. Let |paint timing info| be |lcpEntry|'s associated [=paint timing info=].
-  1. Let |icpEntry| be the result of [=create an interaction contentful paint entry=] given
+  1. Let |icpEntry| be the result of [=creating an interaction contentful paint entry=] given
      |global|, |interaction context|, |lcpEntry|, and |paint timing info|.
   1. [=queue a performanceentry|Queue=] |icpEntry|.
   1. Add |icpEntry| to |global|'s [=performance entry buffer=].
@@ -570,9 +571,9 @@ Interaction Contentful Paint Attribution {#sec-interaction-contentful-paint-attr
   1. If |node state| is not null:
     1. If |node state| is [=more recent than=] |inherited node state|:
         1. Set |inherited node state| to |node state|.
-        1. If |node| is a {{Text}} [=node=], then [=map/Remove=] |document|'s
+        1. If |node| is a {{Text}} [=node=], then [=map/remove=] |document|'s
            [=document/marked node state=][|node|].
-    1. Otherwise, [=map/Remove=] |document|'s [=document/marked node state=][|node|].
+    1. Otherwise, [=map/remove=] |document|'s [=document/marked node state=][|node|].
   1. If |inherited node state| is not null and |node| is [=timing-eligible=]:
     1. Let |attribution element| be the result of [=getting the attribution element=] for |node|.
     1. Let |previous propagated state| be [=document/propagated node state=][|attribution element|]
@@ -642,7 +643,7 @@ The {{getLargestInteractionContentfulPaint()}} method must return [=this=]'s
 The {{PerformanceEntry/name}} attribute's getter must return [=this=]'s
 [=PerformanceSoftNavigation/context=]'s [=InteractionContext/first URL value=].
 
-The {{PerformanceEntry/entryType}} attribute's getter must return "soft-navigation".
+The {{PerformanceEntry/entryType}} attribute's getter must return `"soft-navigation"`.
 
 The {{PerformanceEntry/startTime}} attribute's getter must return [=this=]'s
 [=PerformanceSoftNavigation/context=]'s [=InteractionContext/start time=].
@@ -685,7 +686,7 @@ conditions:
   1. If |interaction context|'s [=InteractionContext/first URL value=] is unset, return.
   1. If |interaction context|'s [=InteractionContext/first contentful paint=] is null, return.
   1. Let |window| be |document|'s [=relevant global object=].
-  1. Let |entry| be the result of [=create a soft navigation entry=] given |window| and
+  1. Let |entry| be the result of [=creating a soft navigation entry=] given |window| and
      |interaction context|.
   1. [=Emit a soft navigation entry=] given |window| and |entry|.
   1. Set |interaction context|'s [=InteractionContext/emitted=] to true.
@@ -699,8 +700,8 @@ conditions:
      [=global object/realm=].
   1. Set |entry|'s [=PerformanceSoftNavigation/context=] to |interaction context|.
   1. Let |first paint| be |interaction context|'s [=InteractionContext/first contentful paint=].
-  1. If |first paint| is not null:
-    1. Set |entry|'s associated [=paint timing info=] to |first paint|'s associated [=paint timing info=].
+  1. [=Assert=] |first paint| is not null.
+  1. Set |entry|'s associated [=paint timing info=] to |first paint|'s associated [=paint timing info=].
   1. Return |entry|.
 </div>
 
@@ -783,11 +784,6 @@ initially false.
   1. [=Record a node as modified for interaction paint timing=] given |node|.
 </div>
 
-Note: The reference to "node insert" is a high-level description covering all operations that add
-new elements to the document structure (e.g., `appendChild`, `innerHTML` updates, etc.). It is up
-to the user agent to map these to internal implementation hooks that track document structure
-modifications.
-
 
 HTML integration {#sec-html}
 -----------------
@@ -799,7 +795,7 @@ HTML integration {#sec-html}
   true and if `documentIsNew` is false), [=process a same document commit=] given the [=Document=],
   the target entry's [=session history entry url|url=], and "traverse".
 </div>
-
+<br>
 <div algorithm="additions to shared history push/replace steps">
   In the [shared history push/replace steps](https://html.spec.whatwg.org/multipage/nav-history-apis.html#shared-history-push/replace-steps)
   (as defined in [[HTML]]), after the URL is updated, [=process a same document commit=] given the
