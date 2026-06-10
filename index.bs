@@ -60,23 +60,21 @@ urlPrefix: https://pr-preview.s3.amazonaws.com/shaseley/largest-contentful-paint
     text: largest contentful paint candidate; url: #largest-contentful-paint-candidate;
     text: compute a new largest contentful paint candidate; url: #compute-a-new-largest-contentful-paint-candidate;
     text: create a LargestContentfulPaint entry; url: #create-a-largestcontentfulpaint-entry;
-urlPrefix: https://w3c.github.io/event-timing/
-  type: dfn;
-    text: has dispatched input event; url: #has-dispatched-input-event;
-    text: interaction id; url: #interaction-id;
-    text: interaction; url: #dfn-interaction;
 urlPrefix: https://w3c.github.io/long-animation-frames/; spec: LONG-ANIMATION-FRAMES;
   type: interface; text: PerformanceLongAnimationFrameTiming; url: #sec-PerformanceLongAnimationFrameTiming;
   type: dfn; text: long animation frame; url: #dfn-long-animation-frame;
   type: dfn; text: report long animation frames; url: #dfn-report-long-animation-frames;
 urlPrefix: https://pr-preview.s3.amazonaws.com/mmocny/event-timing/pull/165.html; spec: EVENT-TIMING;
-  type: dfn; text: interaction count; url: #window-interaction-count;
-  type: dfn; text: initial interactionId value; url: #window-initial-interactionid-value;
-  type: dfn; text: interactionId increment; url: #window-interactionid-increment;
-  type: dfn; text: get the next interactionId; url: #get-the-next-interactionid;
-  type: dfn; text: initialize and record event timing processing start; url: #initialize-and-record-event-timing-processing-start;
-  type: dfn; text: record event timing processing end; url: #record-event-timing-processing-end;
-  type: dfn; text: associated event; url: #performanceeventtiming-associated-event;
+  type: dfn;
+    text: interaction count; url: #window-interaction-count;
+    text: initial interactionId value; url: #window-initial-interactionid-value;
+    text: interactionId increment; url: #window-interactionid-increment;
+    text: get the next interactionId; url: #get-the-next-interactionid;
+    text: initialize and record event timing processing start; url: #initialize-and-record-event-timing-processing-start;
+    text: record event timing processing end; url: #record-event-timing-processing-end;
+    text: associated event; url: #performanceeventtiming-associated-event;
+    text: has dispatched input event; url: #has-dispatched-input-event;
+    text: interaction; url: #dfn-interaction;
 urlPrefix: https://w3c.github.io/paint-timing/
   type: dfn;
     text: previously reported paints; url: #previously-reported-paints;
@@ -264,30 +262,21 @@ The InteractionContext struct {#sec-interaction}
   <dfn>InteractionContext</dfn> is a [=struct=] used to maintain the data required to detect a soft
   navigation from a single interaction. It has the following [=struct/items=]:
 
-  * <dfn>id</dfn>, initially unset - The [=interaction id=] associated with this context.
-  * <dfn>context document</dfn>, a [=Document=] - The [=Document=] associated with this context.
-  * <dfn>start time</dfn>, initially unset - Represents the start time of the interaction.
-  * <dfn>navigation type</dfn>, initially unset - Represents the type of navigation (e.g., "push",
-    "replace").
-  * <dfn>first URL value</dfn>, initially unset - Represents the value of the URL at the first
-    modification.
-  * <dfn>first URL update timestamp</dfn>, initially unset - Represents the time of the first URL
-    modification during this interaction.
-  * <dfn>first scroll timestamp</dfn>, initially unset - Represents the time of the first scroll
-    event during this interaction.
-  * <dfn>first input timestamp</dfn>, initially unset - Represents the time of the first input event
-    during this interaction.
-  * <dfn>first contentful paint</dfn>, initially null - The first {{InteractionContentfulPaint}}
-    entry for this interaction.
-  * <dfn>largest contentful paint</dfn>, initially null - The largest {{InteractionContentfulPaint}}
-    entry for this interaction so far.
-  * <dfn>current largest contentful paint candidate</dfn>, initially null - The
-    [=largest contentful paint candidate=] associated with the
-    [=InteractionContext/largest contentful paint=].
-  * <dfn>last URL value</dfn>, initially unset - Represents the value of the most recent URL
-    modification during this interaction.
-  * <dfn>emitted</dfn> flag, initially false  - Indicates that a soft navigation entry was emitted
-    by the interaction.
+  * <dfn>id</dfn>, a [=64-bit unsigned integer=] respresenting the {{PerformanceEventTiming/interactionId}}
+    associated with this context.
+  * <dfn>context document</dfn>, a [=Document=].
+  * <dfn>start time</dfn>, a number.
+  * <dfn>navigation type</dfn>, a {{NavigationType}} or null, initially null.
+  * <dfn>first URL value</dfn>, a string or null, initially null.
+  * <dfn>first URL update timestamp</dfn>, a number, initially 0.
+  * <dfn>first scroll timestamp</dfn>, a number, initially 0.
+  * <dfn>first input timestamp</dfn>, a number, initially 0.
+  * <dfn>first contentful paint</dfn>, an {{InteractionContentfulPaint}} or null, initially null.
+  * <dfn>largest contentful paint</dfn>, an {{InteractionContentfulPaint}} or null, initially null.
+  * <dfn>current largest contentful paint candidate</dfn>, a [=largest contentful paint candidate=]
+    or null, initially null.
+  * <dfn>last URL value</dfn>, a string or null, initially null.
+  * <dfn>emitted</dfn>, a boolean, initially false.
 </div>
 
 Note: Future versions of this specification might track all URL updates that occur during an
@@ -311,15 +300,18 @@ Infrastructure Algorithms {#sec-infra-algos}
 </div>
 
 <div algorithm>
-  To <dfn>get the context for an interaction</dfn> given a [=Document=] |document|, an
-  |interaction id|, and an [=Event=] |event|:
+  To <dfn>get or create the context for an interaction</dfn> given a [=Document=] |document| and a
+  {{PerformanceEventTiming}} |timing entry|:
 
+  1. Let |interaction id| be |timing entry|'s {{PerformanceEventTiming/interactionId}}.
+  1. [=Assert=] |interaction id| is greater than 0.
   1. If |document|'s [=interaction id to interaction context=][|interaction id|] [=map/exists=],
      return |document|'s [=interaction id to interaction context=][|interaction id|].
   1. Let |interaction context| be a new [=InteractionContext=].
   1. Set |interaction context|'s [=InteractionContext/id=] to |interaction id|.
   1. Set |interaction context|'s [=InteractionContext/context document=] to |document|.
-  1. Set |interaction context|'s [=InteractionContext/start time=] to |event|'s `startTime`.
+  1. Set |interaction context|'s [=InteractionContext/start time=] to |timing entry|'s
+     {{PerformanceEntry/startTime}}.
   1. [=map/Set=] |document|'s [=interaction id to interaction context=][|interaction id|] to
      |interaction context|.
   1. Return |interaction context|.
@@ -337,25 +329,26 @@ Infrastructure Algorithms {#sec-infra-algos}
   1. For each |interaction context| of |document|'s [=interaction id to interaction context=]'s
      values:
     1. If |is scroll| is true and |interaction context|'s [=InteractionContext/first scroll timestamp=]
-       is unset:
+       is 0:
       1. Set |interaction context|'s [=InteractionContext/first scroll timestamp=] to |timestamp|.
     1. If |is input| is true and |interaction context|'s [=InteractionContext/first input timestamp=]
-       is unset:
+       is 0:
       1. Set |interaction context|'s [=InteractionContext/first input timestamp=] to |timestamp|.
 </div>
 
 <div algorithm>
   To <dfn>set the current interaction context for event dispatch</dfn> given null or a
-  {{PerformanceEventTiming}} object |timingEntry|:
+  {{PerformanceEventTiming}} object |timing entry|:
 
-  1. If |timingEntry| is null, return null.
-  1. Let |event| be |timingEntry|'s [=associated event=].
-  1. Let |interaction id| be |timingEntry|'s {{PerformanceEventTiming/interactionId}}.
-  1. If |interaction id| is null or 0, return null.
+  1. If |timing entry| is null, return null.
+  1. Let |interaction id| be |timing entry|'s {{PerformanceEventTiming/interactionId}}.
+  1. If |interaction id| is 0, return null.
+  1. Let |event| be |timing entry|'s [=associated event=].
   1. Let |document| be |event|'s [=relevant global object=]'s [=associated Document=].
   1. [=Update the interaction contexts for an event=] given |document| and |event|.
-  1. Let |interaction context| be the result of [=geting the context for an interaction=] given
-     |document|, |interaction id|, and |event|.
+  1. Let |interaction context| be the result of [=get or create the context for an
+     interaction|getting or createing the context for an interaction=] given |document| and
+     |timing entry|.
   1. Set the value of the internal `AsyncContext.Variable` `[[ActiveInteractionContext]]` to
      |interaction context|.
   1. Return |interaction context|.
@@ -439,11 +432,11 @@ Interaction Contentful Paint Algorithms {#sec-interaction-contentful-paint-algos
   [=largest contentful paint candidate=] |lcpCandidate|, a [=Document=] |document|, an
   [=InteractionContext=] |interaction context|, and a [=paint timing info=] |paintTimingInfo|:
 
-  1. If |interaction context|'s [=InteractionContext/first scroll timestamp=] is set and
+  1. If |interaction context|'s [=InteractionContext/first scroll timestamp=] is greater than 0 and
      |lcpEntry|'s {{LargestContentfulPaint/renderTime}} is greater than |interaction context|'s
      [=InteractionContext/first scroll timestamp=], return.
-  1. If |interaction context|'s [=InteractionContext/first input timestamp=] is set and |lcpEntry|'s
-     {{LargestContentfulPaint/renderTime}} is greater than |interaction context|'s
+  1. If |interaction context|'s [=InteractionContext/first input timestamp=] is greater than 0 and
+     |lcpEntry|'s {{LargestContentfulPaint/renderTime}} is greater than |interaction context|'s
      [=InteractionContext/first input timestamp=], return.
   1. Let |lcpEntry| be the result of [=creating a LargestContentfulPaint entry=] with
      |lcpCandidate|, |paintTimingInfo|, and |document|.
@@ -617,7 +610,7 @@ The `PerformanceSoftNavigation` interface {#sec-interface}
 <pre class=idl>
 [Exposed=Window]
 interface PerformanceSoftNavigation : PerformanceEntry {
-    readonly attribute DOMString navigationType;
+    readonly attribute NavigationType navigationType;
     readonly attribute unsigned long long interactionId;
     InteractionContentfulPaint? getLargestInteractionContentfulPaint();
 };
@@ -683,7 +676,7 @@ conditions:
 
   1. If |interaction context|'s [=InteractionContext/emitted=] is true, return.
   1. If |document|'s [=document/active soft navigation candidate=] is not |interaction context|, return.
-  1. If |interaction context|'s [=InteractionContext/first URL value=] is unset, return.
+  1. If |interaction context|'s [=InteractionContext/first URL value=] is null, return.
   1. If |interaction context|'s [=InteractionContext/first contentful paint=] is null, return.
   1. Let |window| be |document|'s [=relevant global object=].
   1. Let |entry| be the result of [=creating a soft navigation entry=] given |window| and
@@ -720,14 +713,14 @@ part of queuing it to the performance timeline, matching the behavior of other
 
 <div algorithm>
   To <dfn>process a same document commit</dfn> given a [=Document=] |document|, [=string=] |url|,
-  and [=string=] |navigation type|:
+  and {{NavigationType}} |navigation type|:
 
   1. If |url| is equal to |document|'s [=Document/url=], return.
   1. Let |interaction context| be the result of [=getting the current interaction context=] given
      |document|.
   1. If |interaction context| is null, return.
   1. Set |interaction context|'s [=InteractionContext/last URL value=] to |url|.
-  1. If |interaction context|'s [=InteractionContext/first URL update timestamp=] is unset:
+  1. If |interaction context|'s [=InteractionContext/first URL update timestamp=] is null:
     1. Set |interaction context|'s [=InteractionContext/first URL update timestamp=] to the
        [=current high resolution time=] given |document|'s [=relevant global object=].
     1. Set |interaction context|'s [=InteractionContext/first URL value=] to |url|.
@@ -793,13 +786,14 @@ HTML integration {#sec-html}
 <div algorithm="additions to history step application">
   In [=update document for history step application=], before 5.5.1 (if `documentsEntryChanged` is
   true and if `documentIsNew` is false), [=process a same document commit=] given the [=Document=],
-  the target entry's [=session history entry url|url=], and "traverse".
+  the target entry's [=session history entry url|url=], and "{{NavigationType/traverse}}".
 </div>
 <br>
 <div algorithm="additions to shared history push/replace steps">
   In the [shared history push/replace steps](https://html.spec.whatwg.org/multipage/nav-history-apis.html#shared-history-push/replace-steps)
   (as defined in [[HTML]]), after the URL is updated, [=process a same document commit=] given the
-  [=Document=], the new URL, and the operation type (either "push" or "replace").
+  [=Document=], the new URL, and the operation type (either "{{NavigationType/push}}" or
+  "{{NavigationType/replace}}").
 </div>
 
 ### Hard Navigation ### {#sec-html-hard-nav}
@@ -826,9 +820,10 @@ The following event types are considered to be part of an [=interaction=] (as de
   * `hashchange`
 
 When these events are dispatched as a result of a user interaction, the user agent must assign them
-a unique [=interaction id=] obtained by [=getting the next interactionId=] for the document's
-[=relevant global object=]. If an event is triggered by a previous interaction that already has an
-assigned [=interaction id=], the user agent should reuse that same identifier.
+a unique {{PerformanceEventTiming/interactionId}} obtained by [=getting the next interactionId=]
+for the document's [=relevant global object=]. If an event is triggered by a previous interaction
+that already has an assigned {{PerformanceEventTiming/interactionId}}, the user agent should reuse
+that same identifier.
 
 Note:These events are only reported as primary interactions when they are the initiating event from
 a user action (e.g., clicking the browser UI's back button). In most other scenarios—such as a
