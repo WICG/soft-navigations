@@ -348,7 +348,7 @@ Infrastructure Algorithms {#sec-infra-algos}
   1. [=Update the interaction contexts for an event=] given |document| and |event|.
   1. Let |interaction context| be the result of [=get or create the context for an
      interaction|getting or createing the context for an interaction=] given |document| and
-     |interaction id|.
+     |timing entry|.
   1. Set the value of the internal `AsyncContext.Variable` `[[ActiveInteractionContext]]` to
      |interaction context|.
   1. Return |interaction context|.
