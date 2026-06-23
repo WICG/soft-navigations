@@ -14,7 +14,7 @@ This exposure is necessary to allow developers to accurately slice performance t
 
 For soft navigations, exposing the timing doesn't reveal unexposed information about the user, as the same information could in theory be observed using code instrumentation.
 
-Regarding paints following interactions (reported via ICP entries), because developers can associate user interactions with paint timing, this could expose (at a low, user-controlled rate) arbitrary paint operations on the document. This carries a risk of leaking history information if the `:visited` link cache has not been partitioned. Therefore, this feature should not be enabled without `:visited` link partitioning.
+Regarding paints following interactions (reported via ICP entries), because developers can associate user interactions with paint timing, this could expose (at a low, user-controlled rate) arbitrary paint operations on the document. This carries a risk of leaking history information if the `:visited` link cache has not been [partitioned](https://github.com/explainers-by-googlers/Partitioning-visited-links-history). Additionally, this timing could theoretically be used to observe paint updates when spelling or grammar error decorations (`::spelling-error` / `::grammar-error`) are applied, which could allow a site to probe the user's dictionary. The former risk is mitigated by requiring [visited link partitioning](https://github.com/explainers-by-googlers/Partitioning-visited-links-history), and the latter is mitigated at the source by limiting spelling/grammar highlight updates to at most once per interaction (see [user dictionary leaks explainer](https://explainers-by-googlers.github.io/user-dictionary-leaks/)).
 
 ## 02. Do features in your specification expose the minimum amount of information necessary to implement the intended functionality?
 
@@ -26,7 +26,7 @@ No. The feature is not related to, and does not expose, any PII or information d
 
 ## 04. How do the features in your specification deal with sensitive information?
 
-The feature does not deal with sensitive information, assuming `:visited` links are partitioned.
+The feature does not deal with sensitive information directly. There is a potential indirect leak of history info (via `:visited` links) or user dictionary contents (via spellcheck highlight paints), but these are mitigated by requiring [visited link partitioning](https://github.com/explainers-by-googlers/Partitioning-visited-links-history) and limiting spellcheck/grammar highlight updates to at most once per interaction (see [user dictionary leaks explainer](https://explainers-by-googlers.github.io/user-dictionary-leaks/)).
 
 ## 05. Does data exposed by your specification carry related but distinct information that may not be obvious to users?
 

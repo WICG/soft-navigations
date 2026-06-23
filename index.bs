@@ -925,10 +925,23 @@ Security & privacy considerations {#priv-sec}
 Exposing Soft Navigations to the performance timeline doesn't have security and privacy implications
 on its own.  However, resetting the various paint timing entries as a result of a detected soft
 navigation can have implications, especially before [visited links are
-partitioned](https://github.com/kyraseevers/Partitioning-visited-links-history).  As such, exposing
+partitioned](https://github.com/explainers-by-googlers/Partitioning-visited-links-history).  As such, exposing
 such paint operations without partitioning the :visited cache needs to only be done after careful
 analysis of the paint operations in question, to make sure they don't expose the user's history
 across origins.
+
+Similarly, exposing detailed paint timing information (such as through Interaction Contentful Paint)
+could potentially be used to observe paint updates when spelling or grammar error decorations (via
+`::spelling-error` or `::grammar-error`) are applied. In the absence of mitigations, this could
+allow an attacker to programmatically cycle through words in a text field to check if they are
+present in the user's dictionary. However, browsers mitigate this by limiting spelling and grammar
+checks to only occur once per user interaction (e.g. key press or click) to [prevent user dictionary
+leaks](https://explainers-by-googlers.github.io/user-dictionary-leaks/). Since timing and paint
+information is already observable by the developer through other standard APIs, exposing these timing
+entries does not introduce any new information leaks beyond what is already constrained by the
+browser's spelling/grammar highlight rate limits.
+
+
 
 
 Appendix: Overlapping Interactions and Race Conditions {#sec-overlapping-interactions}
