@@ -6,7 +6,7 @@
   <link href="https://www.w3.org/StyleSheets/TR/2021/cg-draft" rel="stylesheet">
   <meta content="Bikeshed version d113b2e81, updated Tue Jun 9 14:57:55 2026 -0700" name="generator">
   <link href="https://wicg.github.io/soft-navigations/" rel="canonical">
-  <meta content="3ae9296c46aa02c1e4d8192a5d2f1d39e7041425" name="revision">
+  <meta content="61324a62e9c83442303ecb5821fbb12206fc9b0c" name="revision">
   <meta content="dark light" name="color-scheme">
   <link href="https://www.w3.org/StyleSheets/TR/2021/dark.css" media="(prefers-color-scheme: dark)" rel="stylesheet" type="text/css">
 <style>/* Boilerplate: style-autolinks */
@@ -768,7 +768,7 @@ var[data-var-color="6"] { --var-vg: #FFBCF2; }
   <div class="head">
    <h1 class="no-ref p-name" id="title">Soft Navigations and Interaction Contentful Paint</h1>
    <p id="w3c-state"><a href="https://www.w3.org/standards/types/#CG-DRAFT">Draft Community Group Report</a>,
-    <time class="dt-updated" datetime="2026-06-23">23 June 2026</time></p>
+    <time class="dt-updated" datetime="2026-06-25">25 June 2026</time></p>
    <div data-fill-with="spec-metadata">
     <dl>
      <dt>This version:
@@ -1872,14 +1872,23 @@ detecting when a relevant paint has occurred, and both will need to be updated t
    
 Exposing Soft Navigations to the performance timeline doesn’t have security and privacy implications
 on its own.  However, resetting the various paint timing entries as a result of a detected soft
-navigation can have implications, especially before <a href="https://github.com/kyraseevers/Partitioning-visited-links-history">visited links are
+navigation can have implications, especially before <a href="https://github.com/explainers-by-googlers/Partitioning-visited-links-history">visited links are
 partitioned</a>.  As such, exposing
 such paint operations without partitioning the :visited cache needs to only be done after careful
 analysis of the paint operations in question, to make sure they don’t expose the user’s history
 across origins.
 
 
-
+   <p>Similarly, exposing detailed paint timing information (such as through Interaction Contentful Paint)
+could potentially be used to observe paint updates when spelling or grammar error decorations (via
+<code class="highlight"><c- o>::</c->spelling<c- o>-</c->error</code> or <code class="highlight"><c- o>::</c->grammar<c- o>-</c->error</code>) are applied. In the absence of mitigations, this could
+allow an attacker to programmatically cycle through words in a text field to check if they are
+present in the user’s dictionary. However, browsers mitigate this by limiting spelling and grammar
+checks to only occur once per user interaction (e.g. key press or click) to <a href="https://explainers-by-googlers.github.io/user-dictionary-leaks/">prevent user dictionary
+leaks</a>. Since timing and paint
+information is already observable by the developer through other standard APIs, exposing these timing
+entries does not introduce any new information leaks beyond what is already constrained by the
+browser’s spelling/grammar highlight rate limits.</p>
    <h2 class="heading settled" data-level="8" id="sec-overlapping-interactions"><span class="secno">8. </span><span class="content">Appendix: Overlapping Interactions and Race Conditions</span><a class="self-link" href="#sec-overlapping-interactions"></a></h2>
    <div class="non-normative">
     
