@@ -53,7 +53,7 @@ urlPrefix: https://www.w3.org/TR/css-view-transitions-1/
   type: dfn; text: startViewTransition(); url: #dom-document-startviewtransition;
 urlPrefix: https://w3c.github.io/performance-timeline/; spec: PERFORMANCE-TIMELINE
   type: dfn; text: queue a PerformanceEntry; url: #dfn-queue-a-performanceentry;
-urlPrefix: https://pr-preview.s3.amazonaws.com/shaseley/largest-contentful-paint/pull/171.html; spec: LARGEST-CONTENTFUL-PAINT
+urlPrefix: https://w3c.github.io/largest-contentful-paint/; spec: LARGEST-CONTENTFUL-PAINT
   type: dfn;
     text: has dispatched scroll event; url: #has-dispatched-scroll-event;
     text: report largest contentful paint; url: #report-largest-contentful-paint;
