@@ -373,7 +373,7 @@ interface InteractionContentfulPaint : PerformanceEntry {
     readonly attribute LargestContentfulPaint largestContentfulPaint;
     readonly attribute unsigned long long interactionId;
 
-    object toJSON();
+    [Default] object toJSON();
 };
 
 InteractionContentfulPaint includes PaintTimingMixin;
@@ -402,6 +402,8 @@ The {{PerformanceEntry/startTime}} attribute's getter must return [=this=]'s
 The {{PerformanceEntry/duration}} attribute's getter must return the difference between the
 [=default paint timestamp=] for [=this=]'s [=paint timing info=] and [=this=]'s
 [=InteractionContentfulPaint/context=]'s [=InteractionContext/start time=].
+
+When {{InteractionContentfulPaint/toJSON()}} is called, run [=default toJSON steps=].
 
 Note: While the entry dynamically queries static interaction properties (like `interactionId` and
 `startTime`) from its associated [=InteractionContext=], it captures a static snapshot of the
@@ -613,6 +615,8 @@ interface PerformanceSoftNavigation : PerformanceEntry {
     readonly attribute NavigationType navigationType;
     readonly attribute unsigned long long interactionId;
     InteractionContentfulPaint? getLargestInteractionContentfulPaint();
+
+    [Default] object toJSON();
 };
 
 PerformanceSoftNavigation includes PaintTimingMixin;
@@ -644,6 +648,8 @@ The {{PerformanceEntry/startTime}} attribute's getter must return [=this=]'s
 The {{PerformanceEntry/duration}} attribute's getter must return the difference between [=this=]'s
 {{PaintTimingMixin/presentationTime}} and [=this=]'s [=PerformanceSoftNavigation/context=]'s
 [=InteractionContext/start time=] at the time of emission.
+
+When {{PerformanceSoftNavigation/toJSON()}} is called, run [=default toJSON steps=].
 
 </div>
 
