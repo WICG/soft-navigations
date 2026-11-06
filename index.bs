@@ -147,9 +147,16 @@ Performance Timeline Slicing {#sec-timeline-slicing}
 <div class="non-normative">
 <em>This section is non-normative.</em>
 
-To attribute performance metrics (such as event timings, layout shifts, resource loads, or
-long animation frames) to their initiating navigation, the performance timeline is sliced into
+To group performance metrics (such as event timings, layout shifts, resource loads, or
+long animation frames) by navigation, the performance timeline is sliced into
 segments using a {{PerformanceEntry/navigationId}} attribute on {{PerformanceEntry}}.
+
+Sharing a {{PerformanceEntry/navigationId}} means that entries belong to the same timeline segment.
+It does not mean that each entry measures a navigation or was caused by that navigation.
+For example, an {{InteractionContentfulPaint}} entry can be reported for an interaction that
+updates content without changing the URL. Such an entry shares the current navigation's
+{{PerformanceEntry/navigationId}}. Its {{InteractionContentfulPaint/interactionId}} identifies the
+interaction that caused the paint.
 
 Determining the exact slice point for a transition that spans time is complex. To ensure
 consistent attribution, this specification adopts a model where the timeline is not sliced
