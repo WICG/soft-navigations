@@ -434,14 +434,14 @@ Interaction Contentful Paint Algorithms {#sec-interaction-contentful-paint-algos
   [=largest contentful paint candidate=] |lcpCandidate|, a [=Document=] |document|, an
   [=InteractionContext=] |interaction context|, and a [=paint timing info=] |paintTimingInfo|:
 
+  1. Let |lcpEntry| be the result of [=creating a LargestContentfulPaint entry=] with
+     |lcpCandidate|, |paintTimingInfo|, and |document|.
   1. If |interaction context|'s [=InteractionContext/first scroll timestamp=] is greater than 0 and
      |lcpEntry|'s {{LargestContentfulPaint/renderTime}} is greater than |interaction context|'s
      [=InteractionContext/first scroll timestamp=], return.
   1. If |interaction context|'s [=InteractionContext/first input timestamp=] is greater than 0 and
      |lcpEntry|'s {{LargestContentfulPaint/renderTime}} is greater than |interaction context|'s
      [=InteractionContext/first input timestamp=], return.
-  1. Let |lcpEntry| be the result of [=creating a LargestContentfulPaint entry=] with
-     |lcpCandidate|, |paintTimingInfo|, and |document|.
   1. Let |global| be |document|'s [=relevant global object=].
   1. Let |paint timing info| be |lcpEntry|'s associated [=paint timing info=].
   1. Let |icpEntry| be the result of [=creating an interaction contentful paint entry=] given
