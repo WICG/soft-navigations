@@ -218,12 +218,15 @@ partial interface PerformanceEntry {
 Performance Timeline Integration {#sec-performance-timeline-integration}
 ------------------------------------------------------------------------
 
-In [=queue a PerformanceEntry=], after step 1 (initializing the entry), add the following steps:
+<div algorithm="additions to queue a PerformanceEntry">
+  In [=queue a PerformanceEntry=], after step 3 (setting |relevantGlobal| to |newEntry|'s
+  [=relevant global object=]), add the following step:
 
   1. If |newEntry|'s [=PerformanceEntry/navigation id=] is 0:
-    1. If |global| is a {{Window}} object:
+    1. If |relevantGlobal| is a {{Window}} object:
       1. Set |newEntry|'s [=PerformanceEntry/navigation id=] to
-         |global|'s [=Window/current navigation id=].
+         |relevantGlobal|'s [=Window/current navigation id=].
+</div>
 
 
 Interaction Infrastructure {#sec-infrastructure}
@@ -447,7 +450,6 @@ Interaction Contentful Paint Algorithms {#sec-interaction-contentful-paint-algos
   1. Let |icpEntry| be the result of [=creating an interaction contentful paint entry=] given
      |global|, |interaction context|, |lcpEntry|, and |paint timing info|.
   1. [=queue a performanceentry|Queue=] |icpEntry|.
-  1. Add |icpEntry| to |global|'s [=performance entry buffer=].
   1. If |interaction context|'s [=InteractionContext/first contentful paint=] is null:
     1. Set |interaction context|'s [=InteractionContext/first contentful paint=] to |icpEntry|.
   1. Set |interaction context|'s [=InteractionContext/largest contentful paint=] to |icpEntry|.
@@ -710,7 +712,6 @@ conditions:
 
   1. [=Increment the current navigation id=] given |window|.
   1. [=queue a performanceentry|Queue=] |entry|.
-  1. Add |entry| to |window|'s [=performance entry buffer=].
 </div>
 
 Note: The `navigationId` for this {{PerformanceSoftNavigation}} entry is set automatically as
@@ -808,9 +809,11 @@ When a new {{Window}} is created (e.g., during a "hard" navigation), its
 [=Window/current navigation id=] is initialized as specified in [[#sec-nav-id]].
 
 <div algorithm="additions to Navigation Timing">
-  In [[NAVIGATION-TIMING]], when creating the {{PerformanceNavigationTiming}} entry for the
-  initial navigation, the user agent must set its `navigationId` to the {{Window}}'s
-  [=Window/current navigation id=].
+  In [[NAVIGATION-TIMING-2]]'s [=create the navigation timing entry=] algorithm, after creating
+  |navigationTimingEntry| for |global| in step 2, add the following step:
+
+  1. Set |navigationTimingEntry|'s [=PerformanceEntry/navigation id=] to |global|'s
+     [=Window/current navigation id=].
 </div>
 
 
